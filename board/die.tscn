@@ -1,0 +1,55 @@
+[gd_scene format=3 uid="uid://die1wplxa7la2"]
+
+[ext_resource type="Script" uid="uid://splynekfxlj4" path="res://die.gd" id="1_gxo0y"]
+[ext_resource type="PackedScene" uid="uid://djpleeqabcsjs" path="res://Die.glb" id="2_muu1c"]
+[ext_resource type="PackedScene" uid="uid://0ov4utry8iml" path="res://die_ray_cast.tscn" id="3_muu1c"]
+
+[sub_resource type="PhysicsMaterial" id="PhysicsMaterial_muu1c"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_jk7c4"]
+size = Vector3(2, 2, 2)
+
+[node name="Die" type="RigidBody3D" unique_id=1470165970]
+transform = Transform3D(0.265, 0, 0, 0, 0.265, 0, 0, 0, 0.265, 0, 0, 0)
+mass = 1000.0
+physics_material_override = SubResource("PhysicsMaterial_muu1c")
+gravity_scale = 8.0
+freeze = true
+script = ExtResource("1_gxo0y")
+
+[node name="Die" parent="." unique_id=522605296 instance=ExtResource("2_muu1c")]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=2101733702]
+shape = SubResource("BoxShape3D_jk7c4")
+
+[node name="Raycasts" type="Node3D" parent="." unique_id=1492974846]
+
+[node name="DieRayCast" parent="Raycasts" unique_id=80182200 instance=ExtResource("3_muu1c")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1, 0)
+target_position = Vector3(0, -0.3, 0)
+opposite_side = 1
+
+[node name="DieRayCast2" parent="Raycasts" unique_id=1966079193 instance=ExtResource("3_muu1c")]
+transform = Transform3D(-4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0, 1, 1, 0, 0.3192525)
+target_position = Vector3(0, -0.3, 0)
+opposite_side = 3
+
+[node name="DieRayCast3" parent="Raycasts" unique_id=1547401976 instance=ExtResource("3_muu1c")]
+transform = Transform3D(1.3113416e-07, 1, 0, -1, 1.3113416e-07, 0, 0, 0, 1, -1, -5.9604645e-08, 0)
+target_position = Vector3(0, -0.3, 0)
+opposite_side = 5
+
+[node name="DieRayCast4" parent="Raycasts" unique_id=1394682869 instance=ExtResource("3_muu1c")]
+transform = Transform3D(-1, -8.742278e-08, 0, 8.742278e-08, -1, 0, 0, 0, 1, 0, 1, 0.0020439052)
+target_position = Vector3(0, -0.3, 0)
+opposite_side = 6
+
+[node name="DieRayCast6" parent="Raycasts" unique_id=771023261 instance=ExtResource("3_muu1c")]
+transform = Transform3D(1, 0, 0, 0, 0.017177224, -0.9998525, 0, 0.9998525, 0.017177224, 0, 0, -1)
+target_position = Vector3(0, -0.3, 0)
+opposite_side = 2
+
+[node name="DieRayCast5" parent="Raycasts" unique_id=1965828144 instance=ExtResource("3_muu1c")]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 0, 1)
+target_position = Vector3(0, -0.3, 0)
+opposite_side = 4
