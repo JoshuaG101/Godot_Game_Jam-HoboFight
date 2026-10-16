@@ -1,0 +1,17 @@
+[gd_scene format=3 uid="uid://dpupvrnyvh04l"]
+
+[ext_resource type="Script" uid="uid://ec0evk3fieko" path="res://marioPartyTiles.gd" id="1_8qvvt"]
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_i44of"]
+height = 0.083984375
+
+[node name="MPTiles" type="Node3D" unique_id=1257134171]
+script = ExtResource("1_8qvvt")
+
+[node name="Marker3D" type="Marker3D" parent="." unique_id=262559162]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0013427138, 0.010513902, 0)
+gizmo_extents = 0.4
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=288010227]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.019517243, 0.021194637, 0)
+mesh = SubResource("CylinderMesh_i44of")

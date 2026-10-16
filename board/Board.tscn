@@ -1,0 +1,47 @@
+[gd_scene format=3 uid="uid://pbanh1aksxch"]
+
+[ext_resource type="PackedScene" uid="uid://dpupvrnyvh04l" path="res://MPTiles.tscn" id="1_nd4as"]
+[ext_resource type="PackedScene" uid="uid://c256lbtq7n0ge" path="res://player.tscn" id="2_3ng4l"]
+
+[node name="Board" type="Node3D" unique_id=1801319119]
+
+[node name="marioPartyTiles" parent="." unique_id=1257134171 instance=ExtResource("1_nd4as")]
+next_nodes = Array[NodePath]([NodePath("../marioPartyTiles2"), NodePath("../marioPartyTiles3"), NodePath("../marioPartyTiles4"), NodePath("../marioPartyTiles5"), NodePath("../marioPartyTiles6"), NodePath("../marioPartyTiles7"), NodePath("../marioPartyTiles8")])
+
+[node name="marioPartyTiles2" parent="." unique_id=1460236739 instance=ExtResource("1_nd4as")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 3.5630155)
+next_nodes = Array[NodePath]([NodePath("../marioPartyTiles3")])
+
+[node name="marioPartyTiles3" parent="." unique_id=608240149 instance=ExtResource("1_nd4as")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 7)
+next_nodes = Array[NodePath]([NodePath("../marioPartyTiles4")])
+
+[node name="marioPartyTiles4" parent="." unique_id=1848073407 instance=ExtResource("1_nd4as")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0, 7)
+next_nodes = Array[NodePath]([NodePath("../marioPartyTiles5")])
+
+[node name="marioPartyTiles5" parent="." unique_id=1062698871 instance=ExtResource("1_nd4as")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0, 7)
+next_nodes = Array[NodePath]([NodePath("../marioPartyTiles6")])
+
+[node name="marioPartyTiles6" parent="." unique_id=394575423 instance=ExtResource("1_nd4as")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0, 3.5630155)
+next_nodes = Array[NodePath]([NodePath("../marioPartyTiles7")])
+
+[node name="marioPartyTiles7" parent="." unique_id=421402062 instance=ExtResource("1_nd4as")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0, 0)
+next_nodes = Array[NodePath]([NodePath("../marioPartyTiles8")])
+
+[node name="marioPartyTiles8" parent="." unique_id=604033614 instance=ExtResource("1_nd4as")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0, 0)
+next_nodes = Array[NodePath]([NodePath("../marioPartyTiles")])
+
+[node name="Camera3D" type="Camera3D" parent="." unique_id=1758973941]
+transform = Transform3D(1, 0, 0, 0, 0.7071067, 0.7071068, 0, -0.7071068, 0.7071067, 3.0583024, 6.5702777, 9.561741)
+
+[node name="Player" parent="." unique_id=596035739 node_paths=PackedStringArray("current_space") instance=ExtResource("2_3ng4l")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.025871038, 0.24175477, -0.11351812)
+current_space = NodePath("../marioPartyTiles")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=86552288]
+transform = Transform3D(1, 0, 0, 0, -0.006063468, 0.99998164, 0, -0.99998164, -0.006063468, 0, 7.1043534, 0)
