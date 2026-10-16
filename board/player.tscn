@@ -1,0 +1,14 @@
+[gd_scene format=3 uid="uid://c256lbtq7n0ge"]
+
+[ext_resource type="Script" uid="uid://c6ebk0g203ix7" path="res://player.gd" id="1_4flbx"]
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_jk7c4"]
+radius = 0.2084961
+height = 1.3588867
+
+[node name="Player" type="Node3D" unique_id=596035739]
+script = ExtResource("1_4flbx")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=669827528]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.68764603, 0)
+mesh = SubResource("CapsuleMesh_jk7c4")
