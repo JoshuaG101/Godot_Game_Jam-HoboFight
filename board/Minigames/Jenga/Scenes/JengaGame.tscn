@@ -1,0 +1,27 @@
+[gd_scene format=3 uid="uid://cdutpkn5k4fi4"]
+
+[ext_resource type="Script" uid="uid://cvru506epod7" path="res://Minigames/Jenga/Scripts/jenga_game.gd" id="1_b36j4"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_ahg1b"]
+size = Vector3(20, 0.2, 20)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_4owis"]
+
+[node name="JengaGame" type="Node3D" unique_id=217276838]
+script = ExtResource("1_b36j4")
+
+[node name="Floor(StaticBody3D)" type="StaticBody3D" parent="." unique_id=1828580786]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Floor(StaticBody3D)" unique_id=1017546825]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.1, 0)
+mesh = SubResource("BoxMesh_ahg1b")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Floor(StaticBody3D)" unique_id=399817412]
+transform = Transform3D(20, 0, 0, 0, 0.2, 0, 0, 0, 20, 0, -0.1, 0)
+shape = SubResource("BoxShape3D_4owis")
+
+[node name="Camera3D" type="Camera3D" parent="." unique_id=324096736]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 5, 7)
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=1238003279]
+transform = Transform3D(0.8660254, 0.35355338, -0.35355338, 0, 0.70710677, 0.70710677, 0.5, -0.6123724, 0.6123724, 0, 0, 0)
