@@ -7,7 +7,7 @@ size = Vector3(20, 0.2, 20)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_4owis"]
 
-[node name="JengaGame" type="Node3D" unique_id=217276838]
+[node name="jenga_game" type="Node3D" unique_id=217276838]
 script = ExtResource("1_b36j4")
 
 [node name="Floor(StaticBody3D)" type="StaticBody3D" parent="." unique_id=1828580786]
@@ -21,7 +21,7 @@ transform = Transform3D(20, 0, 0, 0, 0.2, 0, 0, 0, 20, 0, -0.1, 0)
 shape = SubResource("BoxShape3D_4owis")
 
 [node name="Camera3D" type="Camera3D" parent="." unique_id=324096736]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 5, 7)
+transform = Transform3D(0.79335314, -0.21070284, 0.571135, 0, 0.93819135, 0.34611708, -0.6087617, -0.27459309, 0.74431705, 5.5, 5.5, 7)
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=1238003279]
 transform = Transform3D(0.8660254, 0.35355338, -0.35355338, 0, 0.70710677, 0.70710677, 0.5, -0.6123724, 0.6123724, 0, 0, 0)

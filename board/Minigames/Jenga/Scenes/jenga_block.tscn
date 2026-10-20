@@ -1,6 +1,9 @@
 [gd_scene format=3 uid="uid://cgavev70x3xsb"]
 
-[ext_resource type="Script" uid="uid://cubows1d2g5kv" path="res://Minigames/Jenga/Scripts/jenga_block.gd" id="1_dxj1i"]
+[ext_resource type="Script" uid="uid://dxmfsf8h470xj" path="res://Minigames/Jenga/Scripts/jenga_block.gd" id="1_dxj1i"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_b36j4"]
+albedo_color = Color(0.9529412, 0.8666667, 0.7372549, 1)
 
 [sub_resource type="BoxMesh" id="BoxMesh_ahg1b"]
 size = Vector3(1.5, 0.5, 0.5)
@@ -11,6 +14,7 @@ size = Vector3(1.5, 0.5, 0.5)
 script = ExtResource("1_dxj1i")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=242409038]
+material_override = SubResource("StandardMaterial3D_b36j4")
 mesh = SubResource("BoxMesh_ahg1b")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=2127832342]
