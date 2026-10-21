@@ -25,3 +25,11 @@ transform = Transform3D(0.79335314, -0.21070284, 0.571135, 0, 0.93819135, 0.3461
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=1238003279]
 transform = Transform3D(0.8660254, 0.35355338, -0.35355338, 0, 0.70710677, 0.70710677, 0.5, -0.6123724, 0.6123724, 0, 0, 0)
+
+[node name="HUD" type="CanvasLayer" parent="." unique_id=889204915]
+
+[node name="TurnLabel" type="Label" parent="HUD" unique_id=11495319]
+offset_right = 40.0
+offset_bottom = 23.0
+offset_transform_position = Vector2(20, 20)
+text = "Player 1's Turn"
