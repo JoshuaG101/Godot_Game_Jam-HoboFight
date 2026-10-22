@@ -5,7 +5,7 @@ extends RigidBody3D
 
 @onready var mesh_instance: MeshInstance3D = $MeshInstance3D
 
-var is_selected:bool = false
+
 var selection_material: StandardMaterial3D
 
 func _ready() -> void:
@@ -17,7 +17,6 @@ func _ready() -> void:
 	
 
 func set_selected(value:bool) -> void:
-	is_selected = value
 	
 	if value:
 		mesh_instance.material_overlay = selection_material
@@ -30,4 +29,3 @@ func modify_difficulty(amount:int) -> void:
 		1,
 		10
 	)
-	print("Block difficulty: ", removal_difficulty)
