@@ -241,7 +241,7 @@ func find_available_slot(layer: int, height: float) -> int:
 func check_tower_collapsed() -> bool:
 	for block in get_tree().get_nodes_in_group("jenga_blocks"):
 		# A block has fallen below the floor area.
-		if block.global_position.y < -0.1:
+		if block.global_position.y < 0.1:
 			return true
 
 		# A block has moved too far away from the tower.
