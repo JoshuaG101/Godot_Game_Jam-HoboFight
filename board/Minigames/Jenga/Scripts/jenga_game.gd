@@ -15,6 +15,8 @@ const LAYER_COUNT: int = 8
 const BLOCKS_PER_LAYER: int = 3
 const PLAYER_COUNT: int = 4
 
+
+
 var current_player: int = 1
 var selected_block: RigidBody3D = null
 
@@ -22,10 +24,30 @@ var active_players: Array[int] = [1, 2, 3, 4]
 var is_checking_collapse: bool = false
 var game_over: bool = false
 
+var camera_orbiting: bool = false
+var camera_yaw: float = 0.0
+var camera_start_offset: Vector3
+
+
 
 func _ready() -> void:
-	$Camera3D.current = true
-	$Camera3D.look_at(Vector3(0, 2, 0), Vector3.UP)
+	var camera := find_child("Camera3D", true, false) as Camera3D
+
+	if camera == null:
+		push_error("Could not find Camera3D. Check its name in the scene tree.")
+		return
+
+	# Restore the original camera position.
+	camera.global_position = Vector3(5, 5, 7)
+	camera.current = true
+	camera.look_at(Vector3(0, 2, 0), Vector3.UP)
+
+	# Save the original viewing offset for orbit rotation.
+	camera_start_offset = camera.global_position - Vector3(0, 2, 0)
+	camera_yaw = 0.0
+
+	# Aim the directional light in the same direction as the camera.
+	update_camera_light()
 
 	build_tower()
 	update_turn_label()
@@ -57,14 +79,25 @@ func build_tower() -> void:
 				block.rotation.y = PI / 2.0
 
 
+
 func _input(event: InputEvent) -> void:
 	if game_over or is_checking_collapse:
 		return
 
+	# Hold right mouse button to rotate the camera.
 	if event is InputEventMouseButton:
+		if event.button_index == MOUSE_BUTTON_RIGHT:
+			camera_orbiting = event.pressed
+
+		# Left-click to select a block.
 		if event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
 			select_block_at_mouse(event.position)
 
+	# Rotate the camera horizontally while holding right-click.
+	if event is InputEventMouseMotion and camera_orbiting:
+		rotate_camera(-event.relative.x * 0.005)
+
+	# Press E to place the selected block.
 	if event is InputEventKey:
 		if event.pressed and not event.echo:
 			if event.keycode == KEY_E:
@@ -116,6 +149,7 @@ func clear_selection() -> void:
 
 
 
+
 func place_selected_block() -> void:
 	if not is_instance_valid(selected_block):
 		print("Click a block first!")
@@ -124,7 +158,7 @@ func place_selected_block() -> void:
 	var blocks: Array = get_tree().get_nodes_in_group("jenga_blocks")
 	var highest_layer: int = 0
 
-	# Find the highest intended layer, ignoring the moving block.
+	# Find the highest intended layer, ignoring the selected block.
 	for block in blocks:
 		if block == selected_block:
 			continue
@@ -132,7 +166,12 @@ func place_selected_block() -> void:
 		var layer: int = int(block.get_meta("tower_layer", 0))
 		highest_layer = maxi(highest_layer, layer)
 
-	# Record which slots on the highest layer are occupied.
+	# Prevent removing a block from the highest layer.
+	if int(selected_block.get_meta("tower_layer", 0)) >= highest_layer:
+		print("You can't remove a block from the top layer!")
+		return
+
+	# Find occupied slots on the highest layer.
 	var occupied_slots: Array[bool] = [false, false, false]
 
 	for block in blocks:
@@ -149,7 +188,7 @@ func place_selected_block() -> void:
 		if slot >= 0 and slot < BLOCKS_PER_LAYER:
 			occupied_slots[slot] = true
 
-	# Look for an open slot on the current top layer.
+	# Find an open slot on the top layer.
 	var destination_layer: int = highest_layer
 	var destination_slot: int = -1
 
@@ -158,7 +197,7 @@ func place_selected_block() -> void:
 			destination_slot = i
 			break
 
-	# Only create another layer when all three slots are occupied.
+	# Create a new layer only if the current top layer is full.
 	if destination_slot == -1:
 		destination_layer += 1
 		destination_slot = 0
@@ -167,7 +206,7 @@ func place_selected_block() -> void:
 	var destination_height: float = BLOCK_HEIGHT / 2.0
 	destination_height += destination_layer * (BLOCK_HEIGHT + BLOCK_GAP)
 
-	# Freeze while moving the block.
+	# Move the selected block into its destination.
 	selected_block.freeze = true
 	selected_block.linear_velocity = Vector3.ZERO
 	selected_block.angular_velocity = Vector3.ZERO
@@ -183,7 +222,7 @@ func place_selected_block() -> void:
 		selected_block.position.z = 0.0
 		selected_block.rotation = Vector3(0.0, PI / 2.0, 0.0)
 
-	# Save the block's new intended position.
+	# Save the block's new layer and slot.
 	selected_block.set_meta("tower_layer", destination_layer)
 	selected_block.set_meta("tower_slot", destination_slot)
 
@@ -191,17 +230,27 @@ func place_selected_block() -> void:
 
 	clear_selection()
 
-	# Allow the tower to settle before checking for a collapse.
+	# Monitor the tower while it settles.
 	is_checking_collapse = true
-	await get_tree().create_timer(1.5).timeout
+	var collapse_detected: bool = false
+	var elapsed: float = 0.0
+	var check_interval: float = 0.1
+	var max_wait: float = 3.0
 
-	if check_tower_collapsed():
+	while elapsed < max_wait:
+		await get_tree().create_timer(check_interval).timeout
+		elapsed += check_interval
+
+		if check_tower_collapsed():
+			collapse_detected = true
+			break
+
+	if collapse_detected:
 		await eliminate_current_player()
 	else:
 		advance_turn()
 
 	is_checking_collapse = false
-
 
 
 func find_available_slot(layer: int, height: float) -> int:
@@ -315,3 +364,50 @@ func advance_turn() -> void:
 
 func update_turn_label() -> void:
 	$HUD/TurnLabel.text = "Player " + str(current_player) + "'s Turn"
+
+
+
+
+
+func rotate_camera(amount: float) -> void:
+	var camera := find_child("Camera3D", true, false) as Camera3D
+
+	if camera == null:
+		return
+
+	camera_yaw += amount
+
+	var target: Vector3 = Vector3(0, 2, 0)
+	var original_offset: Vector3 = camera_start_offset
+
+	var rotated_offset: Vector3 = Vector3(
+		original_offset.x * cos(camera_yaw)
+			+ original_offset.z * sin(camera_yaw),
+		original_offset.y,
+		-original_offset.x * sin(camera_yaw)
+			+ original_offset.z * cos(camera_yaw)
+	)
+
+	camera.global_position = target + rotated_offset
+	camera.look_at(target, Vector3.UP)
+
+	# Keep the light aimed in the camera's viewing direction.
+	update_camera_light()
+
+
+
+func update_camera_light() -> void:
+	var camera := find_child("Camera3D", true, false) as Camera3D
+	var light := find_child(
+		"DirectionalLight3D", true, false
+	) as DirectionalLight3D
+
+	if camera == null or light == null:
+		return
+
+	# Follow the camera's rotation.
+	light.global_rotation = camera.global_rotation
+
+	# Improve the tower's depth and shadows.
+	light.light_energy = 1.2
+	light.shadow_enabled = true
