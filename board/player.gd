@@ -1,9 +1,11 @@
 extends Node3D
 
 @export var current_space: BoardNode3D
+@export var dice: RigidBody3D # Drag your Die RigidBody3D here in the Inspector
 @export var move_speed: float = 4.0 # Higher is faster
 
 var is_moving: bool = false
+var is_rolling: bool = false
 
 func _ready() -> void:
 	if not current_space:
@@ -12,17 +14,26 @@ func _ready() -> void:
 		
 	# Snap to the starting space immediately when the game loads
 	global_position = current_space.global_position
+	
+	if dice:
+		# Connect to the die's signal so we receive the rolled number when it stops
+		dice.roll_finished.connect(_on_dice_roll_finished)
+	else:
+		push_error("Player is missing the Dice reference in the Inspector!")
 
 
-func _process(delta: float) -> void:
-	if Input.is_action_just_pressed("ui_accept") and not is_moving:
-		if not current_space:
-			print("Cannot move: current_space is missing!")
-			return
-			
-		var dice_roll = randi_range(1, 6)
-		print("Rolled a: ", dice_roll)
-		move_steps(dice_roll)
+func _input(event: InputEvent) -> void:
+	# Press spacebar to start a turn (if we aren't already moving or rolling)
+	if event.is_action_pressed("ui_accept") and not is_moving and not is_rolling:
+		if dice:
+			is_rolling = true
+			dice._roll() # Trigger the physical die roll
+
+
+func _on_dice_roll_finished(roll_value: int) -> void:
+	is_rolling = false
+	print("Physical die rolled a: ", roll_value)
+	move_steps(roll_value)
 
 
 func move_steps(steps: int) -> void:

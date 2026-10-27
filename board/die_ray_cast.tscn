@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://0ov4utry8iml"]
+
+[ext_resource type="Script" uid="uid://c1hu42u0oeai3" path="res://ray_cast_3d.gd" id="1_rfaqe"]
+
+[node name="DieRayCast" type="RayCast3D" unique_id=80182200]
+target_position = Vector3(0, -0.1, 0)
+hit_from_inside = true
+script = ExtResource("1_rfaqe")
