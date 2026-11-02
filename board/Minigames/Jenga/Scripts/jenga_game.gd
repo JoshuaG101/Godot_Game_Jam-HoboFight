@@ -52,6 +52,9 @@ func _ready() -> void:
 	build_tower()
 	update_turn_label()
 
+	$BackgroundMusic.finished.connect(_on_music_finished)
+	$BackgroundMusic.play()
+
 
 
 func build_tower() -> void:
@@ -411,3 +414,7 @@ func update_camera_light() -> void:
 	# Improve the tower's depth and shadows.
 	light.light_energy = 1.2
 	light.shadow_enabled = true
+
+
+func _on_music_finished() -> void:
+	$BackgroundMusic.play()
