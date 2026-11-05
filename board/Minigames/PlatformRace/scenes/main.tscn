@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://dleckswbxvmhp"]
 
 [ext_resource type="PackedScene" uid="uid://cotippuxdymo5" path="res://Minigames/PlatformRace/scenes/skeleton_rogue_character_body_3d.tscn" id="1_8k6im"]
+[ext_resource type="Script" uid="uid://cicut67a4cyy2" path="res://Minigames/PlatformRace/scripts/MovingPlatform.gd" id="1_u1ix1"]
 [ext_resource type="PackedScene" uid="uid://ci2mbdvqh2m2a" path="res://Minigames/PlatformRace/scenes/skeleton_mage_character_body_3d.tscn" id="1_yhv27"]
 [ext_resource type="Texture2D" uid="uid://dhh5pbmy0pab0" path="res://Minigames/PlatformRace/assets/pixelart_bg/1.png" id="3_k3ata"]
 [ext_resource type="Texture2D" uid="uid://cwcsmeogvjwe" path="res://Minigames/PlatformRace/assets/pixelart_bg/2.png" id="4_u1ix1"]
@@ -30,16 +31,28 @@
 [sub_resource type="BoxMesh" id="BoxMesh_k3ata"]
 size = Vector3(3, 0.3, 4.53)
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_k3ata"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_0ujai"]
+albedo_color = Color(1, 0.30400002, 0.13, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_k3ata"]
+material = SubResource("StandardMaterial3D_0ujai")
 size = Vector3(3, 0.3, 4.53)
 
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_j77wv"]
+albedo_color = Color(1, 0.30588236, 0.12941177, 1)
+
 [sub_resource type="BoxMesh" id="BoxMesh_sfjii"]
+material = SubResource("StandardMaterial3D_j77wv")
 size = Vector3(3, 0.3, 50)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_65eel"]
 size = Vector3(3, 0.3, 50)
 
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_t58yx"]
+albedo_color = Color(1, 0.30588236, 0.12941177, 1)
+
 [sub_resource type="BoxMesh" id="BoxMesh_bf8ys"]
+material = SubResource("StandardMaterial3D_t58yx")
 size = Vector3(3, 40, 0.5)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_bf8ys"]
@@ -135,14 +148,95 @@ animations = [{
 
 [node name="MovingPlatforms" type="Node3D" parent="Level" unique_id=677523437]
 
-[node name="Ground2" type="MeshInstance3D" parent="Level/MovingPlatforms" unique_id=1335065552]
+[node name="PlatformL1" type="AnimatableBody3D" parent="Level/MovingPlatforms" unique_id=1777941178]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -35.324627)
+script = ExtResource("1_u1ix1")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Level/MovingPlatforms/PlatformL1" unique_id=1018093130]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.8793817, 17.196735)
+shape = SubResource("BoxShape3D_k3ata")
+
+[node name="PlatformL1" type="MeshInstance3D" parent="Level/MovingPlatforms/PlatformL1" unique_id=1335065552]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.8793817, 17.196735)
 mesh = SubResource("BoxMesh_k3ata")
 
-[node name="StaticBody3D" type="StaticBody3D" parent="Level/MovingPlatforms/Ground2" unique_id=390293784]
+[node name="WallRay" type="RayCast3D" parent="Level/MovingPlatforms/PlatformL1" unique_id=506666426]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.9064517, 16.984697)
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Level/MovingPlatforms/Ground2/StaticBody3D" unique_id=1018093130]
+[node name="PlatformL2" type="AnimatableBody3D" parent="Level/MovingPlatforms" unique_id=2009153590]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1.4964027)
+script = ExtResource("1_u1ix1")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Level/MovingPlatforms/PlatformL2" unique_id=2102138786]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.8793817, 17.196735)
 shape = SubResource("BoxShape3D_k3ata")
+
+[node name="PlatformL1" type="MeshInstance3D" parent="Level/MovingPlatforms/PlatformL2" unique_id=812514608]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.8793817, 17.196735)
+mesh = SubResource("BoxMesh_k3ata")
+
+[node name="WallRay" type="RayCast3D" parent="Level/MovingPlatforms/PlatformL2" unique_id=279927019]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.9064517, 16.984697)
+
+[node name="PlatformL3" type="AnimatableBody3D" parent="Level/MovingPlatforms" unique_id=243330643]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.3888607, -25.0391)
+script = ExtResource("1_u1ix1")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Level/MovingPlatforms/PlatformL3" unique_id=810461795]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.8793817, 17.196735)
+shape = SubResource("BoxShape3D_k3ata")
+
+[node name="PlatformL1" type="MeshInstance3D" parent="Level/MovingPlatforms/PlatformL3" unique_id=101055]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.8793817, 17.196735)
+mesh = SubResource("BoxMesh_k3ata")
+
+[node name="WallRay" type="RayCast3D" parent="Level/MovingPlatforms/PlatformL3" unique_id=46572562]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.9064517, 16.984697)
+
+[node name="PlatformL4" type="AnimatableBody3D" parent="Level/MovingPlatforms" unique_id=1720086834]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.3888607, -9.431471)
+script = ExtResource("1_u1ix1")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Level/MovingPlatforms/PlatformL4" unique_id=313329116]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.8793817, 17.196735)
+shape = SubResource("BoxShape3D_k3ata")
+
+[node name="PlatformL1" type="MeshInstance3D" parent="Level/MovingPlatforms/PlatformL4" unique_id=2130689217]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.8793817, 17.196735)
+mesh = SubResource("BoxMesh_k3ata")
+
+[node name="WallRay" type="RayCast3D" parent="Level/MovingPlatforms/PlatformL4" unique_id=542093899]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.9064517, 16.984697)
+
+[node name="PlatformL5" type="AnimatableBody3D" parent="Level/MovingPlatforms" unique_id=1161446483]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 8.776619, -35.513664)
+script = ExtResource("1_u1ix1")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Level/MovingPlatforms/PlatformL5" unique_id=827783897]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.8793817, 17.196735)
+shape = SubResource("BoxShape3D_k3ata")
+
+[node name="PlatformL1" type="MeshInstance3D" parent="Level/MovingPlatforms/PlatformL5" unique_id=1902631330]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.8793817, 17.196735)
+mesh = SubResource("BoxMesh_k3ata")
+
+[node name="WallRay" type="RayCast3D" parent="Level/MovingPlatforms/PlatformL5" unique_id=386556395]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.9064517, 16.984697)
+
+[node name="PlatformL6" type="AnimatableBody3D" parent="Level/MovingPlatforms" unique_id=1720553002]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 8.776619, 4.0076284)
+script = ExtResource("1_u1ix1")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Level/MovingPlatforms/PlatformL6" unique_id=1038846492]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.8793817, 17.196735)
+shape = SubResource("BoxShape3D_k3ata")
+
+[node name="PlatformL1" type="MeshInstance3D" parent="Level/MovingPlatforms/PlatformL6" unique_id=790463632]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.8793817, 17.196735)
+mesh = SubResource("BoxMesh_k3ata")
+
+[node name="WallRay" type="RayCast3D" parent="Level/MovingPlatforms/PlatformL6" unique_id=33820548]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.9064517, 16.984697)
 
 [node name="Ground" type="MeshInstance3D" parent="Level" unique_id=1513319854]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.15, 0)
@@ -161,6 +255,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 20, 0)
 mesh = SubResource("BoxMesh_bf8ys")
 
 [node name="StaticBody3D" type="StaticBody3D" parent="Level/MiddleWall" unique_id=1371395356]
+collision_layer = 3
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Level/MiddleWall/StaticBody3D" unique_id=538939182]
 shape = SubResource("BoxShape3D_bf8ys")
@@ -170,15 +265,18 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 20, -24.75)
 mesh = SubResource("BoxMesh_bf8ys")
 
 [node name="StaticBody3D" type="StaticBody3D" parent="Level/RightWall" unique_id=606207684]
+collision_layer = 3
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Level/RightWall/StaticBody3D" unique_id=1565706526]
 shape = SubResource("BoxShape3D_bf8ys")
 
 [node name="LeftWall" type="MeshInstance3D" parent="Level" unique_id=597017213]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 20, 24.75)
+layers = 3
 mesh = SubResource("BoxMesh_bf8ys")
 
 [node name="StaticBody3D" type="StaticBody3D" parent="Level/LeftWall" unique_id=1977523498]
+collision_layer = 3
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Level/LeftWall/StaticBody3D" unique_id=36065670]
 shape = SubResource("BoxShape3D_bf8ys")
@@ -205,27 +303,30 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="Player1Container" type="SubViewportContainer" parent="Level/Screen/SplitScreen" unique_id=533339622]
-custom_minimum_size = Vector2(571, 0)
 layout_mode = 2
+size_flags_horizontal = 3
 stretch = true
 
 [node name="Player1Viewport" type="SubViewport" parent="Level/Screen/SplitScreen/Player1Container" unique_id=1165612985]
 handle_input_locally = false
-size = Vector2i(571, 648)
+size = Vector2i(570, 648)
 render_target_update_mode = 4
 
-[node name="Player1" parent="Level/Screen/SplitScreen/Player1Container/Player1Viewport" unique_id=1593620412 instance=ExtResource("1_8k6im")]
+[node name="Player1" parent="Level/Screen/SplitScreen/Player1Container/Player1Viewport" unique_id=1593620412 node_paths=PackedStringArray("visual_model") instance=ExtResource("1_8k6im")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 4)
 speed = 8.5
 jump_velocity = 10.0
+visual_model = NodePath("Skeleton_Rogue")
+facing_offset_degrees = 180.0
+idle_animation = &"Idle_B"
 
 [node name="Control" type="Control" parent="Level/Screen/SplitScreen" unique_id=1991365910]
 custom_minimum_size = Vector2(3, 0)
 layout_mode = 2
 
 [node name="Player2Container" type="SubViewportContainer" parent="Level/Screen/SplitScreen" unique_id=1253801700]
-custom_minimum_size = Vector2(571, 0)
 layout_mode = 2
+size_flags_horizontal = 3
 stretch = true
 
 [node name="Player2Viewport" type="SubViewport" parent="Level/Screen/SplitScreen/Player2Container" unique_id=2120286611]
@@ -233,24 +334,29 @@ handle_input_locally = false
 size = Vector2i(571, 648)
 render_target_update_mode = 4
 
-[node name="Player2" parent="Level/Screen/SplitScreen/Player2Container/Player2Viewport" unique_id=100623995 instance=ExtResource("1_yhv27")]
+[node name="Player2" parent="Level/Screen/SplitScreen/Player2Container/Player2Viewport" unique_id=100623995 node_paths=PackedStringArray("visual_model") instance=ExtResource("1_yhv27")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -22)
 input_prefix = "p2"
 speed = 8.5
 jump_velocity = 10.0
+visual_model = NodePath("Skeleton_Mage")
+facing_offset_degrees = 180.0
+run_animation = &"Running_C"
 
 [node name="Background" type="CanvasLayer" parent="Level" unique_id=2029230345]
 layer = -1
 
 [node name="AnimatedSprite3D" type="AnimatedSprite3D" parent="Level/Background" unique_id=117359921]
 transform = Transform3D(-4.371139e-07, 0, 10, 0, 10, 0, -10, 0, -4.371139e-07, -1.5, 12.411, 12.498)
+visible = false
 gi_mode = 0
 sprite_frames = SubResource("SpriteFrames_bf8ys")
 autoplay = "default"
-frame_progress = 0.9248445
+frame_progress = 0.42842117
 
 [node name="AnimatedSprite3D2" type="AnimatedSprite3D" parent="Level/Background" unique_id=635139881]
 transform = Transform3D(-4.3711393e-07, 0, 10, 0, 10, 0, -10, 0, -4.3711393e-07, -1.5, 12.411, -12.499)
+visible = false
 gi_mode = 0
 sprite_frames = SubResource("SpriteFrames_bf8ys")
 autoplay = "default"
@@ -258,6 +364,7 @@ frame_progress = 0.90078956
 
 [node name="AnimatedSprite3D3" type="AnimatedSprite3D" parent="Level/Background" unique_id=1917909389]
 transform = Transform3D(-4.371139e-07, 0, 10, 0, 10, 0, -10, 0, -4.371139e-07, -1.5, -12.41, -12.491)
+visible = false
 gi_mode = 0
 sprite_frames = SubResource("SpriteFrames_bf8ys")
 autoplay = "default"
@@ -265,6 +372,7 @@ frame_progress = 0.77647865
 
 [node name="AnimatedSprite3D4" type="AnimatedSprite3D" parent="Level/Background" unique_id=1246624707]
 transform = Transform3D(-4.371139e-07, 0, 10, 0, 10, 0, -10, 0, -4.371139e-07, -1.5, -12.41, 12.49)
+visible = false
 gi_mode = 0
 sprite_frames = SubResource("SpriteFrames_bf8ys")
 autoplay = "default"
@@ -272,6 +380,7 @@ frame_progress = 0.90078956
 
 [node name="AnimatedSprite3D5" type="AnimatedSprite3D" parent="Level/Background" unique_id=1240980013]
 transform = Transform3D(-4.371139e-07, 0, 10, 0, 10, 0, -10, 0, -4.371139e-07, -1.5, 12.411, 37.50053)
+visible = false
 gi_mode = 0
 sprite_frames = SubResource("SpriteFrames_bf8ys")
 autoplay = "default"
@@ -279,6 +388,7 @@ frame_progress = 0.45037976
 
 [node name="AnimatedSprite3D6" type="AnimatedSprite3D" parent="Level/Background" unique_id=1530483470]
 transform = Transform3D(-4.371139e-07, 0, 10, 0, 10, 0, -10, 0, -4.371139e-07, -1.5, -12.4, 37.501)
+visible = false
 gi_mode = 0
 sprite_frames = SubResource("SpriteFrames_bf8ys")
 autoplay = "default"
@@ -286,6 +396,7 @@ frame_progress = 0.45037976
 
 [node name="AnimatedSprite3D7" type="AnimatedSprite3D" parent="Level/Background" unique_id=91680319]
 transform = Transform3D(-4.3711393e-07, 0, 10, 0, 10, 0, -10, 0, -4.3711393e-07, -1.5, 12.411, -37.980705)
+visible = false
 gi_mode = 0
 sprite_frames = SubResource("SpriteFrames_bf8ys")
 autoplay = "default"
@@ -293,6 +404,7 @@ frame_progress = 0.90078956
 
 [node name="AnimatedSprite3D8" type="AnimatedSprite3D" parent="Level/Background" unique_id=1107664502]
 transform = Transform3D(-4.371139e-07, 0, 10, 0, 10, 0, -10, 0, -4.371139e-07, -1.5, -12.41, -37.97271)
+visible = false
 gi_mode = 0
 sprite_frames = SubResource("SpriteFrames_bf8ys")
 autoplay = "default"
@@ -300,6 +412,7 @@ frame_progress = 0.77647865
 
 [node name="AnimatedSprite3D11" type="AnimatedSprite3D" parent="Level/Background" unique_id=1797377234]
 transform = Transform3D(-4.371139e-07, 0, 10, 0, 10, 0, -10, 0, -4.371139e-07, -1.5, 38.00642, -12.491)
+visible = false
 gi_mode = 0
 sprite_frames = SubResource("SpriteFrames_bf8ys")
 autoplay = "default"
@@ -307,6 +420,7 @@ frame_progress = 0.77647865
 
 [node name="AnimatedSprite3D12" type="AnimatedSprite3D" parent="Level/Background" unique_id=1836538444]
 transform = Transform3D(-4.371139e-07, 0, 10, 0, 10, 0, -10, 0, -4.371139e-07, -1.5, 38.00642, 12.49)
+visible = false
 gi_mode = 0
 sprite_frames = SubResource("SpriteFrames_bf8ys")
 autoplay = "default"
@@ -314,6 +428,7 @@ frame_progress = 0.90078956
 
 [node name="AnimatedSprite3D14" type="AnimatedSprite3D" parent="Level/Background" unique_id=2038095100]
 transform = Transform3D(-4.371139e-07, 0, 10, 0, 10, 0, -10, 0, -4.371139e-07, -1.5, 38.01642, 37.501)
+visible = false
 gi_mode = 0
 sprite_frames = SubResource("SpriteFrames_bf8ys")
 autoplay = "default"
@@ -321,6 +436,7 @@ frame_progress = 0.45037976
 
 [node name="AnimatedSprite3D16" type="AnimatedSprite3D" parent="Level/Background" unique_id=734437019]
 transform = Transform3D(-4.371139e-07, 0, 10, 0, 10, 0, -10, 0, -4.371139e-07, -1.5, 38.00642, -37.97271)
+visible = false
 gi_mode = 0
 sprite_frames = SubResource("SpriteFrames_bf8ys")
 autoplay = "default"
