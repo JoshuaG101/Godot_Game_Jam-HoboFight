@@ -1,10 +1,10 @@
 [gd_scene format=3 uid="uid://dy8jqsgb80if7"]
 
-[ext_resource type="PackedScene" uid="uid://dmry8s3mjfdqy" path="res://assets/kaykit_character_pack_skeletons/Characters/gltf/Skeleton_Mage.glb" id="1_50fkq"]
+[ext_resource type="PackedScene" uid="uid://dmry8s3mjfdqy" path="res://Minigames/PlatformRace/assets/kaykit_character_pack_skeletons/Characters/gltf/Skeleton_Mage.glb" id="1_50fkq"]
 
 [node name="Skeleton_Mage" unique_id=736972561 instance=ExtResource("1_50fkq")]
 
-[node name="Skeleton3D" parent="Rig" parent_id_path=PackedInt32Array(991657880) index="0" unique_id=224017964]
+[node name="Skeleton3D" parent="Rig" parent_id_path=PackedInt32Array(889881608) index="0" unique_id=655916088]
 bones/1/position = Vector3(0, 0.39206383, 0)
 bones/1/rotation = Quaternion(-1.11122625e-10, 0.043157753, 2.5724098e-09, 0.9990683)
 bones/1/scale = Vector3(0.99999994, 1, 0.99999994)
@@ -89,5 +89,8 @@ bones/40/position = Vector3(-0.5108437, 0.78831214, 0.059736922)
 bones/40/rotation = Quaternion(-0.7582528, -1.527369e-07, 0.65196073, -1.1175871e-08)
 bones/40/scale = Vector3(1, 1.0000001, 1)
 
-[node name="head" parent="Rig/Skeleton3D" index="0" unique_id=277971661]
+[node name="head" parent="Rig/Skeleton3D" index="0" unique_id=831281388]
 transform = Transform3D(0.99972045, -1.4014349e-09, 0.023646593, 1.3934147e-09, 0.9999998, 3.5568637e-10, -0.023646593, -3.2263736e-10, 0.99972045, -4.3038546e-09, 1.2278259, 1.5739471e-15)
+
+[node name="AnimationPlayer" parent="." index="1" unique_id=1293460149]
+autoplay = &"Idle"
