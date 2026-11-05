@@ -41,3 +41,9 @@ offset_right = 40.0
 offset_bottom = 23.0
 offset_transform_position = Vector2(20, 20)
 text = "Player 1's Turn"
+
+[node name="PowerUpLabel" type="Label" parent="HUD" unique_id=1354157162]
+offset_left = 126.0
+offset_right = 276.0
+offset_bottom = 23.0
+text = "Power-up: None"

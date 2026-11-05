@@ -54,6 +54,8 @@ func _ready() -> void:
 
 	$BackgroundMusic.finished.connect(_on_music_finished)
 	$BackgroundMusic.play()
+	
+	test_player_powerups()
 
 
 
@@ -367,7 +369,7 @@ func advance_turn() -> void:
 
 func update_turn_label() -> void:
 	$HUD/TurnLabel.text = "Player " + str(current_player) + "'s Turn"
-
+	update_powerup_label()
 
 
 
@@ -418,3 +420,48 @@ func update_camera_light() -> void:
 
 func _on_music_finished() -> void:
 	$BackgroundMusic.play()
+
+
+func test_player_powerups() -> void:
+	PlayerPowerUps.assign_power_up(1, "probability_command")
+	PlayerPowerUps.assign_power_up(2, "rabbits_foot")
+	PlayerPowerUps.assign_power_up(3, "amped_up")
+	PlayerPowerUps.assign_power_up(4, "art_block")
+
+	for player in range(1, 5):
+		print(
+			"Player ", player,
+			" | Power-up: ",
+			PlayerPowerUps.get_player_power_up(player),
+			" | Charges: ",
+			PlayerPowerUps.get_player_charges(player)
+		)
+
+
+func update_powerup_label() -> void:
+	var power_up: String = PlayerPowerUps.get_player_power_up(
+		current_player
+	)
+
+	var charges: int = PlayerPowerUps.get_player_charges(
+		current_player
+	)
+
+	var power_up_names: Dictionary = {
+		"probability_command": "Probability Command",
+		"rabbits_foot": "Rabbit's Foot",
+		"amped_up": "Amped Up",
+		"gods_favorite_child": "God's Favorite Child",
+		"art_block": "Art Block",
+		"architectural_prowess": "Architectural Prowess"
+	}
+
+	var display_name: String = power_up_names.get(
+		power_up,
+		"None"
+	)
+
+	$HUD/PowerUpLabel.text = (
+		"Power-up: " + display_name +
+		" | Charges: " + str(charges)
+	)
