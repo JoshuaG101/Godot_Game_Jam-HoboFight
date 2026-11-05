@@ -1,0 +1,25 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://b4yqqu4lsuw1v"
+path="res://.godot/imported/Grass_Common_Tall.obj-95d53318bf4a0be0df8e02f4ae48ee7f.mesh"
+
+[deps]
+
+files=["res://.godot/imported/Grass_Common_Tall.obj-95d53318bf4a0be0df8e02f4ae48ee7f.mesh"]
+
+source_file="res://Minigames/PlatformRace/assets/stylized_assets/OBJ/Grass_Common_Tall.obj"
+dest_files=["res://.godot/imported/Grass_Common_Tall.obj-95d53318bf4a0be0df8e02f4ae48ee7f.mesh", "res://.godot/imported/Grass_Common_Tall.obj-95d53318bf4a0be0df8e02f4ae48ee7f.mesh"]
+
+[params]
+
+generate_tangents=true
+generate_lods=true
+generate_shadow_mesh=true
+generate_lightmap_uv2=false
+generate_lightmap_uv2_texel_size=0.2
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+force_disable_mesh_compression=false

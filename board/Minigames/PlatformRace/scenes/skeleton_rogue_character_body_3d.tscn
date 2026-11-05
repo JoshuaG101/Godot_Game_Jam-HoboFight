@@ -1,0 +1,22 @@
+[gd_scene format=3 uid="uid://cotippuxdymo5"]
+
+[ext_resource type="Script" uid="uid://bfohb07h37a2e" path="res://Minigames/PlatformRace/scripts/LocalPlayer.gd" id="1_u55b8"]
+[ext_resource type="PackedScene" uid="uid://bm4o6yom7u3hr" path="res://Minigames/PlatformRace/scenes/skeleton_rogue.tscn" id="2_gifq4"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_50fkq"]
+
+[node name="CharacterBody3D" type="CharacterBody3D" unique_id=1593620412]
+script = ExtResource("1_u55b8")
+
+[node name="Skeleton_Rogue" parent="." unique_id=287297902 instance=ExtResource("2_gifq4")]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=564866963]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.01, 0)
+shape = SubResource("CapsuleShape3D_50fkq")
+
+[node name="MainCam" type="Camera3D" parent="." unique_id=685735314]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 7, 1.15, 0)
+visible = false
+
+[node name="DebugCam" type="Camera3D" parent="." unique_id=356652395]
+transform = Transform3D(-0.59896237, -0.2677886, 0.7546744, -0.016698027, 0.9463992, 0.3225675, -0.8006031, 0.18060422, -0.571329, 2.010723, 2.0738688, -2.4445758)

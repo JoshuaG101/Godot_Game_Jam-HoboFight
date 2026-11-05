@@ -1,0 +1,25 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://grmchkpd5132"
+path="res://.godot/imported/Chain_Coil.obj-2095d1c7812b3297dab3f2645490b0e4.mesh"
+
+[deps]
+
+files=["res://.godot/imported/Chain_Coil.obj-2095d1c7812b3297dab3f2645490b0e4.mesh"]
+
+source_file="res://Minigames/PlatformRace/assets/fantasy_assets/Exports/OBJ/Chain_Coil.obj"
+dest_files=["res://.godot/imported/Chain_Coil.obj-2095d1c7812b3297dab3f2645490b0e4.mesh", "res://.godot/imported/Chain_Coil.obj-2095d1c7812b3297dab3f2645490b0e4.mesh"]
+
+[params]
+
+generate_tangents=true
+generate_lods=true
+generate_shadow_mesh=true
+generate_lightmap_uv2=false
+generate_lightmap_uv2_texel_size=0.2
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+force_disable_mesh_compression=false
