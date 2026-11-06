@@ -101,13 +101,18 @@ func _input(event: InputEvent) -> void:
 	# Rotate the camera horizontally while holding right-click.
 	if event is InputEventMouseMotion and camera_orbiting:
 		rotate_camera(-event.relative.x * 0.005)
-
-	# Press E to place the selected block.
+		
+		# Keyboard controls.
 	if event is InputEventKey:
 		if event.pressed and not event.echo:
+
+		# E places the selected block.
 			if event.keycode == KEY_E:
 				place_selected_block()
 
+		# Q activates the current player's power-up.
+			elif event.keycode == KEY_Q:
+				activate_power_up()
 
 func select_block_at_mouse(mouse_position: Vector2) -> void:
 	var camera: Camera3D = get_viewport().get_camera_3d()
@@ -465,3 +470,27 @@ func update_powerup_label() -> void:
 		"Power-up: " + display_name +
 		" | Charges: " + str(charges)
 	)
+
+func activate_power_up() -> void:
+	if game_over or is_checking_collapse:
+		return
+
+	var power_up: String = PlayerPowerUps.get_player_power_up(
+		current_player
+	)
+
+	if power_up == "":
+		print("This player has no power-up assigned!")
+		return
+
+	if PlayerPowerUps.get_player_charges(current_player) <= 0:
+		print("No power-up charges remaining!")
+		return
+
+	if PlayerPowerUps.use_charge(current_player):
+		print(
+			"Player ", current_player,
+			" activated ", power_up
+		)
+
+		update_powerup_label()
