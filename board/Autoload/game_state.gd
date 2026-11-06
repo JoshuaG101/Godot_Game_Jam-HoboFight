@@ -98,7 +98,9 @@ var current_round: int = 1
 var max_rounds: int = 5
 
 var minigame_scenes: Array[String] = [
-	"res://Minigames/Jenga/Scenes/JengaGame.tscn"
+	"res://Minigames/Jenga/Scenes/JengaGame.tscn",
+	"res://Minigames/snowball/SnowballSummit.tscn",
+	"res://Minigames/Sword_Fight/main.tscn"
 ]
 
 func get_available_majors() -> Array[Dictionary]:

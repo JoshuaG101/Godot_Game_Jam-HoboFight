@@ -155,9 +155,9 @@ func _on_randomize_pressed() -> void:
 
 func _on_back_pressed() -> void:
 	SoundManager.play_click()
-	get_tree().change_scene_to_file("res://MainMenu.tscn")
+	get_tree().change_scene_to_file("res://UI/MainMenu.tscn")
 
 func _on_start_pressed() -> void:
 	SoundManager.play_star()
 	GameState.reset_game()
-	get_tree().change_scene_to_file("res://Board.tscn")
+	get_tree().change_scene_to_file("res://Board/Board.tscn")

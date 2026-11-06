@@ -296,7 +296,7 @@ func eliminate_current_player() -> void:
 		$HUD/TurnLabel.modulate = winner_color
 		GameState.award_coins(winner, 10)
 		await get_tree().create_timer(3.5).timeout
-		get_tree().change_scene_to_file("res://Board.tscn")
+		get_tree().change_scene_to_file("res://Board/Board.tscn")
 		return
 
 	$HUD/TurnLabel.text = "💥 Tower Collapsed! Player %d is eliminated!" % eliminated_player

@@ -11,14 +11,14 @@ config_version=5
 [application]
 
 config/name="Campus Clash"
-run/main_scene="res://MainMenu.tscn"
+run/main_scene="res://UI/MainMenu.tscn"
 config/features=PackedStringArray("4.7", "Forward Plus")
 config/icon="res://icon.svg"
 
 [autoload]
 
-GameState="*res://game_state.gd"
-SoundManager="*res://sound_manager.gd"
+GameState="*res://Autoload/game_state.gd"
+SoundManager="*res://Autoload/sound_manager.gd"
 
 [display]
 

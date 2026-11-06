@@ -349,7 +349,7 @@ func show_game_over_screen() -> void:
 	menu_btn.add_theme_font_size_override("font_size", 20)
 	menu_btn.pressed.connect(func():
 		GameState.reset_game()
-		get_tree().change_scene_to_file("res://MainMenu.tscn")
+		get_tree().change_scene_to_file("res://UI/MainMenu.tscn")
 	)
 	btn_row.add_child(menu_btn)
 

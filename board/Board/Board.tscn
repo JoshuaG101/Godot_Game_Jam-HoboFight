@@ -1,9 +1,9 @@
 [gd_scene format=3 uid="uid://pbanh1aksxch"]
 
-[ext_resource type="PackedScene" uid="uid://dpupvrnyvh04l" path="res://MPTiles.tscn" id="1_nd4as"]
-[ext_resource type="PackedScene" uid="uid://c256lbtq7n0ge" path="res://player.tscn" id="2_3ng4l"]
-[ext_resource type="PackedScene" uid="uid://die1wplxa7la2" path="res://die.tscn" id="3_otxgx"]
-[ext_resource type="Script" uid="uid://dr56jeoqtxsyx" path="res://turn_manager.gd" id="4_tmgr"]
+[ext_resource type="PackedScene" uid="uid://dpupvrnyvh04l" path="res://Board/Tiles/MPTiles.tscn" id="1_nd4as"]
+[ext_resource type="PackedScene" uid="uid://c256lbtq7n0ge" path="res://Board/Player/player.tscn" id="2_3ng4l"]
+[ext_resource type="PackedScene" uid="uid://die1wplxa7la2" path="res://Board/Dice/die.tscn" id="3_otxgx"]
+[ext_resource type="Script" uid="uid://dr56jeoqtxsyx" path="res://Board/turn_manager.gd" id="4_tmgr"]
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_shskd"]
 bounce = 1.0

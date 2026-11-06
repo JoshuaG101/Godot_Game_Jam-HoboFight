@@ -24,7 +24,7 @@ func _ready() -> void:
 
 func _on_play_pressed() -> void:
 	SoundManager.play_click()
-	get_tree().change_scene_to_file("res://CharacterSelect.tscn")
+	get_tree().change_scene_to_file("res://UI/CharacterSelect.tscn")
 
 func _on_how_to_play_pressed() -> void:
 	SoundManager.play_click()
