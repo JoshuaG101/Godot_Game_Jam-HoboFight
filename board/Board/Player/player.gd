@@ -58,9 +58,35 @@ func setup_player_visuals() -> void:
 	if mesh_inst:
 		var mat = StandardMaterial3D.new()
 		mat.albedo_color = color
-		mat.roughness = 0.3
-		mat.metallic = 0.2
+		mat.roughness = 0.2
+		mat.metallic = 0.35
+		mat.rim_enabled = true
+		mat.rim = 0.6
+		mat.rim_tint = 0.5
 		mesh_inst.material_override = mat
+
+	# Add glowing player base ring / pedestal
+	var ring = MeshInstance3D.new()
+	ring.name = "PlayerRing"
+	var torus = TorusMesh.new()
+	torus.inner_radius = 0.28
+	torus.outer_radius = 0.36
+	torus.rings = 24
+	torus.ring_segments = 16
+	ring.mesh = torus
+	ring.position = Vector3(0, 0.04, 0)
+	
+	var ring_mat = StandardMaterial3D.new()
+	ring_mat.albedo_color = color
+	ring_mat.emission_enabled = true
+	ring_mat.emission = color * 1.8
+	ring_mat.roughness = 0.1
+	ring_mat.metallic = 0.4
+	ring.material_override = ring_mat
+	add_child(ring)
+
+	# Add subtle idle bobbing tween to mesh
+	start_idle_animation()
 
 	# Add overhead 3D player badge with major identity
 	overhead_label = Label3D.new()
@@ -74,6 +100,18 @@ func setup_player_visuals() -> void:
 	overhead_label.outline_size = 8
 	overhead_label.outline_modulate = Color(0, 0, 0, 0.9)
 	add_child(overhead_label)
+
+func start_idle_animation() -> void:
+	var mesh_inst = get_node_or_null("MeshInstance3D")
+	if not mesh_inst:
+		return
+	var initial_y = mesh_inst.position.y
+	# Offset tween phase by player_id so players do not bob in robotic unison
+	var delay = float(player_id) * 0.25
+	var tw = create_tween().set_loops()
+	tw.tween_interval(delay)
+	tw.tween_property(mesh_inst, "position:y", initial_y + 0.05, 0.7).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	tw.tween_property(mesh_inst, "position:y", initial_y, 0.7).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 
 func start_turn() -> void:
 	is_my_turn = true

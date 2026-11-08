@@ -1,30 +1,51 @@
 [gd_scene format=3 uid="uid://cdutpkn5k4fi4"]
 
 [ext_resource type="Script" uid="uid://cvru506epod7" path="res://Minigames/Jenga/Scripts/jenga_game.gd" id="1_b36j4"]
+[ext_resource type="Environment" path="res://Assets/Shaders/starry_sky_environment.tres" id="2_env"]
 
-[sub_resource type="BoxMesh" id="BoxMesh_ahg1b"]
-size = Vector3(20, 0.2, 20)
+[sub_resource type="CylinderMesh" id="CylinderMesh_table"]
+top_radius = 6.0
+bottom_radius = 5.6
+height = 0.5
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_4owis"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_table"]
+albedo_color = Color(0.28, 0.18, 0.12, 1)
+metallic = 0.1
+roughness = 0.45
+rim_enabled = true
+rim = 0.5
+rim_tint = 0.4
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_table"]
+height = 0.5
+radius = 6.0
 
 [node name="jenga_game" type="Node3D" unique_id=217276838]
 script = ExtResource("1_b36j4")
 
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = ExtResource("2_env")
+
 [node name="Floor(StaticBody3D)" type="StaticBody3D" parent="." unique_id=1828580786]
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Floor(StaticBody3D)" unique_id=1017546825]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.1, 0)
-mesh = SubResource("BoxMesh_ahg1b")
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.25, 0)
+mesh = SubResource("CylinderMesh_table")
+surface_material_override/0 = SubResource("StandardMaterial3D_table")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Floor(StaticBody3D)" unique_id=399817412]
-transform = Transform3D(20, 0, 0, 0, 0.2, 0, 0, 0, 20, 0, -0.1, 0)
-shape = SubResource("BoxShape3D_4owis")
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.25, 0)
+shape = SubResource("CylinderShape3D_table")
 
 [node name="Camera3D" type="Camera3D" parent="." unique_id=324096736]
 transform = Transform3D(0.80644447, -0.31771055, 0.49870566, 0, 0.8433914, 0.53729963, -0.59130985, -0.4333023, 0.68014836, 8.223772, 7.150649, 10.549686)
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=1238003279]
 transform = Transform3D(0.8660254, 0.35355338, -0.35355338, 0, 0.70710677, 0.70710677, 0.5, -0.6123724, 0.6123724, 0, 0, 0)
+light_color = Color(1, 0.96, 0.9, 1)
+light_energy = 1.15
+shadow_enabled = true
+shadow_blur = 1.2
 
 [node name="HUD" type="CanvasLayer" parent="." unique_id=889204915]
 

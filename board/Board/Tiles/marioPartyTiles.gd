@@ -12,29 +12,56 @@ func _ready() -> void:
 
 func apply_space_visuals() -> void:
 	var mesh_inst: MeshInstance3D = get_node_or_null("MeshInstance3D")
+	var theme_color: Color = Color.WHITE
+	var emissive_color: Color = Color.BLACK
+	
+	match space_type:
+		SpaceType.BLUE:
+			theme_color = Color(0.18, 0.55, 0.98) # Royal Blue
+			emissive_color = Color(0.04, 0.12, 0.3)
+		SpaceType.RED:
+			theme_color = Color(0.95, 0.22, 0.25) # Crimson Red
+			emissive_color = Color(0.3, 0.04, 0.05)
+		SpaceType.EVENT:
+			theme_color = Color(0.18, 0.88, 0.42) # Emerald Green
+			emissive_color = Color(0.04, 0.25, 0.1)
+		SpaceType.STAR:
+			theme_color = Color(1.0, 0.88, 0.15) # Gold
+			emissive_color = Color(0.5, 0.4, 0.05)
+		SpaceType.SHOP:
+			theme_color = Color(0.75, 0.25, 0.92) # Purple
+			emissive_color = Color(0.25, 0.05, 0.3)
+
 	if mesh_inst:
 		var mat = StandardMaterial3D.new()
-		match space_type:
-			SpaceType.BLUE:
-				mat.albedo_color = Color(0.18, 0.52, 0.95) # Royal Blue
-				mat.roughness = 0.4
-			SpaceType.RED:
-				mat.albedo_color = Color(0.92, 0.22, 0.22) # Crimson Red
-				mat.roughness = 0.4
-			SpaceType.EVENT:
-				mat.albedo_color = Color(0.15, 0.82, 0.38) # Emerald Green
-				mat.roughness = 0.4
-			SpaceType.STAR:
-				mat.albedo_color = Color(1.0, 0.85, 0.15) # Shimmering Gold
-				mat.metallic = 0.6
-				mat.roughness = 0.2
-				mat.emission_enabled = true
-				mat.emission = Color(0.35, 0.28, 0.05)
-			SpaceType.SHOP:
-				mat.albedo_color = Color(0.68, 0.25, 0.85) # Purple
-				mat.roughness = 0.4
-
+		mat.albedo_color = theme_color
+		mat.roughness = 0.2
+		mat.metallic = 0.3
+		mat.rim_enabled = true
+		mat.rim = 0.5
+		mat.emission_enabled = true
+		mat.emission = emissive_color
 		mesh_inst.material_override = mat
+
+		# Add metallic border bevel ring if not present
+		var rim_mesh = get_node_or_null("BevelRim") as MeshInstance3D
+		if not rim_mesh:
+			rim_mesh = MeshInstance3D.new()
+			rim_mesh.name = "BevelRim"
+			var torus = TorusMesh.new()
+			torus.inner_radius = 0.46
+			torus.outer_radius = 0.52
+			torus.rings = 24
+			torus.ring_segments = 16
+			rim_mesh.mesh = torus
+			rim_mesh.position = Vector3(0, 0.04, 0)
+			
+			var gold_rim_mat = StandardMaterial3D.new()
+			gold_rim_mat.albedo_color = Color(0.9, 0.82, 0.5)
+			gold_rim_mat.metallic = 0.85
+			gold_rim_mat.roughness = 0.25
+			rim_mesh.material_override = gold_rim_mat
+			add_child(rim_mesh)
 
 	# Add floating 3D text/symbol indicator above tile
 	var label = get_node_or_null("TileLabel") as Label3D
