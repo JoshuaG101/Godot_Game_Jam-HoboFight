@@ -14,20 +14,11 @@ size = Vector3(0.3, 0.3, 1.4)
 [sub_resource type="BoxShape3D" id="BoxShape3D_6p8r5"]
 size = Vector3(0.8, 0.5, 1.44)
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ync5j"]
-transparency = 1
-albedo_color = Color(0.7372549, 1, 1, 0.3137255)
-
-[sub_resource type="SphereMesh" id="SphereMesh_d8m2m"]
-material = SubResource("StandardMaterial3D_ync5j")
-radius = 1.2
-height = 2.4
+[sub_resource type="BoxMesh" id="BoxMesh_44s4t"]
+size = Vector3(2.4, 1.6, 0.15)
 
 [node name="Player" type="CharacterBody3D" unique_id=1773248665]
 script = ExtResource("1_4flbx")
-player_id = null
-speed = null
-turn_speed = null
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=822514075]
 mesh = SubResource("CapsuleMesh_d8m2m")
@@ -50,4 +41,5 @@ shape = SubResource("BoxShape3D_6p8r5")
 script = ExtResource("3_i3pqv")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Deflect" unique_id=1957544571]
-mesh = SubResource("SphereMesh_d8m2m")
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.9)
+mesh = SubResource("BoxMesh_44s4t")

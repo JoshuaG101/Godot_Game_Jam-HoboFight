@@ -1,6 +1,10 @@
 [gd_scene format=3 uid="uid://dwbgbw6l0m8b6"]
 
 [ext_resource type="PackedScene" uid="uid://dqevvrvawlndm" path="res://player.tscn" id="1_ig7tw"]
+[ext_resource type="Script" uid="uid://dqod2c4wpyk7k" path="res://match_manager.gd" id="2_0xm2m"]
+[ext_resource type="Script" uid="uid://cs1csvveg14mi" path="res://camera_shake.gd" id="2_lquwl"]
+[ext_resource type="Script" uid="uid://3a5a402s6xx4" path="res://result_screen.gd" id="3_h2yge"]
+[ext_resource type="Script" uid="uid://2ys65al44srk" path="res://hud.gd" id="4_7mycd"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_d8m2m"]
 size = Vector3(201, 1, 20)
@@ -22,8 +26,10 @@ player_id = 2
 speed = 6.0
 turn_speed = 12.0
 
-[node name="Camera3D" type="Camera3D" parent="." unique_id=1249517696]
+[node name="Camera3D" type="Camera3D" parent="." unique_id=1249517696 node_paths=PackedStringArray("match_manager")]
 transform = Transform3D(1, 0, 0, 0, 0.49999997, 0.86602545, 0, -0.86602545, 0.49999997, 0, 12, 7)
+script = ExtResource("2_lquwl")
+match_manager = NodePath("../MatchManager")
 
 [node name="Floor" type="StaticBody3D" parent="." unique_id=1857306430]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
@@ -37,3 +43,24 @@ shape = SubResource("BoxShape3D_6p8r5")
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=2111695258]
 transform = Transform3D(0.8660254, 0.38302222, -0.32139382, 0, 0.64278764, 0.76604444, 0.5, -0.66341394, 0.5566704, 0, 0, 0)
 shadow_enabled = true
+
+[node name="MatchManager" type="Node3D" parent="." unique_id=723699937]
+script = ExtResource("2_0xm2m")
+
+[node name="Hud" type="CanvasLayer" parent="." unique_id=310627391 node_paths=PackedStringArray("match_manager")]
+script = ExtResource("4_7mycd")
+match_manager = NodePath("../MatchManager")
+
+[node name="ResultScreen" type="CanvasLayer" parent="." unique_id=543798920 node_paths=PackedStringArray("match_manager")]
+script = ExtResource("3_h2yge")
+match_manager = NodePath("../MatchManager")
+
+[node name="Label" type="Label" parent="ResultScreen" unique_id=1311460634]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_font_sizes/font_size = 48
+horizontal_alignment = 1
+vertical_alignment = 1
