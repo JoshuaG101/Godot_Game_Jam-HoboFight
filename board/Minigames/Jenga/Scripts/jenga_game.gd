@@ -28,6 +28,8 @@ var camera_orbiting: bool = false
 var camera_yaw: float = 0.0
 var camera_start_offset: Vector3
 
+var probability_active: bool = false
+var probability_duration: float = 5.0
 
 
 func _ready() -> void:
@@ -64,9 +66,12 @@ func build_tower() -> void:
 
 	for layer in range(LAYER_COUNT):
 		for i in range(BLOCKS_PER_LAYER):
+			
 			var block = BLOCK_SCENE.instantiate() as RigidBody3D
+			# Give each block a random difficulty from 1 to 10.
+			block.removal_difficulty = randi_range(1, 10)
 			add_child(block)
-
+			
 			# Remember this block's original tower position.
 			block.set_meta("tower_layer", layer)
 			block.set_meta("tower_slot", i)
@@ -494,3 +499,45 @@ func activate_power_up() -> void:
 		)
 
 		update_powerup_label()
+		if power_up == "probability_command":
+			activate_probability_command()
+
+
+
+
+func activate_probability_command() -> void:
+	if probability_active:
+		print("Probability Command is already active!")
+		return
+
+	var blocks = get_tree().get_nodes_in_group("jenga_blocks")
+
+	if blocks.is_empty():
+		return
+
+	# Find the highest difficulty in the tower.
+	var highest_difficulty: int = 1
+
+	for block in blocks:
+		highest_difficulty = maxi(
+			highest_difficulty,
+			block.removal_difficulty
+		)
+
+	# Highlight the most difficult blocks.
+	for block in blocks:
+		if block.removal_difficulty >= highest_difficulty - 1:
+			block.set_probability_highlight(true)
+
+	probability_active = true
+
+	print("Probability Command activated!")
+
+	await get_tree().create_timer(probability_duration).timeout
+
+	# Remove the red highlights.
+	for block in get_tree().get_nodes_in_group("jenga_blocks"):
+		block.set_probability_highlight(false)
+
+	probability_active = false
+	print("Probability Command ended!")
