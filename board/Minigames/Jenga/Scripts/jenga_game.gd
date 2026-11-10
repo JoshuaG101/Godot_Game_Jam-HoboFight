@@ -31,6 +31,13 @@ var camera_start_offset: Vector3
 var probability_active: bool = false
 var probability_duration: float = 5.0
 
+var rabbits_foot_active: bool = false
+var rabbits_foot_lucky: bool = false
+
+
+var amped_up_active: bool = false
+var original_music_volume: float = 0.0
+
 
 func _ready() -> void:
 	var camera := find_child("Camera3D", true, false) as Camera3D
@@ -165,6 +172,7 @@ func clear_selection() -> void:
 
 
 
+
 func place_selected_block() -> void:
 	if not is_instance_valid(selected_block):
 		print("Click a block first!")
@@ -181,8 +189,11 @@ func place_selected_block() -> void:
 		var layer: int = int(block.get_meta("tower_layer", 0))
 		highest_layer = maxi(highest_layer, layer)
 
-	# Prevent removing a block from the highest layer.
-	if int(selected_block.get_meta("tower_layer", 0)) >= highest_layer:
+	# Prevent removing the top layer unless Rabbit's Foot is lucky.
+	if (
+		int(selected_block.get_meta("tower_layer", 0)) >= highest_layer
+		and not rabbits_foot_lucky
+	):
 		print("You can't remove a block from the top layer!")
 		return
 
@@ -220,6 +231,14 @@ func place_selected_block() -> void:
 	var spacing: float = BLOCK_WIDTH + BLOCK_GAP
 	var destination_height: float = BLOCK_HEIGHT / 2.0
 	destination_height += destination_layer * (BLOCK_HEIGHT + BLOCK_GAP)
+
+	# Stabilize the remaining tower during Amped Up.
+	if amped_up_active:
+		for block in blocks:
+			if block != selected_block:
+				block.freeze = true
+				block.linear_velocity = Vector3.ZERO
+				block.angular_velocity = Vector3.ZERO
 
 	# Move the selected block into its destination.
 	selected_block.freeze = true
@@ -260,8 +279,30 @@ func place_selected_block() -> void:
 			collapse_detected = true
 			break
 
-	if collapse_detected:
+	
+	# Handle the result after monitoring is finished.
+	if rabbits_foot_lucky:
+		rabbits_foot_lucky = false
+		rabbits_foot_active = false
+
+		print("Rabbit's Foot protected the player!")
+		advance_turn()
+
+	elif amped_up_active:
+		amped_up_active = false
+
+		# Restore the music volume.
+		$BackgroundMusic.volume_db = original_music_volume
+
+		# Restore normal tower physics.
+		stabilize_tower(false)
+
+		print("Amped Up protected the player!")
+		advance_turn()
+
+	elif collapse_detected:
 		await eliminate_current_player()
+
 	else:
 		advance_turn()
 
@@ -476,6 +517,8 @@ func update_powerup_label() -> void:
 		" | Charges: " + str(charges)
 	)
 
+
+
 func activate_power_up() -> void:
 	if game_over or is_checking_collapse:
 		return
@@ -492,16 +535,35 @@ func activate_power_up() -> void:
 		print("No power-up charges remaining!")
 		return
 
+	# Prevent using Probability Command while it is already active.
+	if power_up == "probability_command" and probability_active:
+		print("Probability Command is already active!")
+		return
+
+	# Only activate power-ups that are implemented.
+	if (
+		power_up != "probability_command"
+		and power_up != "rabbits_foot"
+		and power_up != "amped_up"
+		):
+		print("This power-up has not been implemented yet!")
+		return
+
 	if PlayerPowerUps.use_charge(current_player):
-		print(
-			"Player ", current_player,
-			" activated ", power_up
-		)
-
 		update_powerup_label()
-		if power_up == "probability_command":
-			activate_probability_command()
 
+		match power_up:
+			"probability_command":
+				print("Player ", current_player, " activated Probability Command!")
+				activate_probability_command()
+
+			"rabbits_foot":
+				print("Player ", current_player, " activated Rabbit's Foot!")
+				await activate_rabbits_foot()
+				
+			"amped_up":
+				print("Player ", current_player, " activated Amped Up!")
+				activate_amped_up()
 
 
 
@@ -541,3 +603,70 @@ func activate_probability_command() -> void:
 
 	probability_active = false
 	print("Probability Command ended!")
+
+
+
+func activate_rabbits_foot() -> void:
+	is_checking_collapse = true
+
+	var outcome: int = randi_range(0, 1)
+
+	if outcome == 0:
+		rabbits_foot_active = true
+		rabbits_foot_lucky = true
+
+		print("Rabbit's Foot: Lucky! Your next block removal is guaranteed!")
+
+		$HUD/TurnLabel.text = "Player " + str(current_player) + " Got Lucky!"
+
+		await get_tree().create_timer(2.0).timeout
+
+		update_turn_label()
+		is_checking_collapse = false
+		return
+
+	print("Rabbit's Foot: Unlucky! The tower exploded!")
+
+	$HUD/TurnLabel.text = "Player " + str(current_player) + " Was Unlucky!"
+
+	# Make every block fly outward.
+	for block in get_tree().get_nodes_in_group("jenga_blocks"):
+		block.freeze = false
+
+		var explosion_direction: Vector3 = (
+			block.global_position - Vector3(0, 2, 0)
+		).normalized()
+
+		block.apply_central_impulse(
+			explosion_direction * 12.0 + Vector3.UP * 8.0
+		)
+	
+	await get_tree().create_timer(2.0).timeout
+	# Eliminate the player who activated Rabbit's Foot.
+	await eliminate_current_player()
+	
+	is_checking_collapse = false
+
+
+
+func activate_amped_up() -> void:
+	if amped_up_active:
+		print("Amped Up is already active!")
+		return
+
+	amped_up_active = true
+
+	original_music_volume = $BackgroundMusic.volume_db
+	$BackgroundMusic.volume_db = minf(original_music_volume + 8.0, 0.0)
+
+	print("Amped Up activated! Your next removal is protected!")
+	$HUD/TurnLabel.text = "Player " + str(current_player) + " is Amped Up!"
+
+
+func stabilize_tower(value: bool) -> void:
+	for block in get_tree().get_nodes_in_group("jenga_blocks"):
+		block.freeze = value
+
+		if value:
+			block.linear_velocity = Vector3.ZERO
+			block.angular_velocity = Vector3.ZERO
