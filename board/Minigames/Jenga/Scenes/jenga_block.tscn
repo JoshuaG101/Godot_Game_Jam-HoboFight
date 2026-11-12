@@ -3,7 +3,11 @@
 [ext_resource type="Script" uid="uid://dxmfsf8h470xj" path="res://Minigames/Jenga/Scripts/jenga_block.gd" id="1_dxj1i"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_b36j4"]
-albedo_color = Color(0.9529412, 0.8666667, 0.7372549, 1)
+albedo_color = Color(0.82, 0.64, 0.45, 1)
+roughness = 0.65
+rim_enabled = true
+rim = 0.35
+rim_tint = 0.5
 
 [sub_resource type="BoxMesh" id="BoxMesh_ahg1b"]
 size = Vector3(1.5, 0.5, 0.5)

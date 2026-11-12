@@ -1,12 +1,27 @@
 [gd_scene format=3 uid="uid://oi576ghrjls5"]
 
-[ext_resource type="Script" uid="uid://c4ysc44sbp5yl" path="res://Minigames/Jenga/Scenes/playertest.gd" id="1_y8feb"]
+[ext_resource type="Script" uid="uid://c4ysc44sbp5yl" path="res://Minigames/snowball/playertest.gd" id="1_y8feb"]
+[ext_resource type="Environment" path="res://Assets/Shaders/starry_sky_environment.tres" id="2_env"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_5bjbi"]
 
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_8i30l"]
 
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_player"]
+albedo_color = Color(0.9, 0.3, 0.2, 1)
+roughness = 0.3
+metallic = 0.2
+rim_enabled = true
+rim = 0.6
+
 [sub_resource type="SphereMesh" id="SphereMesh_hgfvv"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_snowball"]
+albedo_color = Color(0.92, 0.96, 1, 1)
+roughness = 0.4
+rim_enabled = true
+rim = 0.8
+rim_tint = 0.3
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_uuc0u"]
 
@@ -14,15 +29,23 @@
 top_radius = 0.455
 height = 3.749
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_y8feb"]
-albedo_color = Color(0, 0.5176471, 1, 1)
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_glacier"]
+albedo_color = Color(0.72, 0.88, 0.98, 1)
+metallic = 0.1
+roughness = 0.15
+rim_enabled = true
+rim = 0.7
+rim_tint = 0.8
 
 [sub_resource type="CylinderShape3D" id="CylinderShape3D_saa18"]
 
 [node name="SnowballSummit" type="Node3D" unique_id=1562868201]
 
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = ExtResource("2_env")
+
 [node name="Camera3D" type="Camera3D" parent="." unique_id=2003922835]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.4640808, 1.1320679, 8.623681)
+transform = Transform3D(1, 0, 0, 0, 0.866025, 0.5, 0, -0.5, 0.866025, 0, 8, 12)
 
 [node name="Player" type="CharacterBody3D" parent="." unique_id=815125480]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.1232512, 0, 0)
@@ -33,11 +56,13 @@ shape = SubResource("CapsuleShape3D_5bjbi")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Player" unique_id=1901717209]
 mesh = SubResource("CapsuleMesh_8i30l")
+surface_material_override/0 = SubResource("StandardMaterial3D_player")
 
 [node name="Snowball" type="Node3D" parent="Player" unique_id=99233343]
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Player/Snowball" unique_id=1603757600]
 mesh = SubResource("SphereMesh_hgfvv")
+surface_material_override/0 = SubResource("StandardMaterial3D_snowball")
 
 [node name="Floor" type="StaticBody3D" parent="." unique_id=1690489979]
 transform = Transform3D(2.81, 0, 0, 0, 2.81, 0, 0, 0, 2.81, 0, -2.3289888, 0)
@@ -46,7 +71,7 @@ physics_material_override = SubResource("PhysicsMaterial_uuc0u")
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Floor" unique_id=1644637209]
 transform = Transform3D(3.915315, 0, 0, 0, 0.45438412, 0, 0, 0, 3.915315, 0, -0.5063096, 0)
 mesh = SubResource("CylinderMesh_uuc0u")
-surface_material_override/0 = SubResource("StandardMaterial3D_y8feb")
+surface_material_override/0 = SubResource("StandardMaterial3D_glacier")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Floor" unique_id=1737724668]
 transform = Transform3D(3.955, 0, 0, 0, 3.955, 0, 0, 0, 3.955, 0, -3.656886, 0.01337418)
@@ -54,4 +79,8 @@ shape = SubResource("CylinderShape3D_saa18")
 debug_color = Color(0.79293865, 0.20436728, 0.764313, 0.41960785)
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=83464035]
-transform = Transform3D(-0.31610262, 0.63463604, -0.7052066, 0.2595849, 0.7728112, 0.57911885, 0.9125211, 0, -0.4090296, -9.239045, 2.8868442, 0.99393785)
+transform = Transform3D(0.866025, -0.353553, 0.353553, 0, 0.707107, 0.707107, -0.5, -0.612372, 0.612372, 0, 10, 0)
+light_color = Color(0.9, 0.95, 1, 1)
+light_energy = 1.15
+shadow_enabled = true
+shadow_blur = 1.2
