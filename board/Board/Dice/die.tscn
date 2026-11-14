@@ -1,8 +1,8 @@
 [gd_scene format=3 uid="uid://die1wplxa7la2"]
 
-[ext_resource type="Script" uid="uid://splynekfxlj4" path="res://die.gd" id="1_gxo0y"]
-[ext_resource type="PackedScene" uid="uid://djpleeqabcsjs" path="res://Die.glb" id="2_muu1c"]
-[ext_resource type="PackedScene" uid="uid://0ov4utry8iml" path="res://die_ray_cast.tscn" id="3_muu1c"]
+[ext_resource type="Script" uid="uid://splynekfxlj4" path="res://Board/Dice/die.gd" id="1_gxo0y"]
+[ext_resource type="PackedScene" uid="uid://djpleeqabcsjs" path="res://Assets/Models/Die.glb" id="2_muu1c"]
+[ext_resource type="PackedScene" uid="uid://0ov4utry8iml" path="res://Board/Dice/die_ray_cast.tscn" id="3_muu1c"]
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_muu1c"]
 

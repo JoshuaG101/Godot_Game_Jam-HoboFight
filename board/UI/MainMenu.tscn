@@ -1,0 +1,155 @@
+[gd_scene format=3 uid="uid://41yw1q2pe4b5"]
+
+[ext_resource type="Script" uid="uid://bbxhgsqk7oxvk" path="res://UI/main_menu.gd" id="1_menu"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_card"]
+content_margin_left = 25.0
+content_margin_top = 25.0
+content_margin_right = 25.0
+content_margin_bottom = 25.0
+bg_color = Color(0.12, 0.15, 0.22, 0.95)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.3, 0.6, 0.95, 0.8)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+
+[node name="MainMenu" type="Control" unique_id=1651824308]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_menu")
+
+[node name="Background" type="ColorRect" parent="." unique_id=1511100196]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.07, 0.09, 0.14, 1)
+
+[node name="TitleBox" type="VBoxContainer" parent="." unique_id=261591853]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -450.0
+offset_top = 70.0
+offset_right = 450.0
+offset_bottom = 210.0
+grow_horizontal = 2
+theme_override_constants/separation = 12
+alignment = 1
+
+[node name="Title" type="Label" parent="TitleBox" unique_id=1436792452]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.88, 0.2, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.9)
+theme_override_constants/outline_size = 12
+theme_override_font_sizes/font_size = 46
+text = "🎓 HOBO FIGHT: CAMPUS CLASH 🎓"
+horizontal_alignment = 1
+
+[node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=852373684]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -180.0
+offset_top = -20.0
+offset_right = 180.0
+offset_bottom = 260.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 16
+alignment = 1
+
+[node name="PlayButton" type="Button" parent="VBoxContainer" unique_id=1493313907]
+custom_minimum_size = Vector2(360, 56)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 22
+text = "🎓 PLAY / SELECT MAJORS"
+
+[node name="HowToPlayButton" type="Button" parent="VBoxContainer" unique_id=41333450]
+custom_minimum_size = Vector2(360, 50)
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "📜 HOW TO PLAY"
+
+[node name="RoundsButton" type="Button" parent="VBoxContainer" unique_id=1052715421]
+custom_minimum_size = Vector2(360, 50)
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "⏱️ MATCH LENGTH: 5 ROUNDS"
+
+[node name="QuitButton" type="Button" parent="VBoxContainer" unique_id=1859285074]
+custom_minimum_size = Vector2(360, 50)
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "🚪 QUIT"
+
+[node name="RulesModal" type="ColorRect" parent="." unique_id=222488162]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.85)
+
+[node name="Panel" type="PanelContainer" parent="RulesModal" unique_id=1055902376]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -340.0
+offset_top = -240.0
+offset_right = 340.0
+offset_bottom = 240.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_card")
+
+[node name="VBox" type="VBoxContainer" parent="RulesModal/Panel" unique_id=616677733]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="Title" type="Label" parent="RulesModal/Panel/VBox" unique_id=52953329]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.88, 0.2, 1)
+theme_override_font_sizes/font_size = 28
+text = "📜 HOW TO PLAY"
+horizontal_alignment = 1
+
+[node name="Desc" type="Label" parent="RulesModal/Panel/VBox" unique_id=1701192124]
+layout_mode = 2
+theme_override_font_sizes/font_size = 17
+text = "• Pick your academic Major with unique team colors and campus lore!
+• Roll the 3D physics die with SPACEBAR or the ROLL button.
+• Land on Blue Spaces (+3 Coins) or dodge Red Spaces (-3 Coins).
+• Land on Event Spaces (?) for random campus windfalls and coin showers!
+• Pass or land on the Star Space with 20 Coins to earn a DEGREE STAR!
+• At the end of each round, battle in a 3D Jenga mini-game showdown!
+• The player with the most Stars and Coins at graduation wins!"
+autowrap_mode = 2
+
+[node name="CloseButton" type="Button" parent="RulesModal/Panel/VBox" unique_id=513056930]
+custom_minimum_size = Vector2(180, 46)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 18
+text = "GOT IT! 👍"

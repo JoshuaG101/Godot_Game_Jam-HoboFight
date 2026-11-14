@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://dpupvrnyvh04l"]
 
-[ext_resource type="Script" uid="uid://ec0evk3fieko" path="res://marioPartyTiles.gd" id="1_8qvvt"]
+[ext_resource type="Script" uid="uid://ec0evk3fieko" path="res://Board/Tiles/marioPartyTiles.gd" id="1_8qvvt"]
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_i44of"]
 height = 0.083984375

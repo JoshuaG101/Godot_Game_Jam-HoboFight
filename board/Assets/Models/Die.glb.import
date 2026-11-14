@@ -4,12 +4,12 @@ importer="scene"
 importer_version=1
 type="PackedScene"
 uid="uid://djpleeqabcsjs"
-path="res://.godot/imported/Die.glb-f5dde3e5fdbc64e4574b644f130d24e5.scn"
+path="res://.godot/imported/Die.glb-27a20c4d25a5e413c9661c8014fd7df4.scn"
 
 [deps]
 
-source_file="res://Die.glb"
-dest_files=["res://.godot/imported/Die.glb-f5dde3e5fdbc64e4574b644f130d24e5.scn"]
+source_file="res://Assets/Models/Die.glb"
+dest_files=["res://.godot/imported/Die.glb-27a20c4d25a5e413c9661c8014fd7df4.scn"]
 
 [params]
 
