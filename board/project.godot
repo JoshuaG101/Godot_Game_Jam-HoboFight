@@ -19,6 +19,7 @@ config/icon="res://icon.svg"
 
 GameState="*res://Autoload/game_state.gd"
 SoundManager="*res://Autoload/sound_manager.gd"
+PlayerPowerUps="*uid://byqoajvlxpc2g"
 
 [display]
 
