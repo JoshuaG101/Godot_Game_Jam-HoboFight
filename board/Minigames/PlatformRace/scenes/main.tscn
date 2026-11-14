@@ -28,7 +28,7 @@
 [ext_resource type="Texture2D" uid="uid://cnkblcoa0o7jq" path="res://Minigames/PlatformRace/assets/pixelart_bg/23.png" id="25_h33et"]
 [ext_resource type="Texture2D" uid="uid://bqyi113gx8lwq" path="res://Minigames/PlatformRace/assets/pixelart_bg/24.png" id="26_k111c"]
 
-[sub_resource type="BoxMesh" id="BoxMesh_k3ata"]
+[sub_resource type="BoxShape3D" id="BoxShape3D_k3ata"]
 size = Vector3(3, 0.3, 4.53)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_0ujai"]
@@ -58,9 +58,15 @@ size = Vector3(3, 40, 0.5)
 [sub_resource type="BoxShape3D" id="BoxShape3D_bf8ys"]
 size = Vector3(3, 40, 0.5)
 
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_rn2sg"]
+
+[sub_resource type="Sky" id="Sky_ffqn6"]
+sky_material = SubResource("ProceduralSkyMaterial_rn2sg")
+
 [sub_resource type="Environment" id="Environment_bf8ys"]
-background_mode = 3
+background_mode = 2
 background_color = Color(0.63529414, 0.6156863, 0.5254902, 0.12156863)
+sky = SubResource("Sky_ffqn6")
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_bf8ys"]
 animations = [{
