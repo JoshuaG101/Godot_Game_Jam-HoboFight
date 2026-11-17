@@ -1,7 +1,8 @@
 [gd_scene format=3 uid="uid://oi576ghrjls5"]
 
 [ext_resource type="Script" uid="uid://c4ysc44sbp5yl" path="res://Minigames/snowball/playertest.gd" id="1_y8feb"]
-[ext_resource type="Environment" path="res://Assets/Shaders/starry_sky_environment.tres" id="2_env"]
+[ext_resource type="Environment" uid="uid://chsj3hofujogp" path="res://Assets/Shaders/starry_sky_environment.tres" id="2_env"]
+[ext_resource type="Script" uid="uid://bfked7r2jj55c" path="res://victory.gd" id="3_fsacw"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_5bjbi"]
 
@@ -9,8 +10,8 @@
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_player"]
 albedo_color = Color(0.9, 0.3, 0.2, 1)
-roughness = 0.3
 metallic = 0.2
+roughness = 0.3
 rim_enabled = true
 rim = 0.6
 
@@ -41,7 +42,7 @@ rim_tint = 0.8
 
 [node name="SnowballSummit" type="Node3D" unique_id=1562868201]
 
-[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1188694961]
 environment = ExtResource("2_env")
 
 [node name="Camera3D" type="Camera3D" parent="." unique_id=2003922835]
@@ -50,6 +51,7 @@ transform = Transform3D(1, 0, 0, 0, 0.866025, 0.5, 0, -0.5, 0.866025, 0, 8, 12)
 [node name="Player" type="CharacterBody3D" parent="." unique_id=815125480]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.1232512, 0, 0)
 script = ExtResource("1_y8feb")
+player_id = 1
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Player" unique_id=322974277]
 shape = SubResource("CapsuleShape3D_5bjbi")
@@ -61,6 +63,23 @@ surface_material_override/0 = SubResource("StandardMaterial3D_player")
 [node name="Snowball" type="Node3D" parent="Player" unique_id=99233343]
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Player/Snowball" unique_id=1603757600]
+mesh = SubResource("SphereMesh_hgfvv")
+surface_material_override/0 = SubResource("StandardMaterial3D_snowball")
+
+[node name="Player2" type="CharacterBody3D" parent="." unique_id=1838965730]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0, 0)
+script = ExtResource("1_y8feb")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Player2" unique_id=299590886]
+shape = SubResource("CapsuleShape3D_5bjbi")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Player2" unique_id=973761086]
+mesh = SubResource("CapsuleMesh_8i30l")
+surface_material_override/0 = SubResource("StandardMaterial3D_player")
+
+[node name="Snowball" type="Node3D" parent="Player2" unique_id=882058731]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Player2/Snowball" unique_id=75358021]
 mesh = SubResource("SphereMesh_hgfvv")
 surface_material_override/0 = SubResource("StandardMaterial3D_snowball")
 
@@ -84,3 +103,6 @@ light_color = Color(0.9, 0.95, 1, 1)
 light_energy = 1.15
 shadow_enabled = true
 shadow_blur = 1.2
+
+[node name="Node" type="Node" parent="." unique_id=1510073255]
+script = ExtResource("3_fsacw")

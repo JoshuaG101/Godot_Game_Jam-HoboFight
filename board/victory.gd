@@ -1,12 +1,11 @@
 extends Node
 
-# Last player standing wins. Fall off the map and you're out.
+# last player standing wins. fall off the summit and you're out.
 
 const DEATH_Y = -10.0
 
 var win_label
 var winner = null
-
 
 func _ready():
 	var layer = CanvasLayer.new()
@@ -19,40 +18,6 @@ func _ready():
 	win_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	win_label.hide()
 	layer.add_child(win_label)
-
-	_demo()
-
-
-# TEMP: gives the test scene a floor and a visible player. delete later.
-func _demo():
-	var root = get_tree().current_scene
-
-	var ground = MeshInstance3D.new()
-	var plane = PlaneMesh.new()
-	plane.size = Vector2(40, 40)
-	ground.mesh = plane
-	root.add_child(ground)
-
-	var solid = StaticBody3D.new()
-	var col = CollisionShape3D.new()
-	var box = BoxShape3D.new()
-	box.size = Vector3(40, 1, 40)
-	col.shape = box
-	solid.add_child(col)
-	solid.position = Vector3(0, -0.5, 0)
-	root.add_child(solid)
-
-	for p in root.get_children():
-		if p is CharacterBody3D:
-			p.add_to_group("players")
-			var body = MeshInstance3D.new()
-			body.mesh = CapsuleMesh.new()
-			p.add_child(body)
-
-	var cam = get_viewport().get_camera_3d()
-	if cam:
-		cam.position = Vector3(0, 3, 12)
-
 
 func _process(_delta):
 	if winner:
@@ -67,7 +32,6 @@ func _process(_delta):
 
 	if alive.size() == 1:
 		win(alive[0])
-
 
 func win(player):
 	winner = player
