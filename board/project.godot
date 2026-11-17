@@ -26,6 +26,10 @@ PlayerPowerUps="*uid://byqoajvlxpc2g"
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
 
+[dotnet]
+
+project/assembly_name="Campus Clash"
+
 [input]
 
 ui_accept={
