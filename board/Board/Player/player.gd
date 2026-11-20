@@ -10,6 +10,7 @@ signal steps_updated(remaining: int)
 
 var is_moving: bool = false
 var is_rolling: bool = false
+var has_rolled_this_turn: bool = false
 var is_my_turn: bool = false
 var overhead_label: Label3D
 
@@ -31,7 +32,9 @@ func _ready() -> void:
 
 	if not current_space:
 		# Fallback to default starting space
-		current_space = get_node_or_null("../Node/marioPartyTiles")
+		current_space = get_node_or_null("../BoardMap/marioPartyTiles")
+		if not current_space:
+			current_space = get_node_or_null("../Node/marioPartyTiles")
 
 	if current_space:
 		global_position = current_space.global_position + get_tile_offset()
@@ -117,6 +120,7 @@ func start_turn() -> void:
 	is_my_turn = true
 	is_moving = false
 	is_rolling = false
+	has_rolled_this_turn = false
 	
 	# Turn indicator bounce
 	if overhead_label:
@@ -127,7 +131,7 @@ func start_turn() -> void:
 	print("Player %d's turn started." % player_id)
 
 func _input(event: InputEvent) -> void:
-	if not is_my_turn or is_moving or is_rolling:
+	if not is_my_turn or is_moving or is_rolling or has_rolled_this_turn:
 		return
 
 	var is_roll_pressed: bool = (
@@ -142,9 +146,10 @@ func _input(event: InputEvent) -> void:
 		request_roll()
 
 func request_roll() -> void:
-	if not is_my_turn or is_moving or is_rolling:
+	if not is_my_turn or is_moving or is_rolling or has_rolled_this_turn:
 		return
 	if dice:
+		has_rolled_this_turn = true
 		is_rolling = true
 		dice._roll()
 
@@ -166,7 +171,13 @@ func move_steps(steps: int) -> void:
 			print("Player %d reached dead end!" % player_id)
 			break
 			
-		current_space = next_options[0]
+		var chosen_tile: BoardNode3D = null
+		if next_options.size() > 1:
+			chosen_tile = await choose_branch_path(next_options)
+		else:
+			chosen_tile = next_options[0]
+
+		current_space = chosen_tile
 		remaining -= 1
 		
 		# Star Space passing check (if passing through before final landing space)
@@ -187,6 +198,84 @@ func move_steps(steps: int) -> void:
 	
 	is_my_turn = false
 	turn_finished.emit()
+
+func choose_branch_path(options: Array[BoardNode3D]) -> BoardNode3D:
+	# Show prompt on HUD for player to choose direction
+	var hud = get_node_or_null("../HUD")
+	if not hud:
+		return options[0]
+
+	# Build branch selection UI
+	var branch_dialog = PanelContainer.new()
+	branch_dialog.name = "BranchChoiceDialog"
+	branch_dialog.anchors_preset = Control.PRESET_CENTER
+	branch_dialog.custom_minimum_size = Vector2(360, 160)
+	
+	var style = StyleBoxFlat.new()
+	style.bg_color = Color(0.08, 0.1, 0.15, 0.95)
+	style.corner_radius_top_left = 12
+	style.corner_radius_top_right = 12
+	style.corner_radius_bottom_left = 12
+	style.corner_radius_bottom_right = 12
+	style.border_width_left = 3
+	style.border_width_top = 3
+	style.border_width_right = 3
+	style.border_width_bottom = 3
+	style.border_color = Color(1.0, 0.8, 0.2)
+	style.content_margin_left = 16
+	style.content_margin_top = 16
+	style.content_margin_right = 16
+	style.content_margin_bottom = 16
+	branch_dialog.add_theme_stylebox_override("panel", style)
+
+	var vbox = VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 12)
+	branch_dialog.add_child(vbox)
+
+	var title = Label.new()
+	title.text = "CHOOSE YOUR PATH"
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title.add_theme_font_size_override("font_size", 20)
+	title.modulate = Color(1.0, 0.85, 0.2)
+	vbox.add_child(title)
+
+	var btn_row = HBoxContainer.new()
+	btn_row.alignment = BoxContainer.ALIGNMENT_CENTER
+	btn_row.add_theme_constant_override("separation", 14)
+	vbox.add_child(btn_row)
+
+	hud.add_child(branch_dialog)
+
+	# Wait for selection
+	var selected_ref: Dictionary = {"tile": null}
+	for i in range(options.size()):
+		var opt = options[i]
+		var btn = Button.new()
+		# Compute cardinal direction from current tile to option
+		var d = opt.global_position - current_space.global_position
+		var dir_name = "Forward"
+		if abs(d.x) > abs(d.z):
+			dir_name = "Right (East)" if d.x > 0 else "Left (West)"
+		else:
+			dir_name = "Down (South)" if d.z > 0 else "Up (North)"
+			
+		btn.text = "Path %d: %s" % [i + 1, dir_name]
+		btn.custom_minimum_size = Vector2(150, 44)
+		btn.add_theme_font_size_override("font_size", 16)
+		btn.pressed.connect(func():
+			selected_ref["tile"] = opt
+		)
+		btn_row.add_child(btn)
+
+	# Focus first button for keyboard / controller support
+	if btn_row.get_child_count() > 0:
+		btn_row.get_child(0).grab_focus()
+
+	while selected_ref["tile"] == null:
+		await get_tree().process_frame
+
+	branch_dialog.queue_free()
+	return selected_ref["tile"]
 
 func hop_to_position(target_pos: Vector3) -> void:
 	SoundManager.play_hop()
@@ -274,6 +363,9 @@ func handle_random_event() -> void:
 			SoundManager.play_coin()
 
 func spawn_floating_text(msg: String, color: Color) -> void:
+	var parent_node = get_parent()
+	if not parent_node:
+		return
 	var txt = Label3D.new()
 	txt.text = msg
 	txt.font_size = 40
@@ -282,8 +374,10 @@ func spawn_floating_text(msg: String, color: Color) -> void:
 	txt.outline_size = 10
 	txt.outline_modulate = Color(0, 0, 0, 0.9)
 	txt.billboard = BaseMaterial3D.BILLBOARD_ENABLED
-	txt.global_position = global_position + Vector3(0, 2.0, 0)
-	get_parent().add_child(txt)
+	txt.position = position + Vector3(0, 2.0, 0)
+	parent_node.add_child(txt)
+	if is_inside_tree():
+		txt.global_position = global_position + Vector3(0, 2.0, 0)
 	
 	var tw = txt.create_tween()
 	tw.set_parallel(true)

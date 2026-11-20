@@ -10,6 +10,7 @@ var sfx_click: AudioStreamWAV
 
 func _ready() -> void:
 	init_sfx()
+	set_volume(0.8)
 
 func play_sound(stream: AudioStream, pitch_scale: float = 1.0, volume_db: float = 0.0) -> void:
 	if not stream:
@@ -21,6 +22,23 @@ func play_sound(stream: AudioStream, pitch_scale: float = 1.0, volume_db: float 
 	add_child(player)
 	player.play()
 	player.finished.connect(player.queue_free)
+
+func set_volume(val: float) -> void:
+	# val from 0.0 to 1.0
+	for i in AudioServer.bus_count:
+		if val <= 0.001:
+			AudioServer.set_bus_mute(i, true)
+			AudioServer.set_bus_volume_db(i, -80.0)
+		else:
+			AudioServer.set_bus_mute(i, false)
+			# Convert linear 0..1 to db
+			var db = linear_to_db(val)
+			AudioServer.set_bus_volume_db(i, db)
+
+func get_volume() -> float:
+	if AudioServer.is_bus_mute(0):
+		return 0.0
+	return db_to_linear(AudioServer.get_bus_volume_db(0))
 
 # Procedurally generate a wav sound stream
 func create_tone_wav(frequencies: Array, duration: float, wave_type: String = "sine", decay: float = 5.0) -> AudioStreamWAV:

@@ -100,8 +100,26 @@ var max_rounds: int = 5
 var minigame_scenes: Array[String] = [
 	"res://Minigames/Jenga/Scenes/JengaGame.tscn",
 	"res://Minigames/snowball/SnowballSummit.tscn",
-	"res://Minigames/Sword_Fight/main.tscn"
+	"res://Minigames/Sword_Fight/main.tscn",
+	"res://Minigames/PlatformRace/race/platform_race.tscn"
 ]
+
+func _ready() -> void:
+	# Enable fullscreen
+	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
+
+func _unhandled_input(event: InputEvent) -> void:
+	# F11 or Alt+Enter toggles fullscreen
+	if event is InputEventKey and event.is_pressed() and not event.echo:
+		if event.keycode == KEY_F11 or (event.alt_pressed and (event.keycode == KEY_ENTER or event.keycode == KEY_KP_ENTER)):
+			toggle_fullscreen()
+
+func toggle_fullscreen() -> void:
+	var mode = DisplayServer.window_get_mode()
+	if mode == DisplayServer.WINDOW_MODE_FULLSCREEN or mode == DisplayServer.WINDOW_MODE_EXCLUSIVE_FULLSCREEN:
+		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
+	else:
+		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
 
 func get_available_majors() -> Array[Dictionary]:
 	return AVAILABLE_MAJORS

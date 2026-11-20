@@ -1,21 +1,10 @@
 [gd_scene format=3 uid="uid://pbanh1aksxch"]
 
-[ext_resource type="PackedScene" uid="uid://dpupvrnyvh04l" path="res://Board/Tiles/MPTiles.tscn" id="1_nd4as"]
 [ext_resource type="PackedScene" uid="uid://c256lbtq7n0ge" path="res://Board/Player/player.tscn" id="2_3ng4l"]
 [ext_resource type="PackedScene" uid="uid://die1wplxa7la2" path="res://Board/Dice/die.tscn" id="3_otxgx"]
 [ext_resource type="Script" uid="uid://djbloql54pbh4" path="res://Board/turn_manager.gd" id="4_tmgr"]
 [ext_resource type="Environment" uid="uid://chsj3hofujogp" path="res://Assets/Shaders/starry_sky_environment.tres" id="5_env"]
-
-[sub_resource type="BoxMesh" id="BoxMesh_island"]
-size = Vector3(12, 1, 13)
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_island"]
-albedo_color = Color(0.12, 0.14, 0.2, 1)
-metallic = 0.2
-roughness = 0.8
-rim_enabled = true
-rim = 0.4
-rim_tint = 0.6
+[ext_resource type="PackedScene" uid="uid://eag0mbaqmomu" path="res://board_map.tscn" id="5_s27tx"]
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_shskd"]
 bounce = 1.0
@@ -31,35 +20,26 @@ size = Vector3(17.038666, 0.33984375, 17.61441)
 [node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1389573544]
 environment = ExtResource("5_env")
 
-[node name="BoardIsland" type="MeshInstance3D" parent="." unique_id=1832596133]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, -0.58, 3.5)
-mesh = SubResource("BoxMesh_island")
-surface_material_override/0 = SubResource("StandardMaterial3D_island")
-
 [node name="Camera3D" type="Camera3D" parent="." unique_id=1758973941]
-transform = Transform3D(-4.371139e-08, 0.7071068, -0.7071067, 0, 0.7071067, 0.7071068, 1, 3.090862e-08, -3.0908616e-08, -2.6318007, 10.139526, 2.5260224)
+transform = Transform3D(0.999783, -0.014731115, 0.014731112, -1.7763568e-15, 0.70710677, 0.7071069, -0.02083294, -0.7069534, 0.7069533, 3.5832624, 14.917284, 15.835232)
 
-[node name="Player1" parent="." unique_id=2069941534 node_paths=PackedStringArray("current_space", "dice") groups=["players"] instance=ExtResource("2_3ng4l")]
+[node name="Player1" parent="." unique_id=2069941534 node_paths=PackedStringArray("dice") groups=["players"] instance=ExtResource("2_3ng4l")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.025871038, 0.24175477, 0.03738749)
-current_space = NodePath("../Node/marioPartyTiles")
 dice = NodePath("../Die")
 
-[node name="Player2" parent="." unique_id=2141352401 node_paths=PackedStringArray("current_space", "dice") groups=["players"] instance=ExtResource("2_3ng4l")]
+[node name="Player2" parent="." unique_id=2141352401 node_paths=PackedStringArray("dice") groups=["players"] instance=ExtResource("2_3ng4l")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.025871038, 0.24175477, 0.03738749)
 player_id = 2
-current_space = NodePath("../Node/marioPartyTiles")
 dice = NodePath("../Die")
 
-[node name="Player3" parent="." unique_id=1817079858 node_paths=PackedStringArray("current_space", "dice") groups=["players"] instance=ExtResource("2_3ng4l")]
+[node name="Player3" parent="." unique_id=1817079858 node_paths=PackedStringArray("dice") groups=["players"] instance=ExtResource("2_3ng4l")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.025871038, 0.24175477, 0.03738749)
 player_id = 3
-current_space = NodePath("../Node/marioPartyTiles")
 dice = NodePath("../Die")
 
-[node name="Player4" parent="." unique_id=242485888 node_paths=PackedStringArray("current_space", "dice") groups=["players"] instance=ExtResource("2_3ng4l")]
+[node name="Player4" parent="." unique_id=242485888 node_paths=PackedStringArray("dice") groups=["players"] instance=ExtResource("2_3ng4l")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.025871038, 0.24175477, 0.03738749)
 player_id = 4
-current_space = NodePath("../Node/marioPartyTiles")
 dice = NodePath("../Die")
 
 [node name="TurnManager" type="Node" parent="." unique_id=2046490095 node_paths=PackedStringArray("turn_label", "hud_info_label")]
@@ -95,43 +75,6 @@ light_color = Color(1, 0.95, 0.88, 1)
 light_energy = 1.2
 shadow_enabled = true
 shadow_blur = 1.2
-
-[node name="Node" type="Node" parent="." unique_id=1550546266]
-
-[node name="marioPartyTiles" parent="Node" unique_id=1257134171 instance=ExtResource("1_nd4as")]
-next_nodes = Array[NodePath]([NodePath("../marioPartyTiles2")])
-
-[node name="marioPartyTiles2" parent="Node" unique_id=1460236739 instance=ExtResource("1_nd4as")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 3.5630155)
-next_nodes = Array[NodePath]([NodePath("../marioPartyTiles3")])
-
-[node name="marioPartyTiles3" parent="Node" unique_id=608240149 instance=ExtResource("1_nd4as")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 7)
-space_type = 1
-next_nodes = Array[NodePath]([NodePath("../marioPartyTiles4")])
-
-[node name="marioPartyTiles4" parent="Node" unique_id=1848073407 instance=ExtResource("1_nd4as")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0, 7)
-space_type = 3
-next_nodes = Array[NodePath]([NodePath("../marioPartyTiles5")])
-
-[node name="marioPartyTiles5" parent="Node" unique_id=1062698871 instance=ExtResource("1_nd4as")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0, 7)
-next_nodes = Array[NodePath]([NodePath("../marioPartyTiles6")])
-
-[node name="marioPartyTiles6" parent="Node" unique_id=394575423 instance=ExtResource("1_nd4as")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0, 3.5630155)
-space_type = 2
-next_nodes = Array[NodePath]([NodePath("../marioPartyTiles7")])
-
-[node name="marioPartyTiles7" parent="Node" unique_id=421402062 instance=ExtResource("1_nd4as")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0, 0)
-space_type = 1
-next_nodes = Array[NodePath]([NodePath("../marioPartyTiles8")])
-
-[node name="marioPartyTiles8" parent="Node" unique_id=604033614 instance=ExtResource("1_nd4as")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0, 0)
-next_nodes = Array[NodePath]([NodePath("../marioPartyTiles")])
 
 [node name="Node2" type="Node" parent="." unique_id=621222356]
 
@@ -187,3 +130,5 @@ shape = SubResource("BoxShape3D_hmt4g")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14.61556, 2.4466233, 0)
 mass = 1.0
 gravity_scale = 2.0
+
+[node name="BoardMap" parent="." unique_id=409255127 instance=ExtResource("5_s27tx")]

@@ -567,10 +567,13 @@ func eliminate_current_player() -> void:
 
 	if active_players.size() <= 1:
 		game_over = true
+		var winner_num = active_players[0] if active_players.size() == 1 else 1
 		$HUD/TurnLabel.text = (
-			"Player " + str(active_players[0]) + " Wins!"
+			"Player " + str(winner_num) + " Wins!\nReturning to Board..."
 		)
-		print("Player ", active_players[0], " wins!")
+		print("Player ", winner_num, " wins!")
+		await get_tree().create_timer(3.0).timeout
+		get_tree().change_scene_to_file("res://Board/Board.tscn")
 		return
 
 	$HUD/TurnLabel.text = (

@@ -131,6 +131,9 @@ func detect_face_value() -> int:
 	return best_face
 
 func spawn_roll_popup(val: int) -> void:
+	var parent_node = get_parent()
+	if not parent_node:
+		return
 	var popup = Label3D.new()
 	popup.text = str(val)
 	popup.font_size = 72
@@ -139,8 +142,10 @@ func spawn_roll_popup(val: int) -> void:
 	popup.outline_size = 12
 	popup.outline_modulate = Color(0, 0, 0, 0.9)
 	popup.billboard = BaseMaterial3D.BILLBOARD_ENABLED
-	popup.global_position = global_position + Vector3(0, 1.2, 0)
-	get_parent().add_child(popup)
+	popup.position = position + Vector3(0, 1.2, 0)
+	parent_node.add_child(popup)
+	if is_inside_tree():
+		popup.global_position = global_position + Vector3(0, 1.2, 0)
 	
 	var tw = popup.create_tween()
 	tw.set_parallel(true)

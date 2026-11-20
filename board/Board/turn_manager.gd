@@ -10,8 +10,21 @@ var roll_button: Button = null
 var remaining_steps_label: Label = null
 var player_hud_containers: Array[PanelContainer] = []
 var victory_overlay: Control = null
+var pause_menu: Control = null
+var camera: Camera3D = null
+var base_cam_offset: Vector3 = Vector3.ZERO
+var initial_cam_pos: Vector3 = Vector3.ZERO
 
 func _ready() -> void:
+	camera = get_node_or_null("../Camera3D") as Camera3D
+	if camera:
+		initial_cam_pos = camera.global_position
+
+	# Ensure starting space fallback for players matches the new BoardMap
+	var start_tile = get_node_or_null("../BoardMap/marioPartyTiles")
+	if not start_tile:
+		start_tile = get_node_or_null("../Node/marioPartyTiles")
+
 	# Find players if not manually populated
 	if players.is_empty():
 		var found = get_tree().get_nodes_in_group("players")
@@ -22,8 +35,12 @@ func _ready() -> void:
 	# Sort players by player_id
 	players.sort_custom(func(a, b): return a.player_id < b.player_id)
 
-	# Connect signals for each player
+	# Connect signals and assign default space if needed
 	for p in players:
+		if not p.current_space and start_tile:
+			p.current_space = start_tile
+			p.global_position = start_tile.global_position + p.get_tile_offset()
+
 		if p.has_signal("turn_finished") and not p.turn_finished.is_connected(_on_player_turn_finished):
 			p.turn_finished.connect(_on_player_turn_finished)
 		if p.has_signal("steps_updated") and not p.steps_updated.is_connected(_on_steps_updated):
@@ -39,6 +56,15 @@ func _ready() -> void:
 	await get_tree().create_timer(0.6).timeout
 	start_player_turn()
 
+func _process(delta: float) -> void:
+	# Smoothly follow the active player a little bit
+	if camera and current_player_index < players.size():
+		var active_p = players[current_player_index]
+		if active_p and is_instance_valid(active_p):
+			# Follow player subtly with slight offset bias (weighted 35% towards player)
+			var target_cam_pos = initial_cam_pos + (active_p.global_position * 0.35)
+			camera.global_position = camera.global_position.lerp(target_cam_pos, delta * 3.0)
+
 func setup_enhanced_hud() -> void:
 	var hud = get_node_or_null("../HUD") as CanvasLayer
 	if not hud:
@@ -50,108 +76,307 @@ func setup_enhanced_hud() -> void:
 	if turn_label:
 		turn_label.visible = false
 
-	# Create a modern Top Bar Container for Player Score Cards
-	var top_bar = HBoxContainer.new()
-	top_bar.name = "PlayerTopBar"
-	top_bar.custom_minimum_size = Vector2(0, 70)
-	top_bar.anchors_preset = Control.PRESET_TOP_WIDE
-	top_bar.offset_left = 20
-	top_bar.offset_top = 15
-	top_bar.offset_right = -20
-	top_bar.alignment = BoxContainer.ALIGNMENT_CENTER
-	top_bar.add_theme_constant_override("separation", 20)
-	hud.add_child(top_bar)
+	# 1. Left-Side Vertical Container for Player Score Cards (P1, P2, P3, P4)
+	var left_bar = VBoxContainer.new()
+	left_bar.name = "PlayerLeftBar"
+	left_bar.anchors_preset = Control.PRESET_LEFT_WIDE
+	left_bar.offset_left = 24
+	left_bar.offset_top = 24
+	left_bar.offset_bottom = -24
+	left_bar.alignment = BoxContainer.ALIGNMENT_CENTER
+	left_bar.add_theme_constant_override("separation", 14)
+	hud.add_child(left_bar)
 
 	# Build individual cards for each player
 	player_hud_containers.clear()
 	for p_data in GameState.player_data:
 		var card = create_player_card(p_data)
-		top_bar.add_child(card)
+		left_bar.add_child(card)
 		player_hud_containers.append(card)
 
-	# Round and Turn Banner in the Center-Top
+	# 2. Top-Right Box for Round & Player Turn (with sleek frosted container box)
+	var top_right_container = PanelContainer.new()
+	top_right_container.name = "TopRightPanel"
+	top_right_container.anchors_preset = Control.PRESET_TOP_RIGHT
+	top_right_container.offset_top = 20
+	top_right_container.offset_right = -24
+	top_right_container.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+
+	var box_style = StyleBoxFlat.new()
+	box_style.bg_color = Color(0.08, 0.11, 0.18, 0.92)
+	box_style.corner_radius_top_left = 14
+	box_style.corner_radius_top_right = 14
+	box_style.corner_radius_bottom_left = 14
+	box_style.corner_radius_bottom_right = 14
+	box_style.border_width_left = 2
+	box_style.border_width_top = 2
+	box_style.border_width_right = 2
+	box_style.border_width_bottom = 2
+	box_style.border_color = Color(0.35, 0.65, 0.95, 0.75)
+	box_style.shadow_color = Color(0, 0, 0, 0.45)
+	box_style.shadow_size = 10
+	box_style.content_margin_left = 22
+	box_style.content_margin_right = 22
+	box_style.content_margin_top = 10
+	box_style.content_margin_bottom = 12
+	top_right_container.add_theme_stylebox_override("panel", box_style)
+	hud.add_child(top_right_container)
+
 	var banner_box = VBoxContainer.new()
 	banner_box.name = "TurnBannerBox"
-	banner_box.anchors_preset = Control.PRESET_TOP_WIDE
-	banner_box.offset_top = 95
-	banner_box.offset_bottom = 200
 	banner_box.alignment = BoxContainer.ALIGNMENT_CENTER
-	hud.add_child(banner_box)
+	banner_box.add_theme_constant_override("separation", 4)
+	top_right_container.add_child(banner_box)
 
 	var round_lbl = Label.new()
 	round_lbl.name = "RoundBannerLabel"
 	round_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	round_lbl.add_theme_font_size_override("font_size", 18)
-	round_lbl.modulate = Color(0.85, 0.85, 0.85)
+	round_lbl.add_theme_font_size_override("font_size", 16)
+	round_lbl.modulate = Color(0.55, 0.85, 1.0)
 	banner_box.add_child(round_lbl)
 
 	var turn_lbl = Label.new()
 	turn_lbl.name = "ActiveTurnLabel"
 	turn_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	turn_lbl.add_theme_font_size_override("font_size", 28)
+	turn_lbl.add_theme_font_size_override("font_size", 22)
 	banner_box.add_child(turn_lbl)
 
 	remaining_steps_label = Label.new()
 	remaining_steps_label.name = "RemainingStepsLabel"
 	remaining_steps_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	remaining_steps_label.add_theme_font_size_override("font_size", 24)
-	remaining_steps_label.modulate = Color(1.0, 0.9, 0.2)
+	remaining_steps_label.add_theme_font_size_override("font_size", 18)
+	remaining_steps_label.modulate = Color(1.0, 0.92, 0.3)
 	remaining_steps_label.visible = false
 	banner_box.add_child(remaining_steps_label)
 
-	# Bottom-Center Interactive Roll Button
-	var bottom_box = VBoxContainer.new()
-	bottom_box.anchors_preset = Control.PRESET_BOTTOM_WIDE
+	setup_pause_menu()
+
+	# 3. Bottom-Center Interactive Roll Button
+	var bottom_box = CenterContainer.new()
+	bottom_box.anchors_preset = Control.PRESET_CENTER_BOTTOM
 	bottom_box.offset_bottom = -30
-	bottom_box.alignment = BoxContainer.ALIGNMENT_CENTER
+	bottom_box.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	bottom_box.grow_vertical = Control.GROW_DIRECTION_BEGIN
 	hud.add_child(bottom_box)
 
 	roll_button = Button.new()
 	roll_button.name = "RollButton"
 	roll_button.text = "🎲 ROLL DIE (SPACEBAR)"
-	roll_button.custom_minimum_size = Vector2(280, 52)
-	roll_button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	roll_button.custom_minimum_size = Vector2(300, 56)
 	roll_button.add_theme_font_size_override("font_size", 20)
+	
+	# Custom gradient glass style for roll button
+	var btn_style = StyleBoxFlat.new()
+	btn_style.bg_color = Color(0.12, 0.2, 0.35, 0.92)
+	btn_style.corner_radius_top_left = 16
+	btn_style.corner_radius_top_right = 16
+	btn_style.corner_radius_bottom_left = 16
+	btn_style.corner_radius_bottom_right = 16
+	btn_style.border_width_left = 2
+	btn_style.border_width_top = 2
+	btn_style.border_width_right = 2
+	btn_style.border_width_bottom = 3
+	btn_style.border_color = Color(0.4, 0.8, 1.0, 0.9)
+	btn_style.shadow_color = Color(0, 0.5, 1.0, 0.35)
+	btn_style.shadow_size = 12
+	roll_button.add_theme_stylebox_override("normal", btn_style)
+	
+	var btn_hover = btn_style.duplicate()
+	btn_hover.bg_color = Color(0.18, 0.3, 0.5, 0.95)
+	btn_hover.border_color = Color(0.6, 0.95, 1.0, 1.0)
+	btn_hover.shadow_size = 18
+	roll_button.add_theme_stylebox_override("hover", btn_hover)
+
 	roll_button.pressed.connect(_on_roll_button_pressed)
 	bottom_box.add_child(roll_button)
 
 func create_player_card(p_data: Dictionary) -> PanelContainer:
 	var panel = PanelContainer.new()
+	panel.custom_minimum_size = Vector2(210, 68)
 	var style = StyleBoxFlat.new()
-	style.bg_color = Color(0.1, 0.12, 0.16, 0.92)
-	style.corner_radius_bottom_left = 10
-	style.corner_radius_bottom_right = 10
-	style.corner_radius_top_left = 10
-	style.corner_radius_top_right = 10
-	style.border_width_bottom = 3
-	style.border_width_left = 3
-	style.border_width_right = 3
-	style.border_width_top = 3
-	style.border_color = p_data["color"]
-	style.content_margin_left = 12
-	style.content_margin_right = 12
+	style.bg_color = Color(0.08, 0.1, 0.16, 0.88)
+	style.corner_radius_bottom_left = 12
+	style.corner_radius_bottom_right = 12
+	style.corner_radius_top_left = 12
+	style.corner_radius_top_right = 12
+	style.border_width_bottom = 2
+	style.border_width_left = 2
+	style.border_width_right = 2
+	style.border_width_top = 2
+	style.border_color = p_data["color"] * 0.7
+	style.shadow_color = Color(0, 0, 0, 0.4)
+	style.shadow_size = 6
+	style.content_margin_left = 14
+	style.content_margin_right = 14
 	style.content_margin_top = 8
 	style.content_margin_bottom = 8
 	panel.add_theme_stylebox_override("panel", style)
 
 	var hbox = HBoxContainer.new()
-	hbox.add_theme_constant_override("separation", 10)
+	hbox.add_theme_constant_override("separation", 12)
 	panel.add_child(hbox)
+
+	var icon_badge = Label.new()
+	icon_badge.text = p_data.get("icon", "🎓")
+	icon_badge.add_theme_font_size_override("font_size", 24)
+	hbox.add_child(icon_badge)
+
+	var info_vbox = VBoxContainer.new()
+	info_vbox.add_theme_constant_override("separation", 2)
+	hbox.add_child(info_vbox)
 
 	var name_lbl = Label.new()
 	name_lbl.name = "NameLabel"
-	name_lbl.text = "P%d %s %s" % [p_data["id"], p_data.get("icon", ""), p_data.get("major", "")]
-	name_lbl.add_theme_font_size_override("font_size", 18)
+	name_lbl.text = "P%d %s" % [p_data["id"], p_data.get("major", "")]
+	name_lbl.add_theme_font_size_override("font_size", 16)
 	name_lbl.modulate = p_data["color"]
-	hbox.add_child(name_lbl)
+	info_vbox.add_child(name_lbl)
 
 	var stats_lbl = Label.new()
 	stats_lbl.name = "StatsLabel"
 	stats_lbl.text = "🪙 %d  ★ %d" % [p_data["coins"], p_data["stars"]]
-	stats_lbl.add_theme_font_size_override("font_size", 18)
-	hbox.add_child(stats_lbl)
+	stats_lbl.add_theme_font_size_override("font_size", 15)
+	stats_lbl.modulate = Color(0.9, 0.9, 0.9)
+	info_vbox.add_child(stats_lbl)
 
 	return panel
+
+func setup_pause_menu() -> void:
+	var hud = get_node_or_null("../HUD")
+	if not hud:
+		return
+
+	pause_menu = Control.new()
+	pause_menu.name = "PauseMenu"
+	pause_menu.anchors_preset = Control.PRESET_FULL_RECT
+	pause_menu.visible = false
+	pause_menu.process_mode = Node.PROCESS_MODE_ALWAYS
+	hud.add_child(pause_menu)
+
+	# Dim background overlay
+	var bg = ColorRect.new()
+	bg.anchors_preset = Control.PRESET_FULL_RECT
+	bg.color = Color(0, 0, 0, 0.75)
+	pause_menu.add_child(bg)
+
+	# Center Dialog Box
+	var center_box = CenterContainer.new()
+	center_box.anchors_preset = Control.PRESET_FULL_RECT
+	pause_menu.add_child(center_box)
+
+	var panel = PanelContainer.new()
+	panel.custom_minimum_size = Vector2(380, 420)
+	var panel_style = StyleBoxFlat.new()
+	panel_style.bg_color = Color(0.09, 0.12, 0.18, 0.96)
+	panel_style.corner_radius_top_left = 16
+	panel_style.corner_radius_top_right = 16
+	panel_style.corner_radius_bottom_left = 16
+	panel_style.corner_radius_bottom_right = 16
+	panel_style.border_width_left = 2
+	panel_style.border_width_top = 2
+	panel_style.border_width_right = 2
+	panel_style.border_width_bottom = 2
+	panel_style.border_color = Color(0.35, 0.65, 0.95, 0.8)
+	panel_style.shadow_color = Color(0, 0, 0, 0.6)
+	panel_style.shadow_size = 20
+	panel_style.content_margin_left = 28
+	panel_style.content_margin_right = 28
+	panel_style.content_margin_top = 24
+	panel_style.content_margin_bottom = 24
+	panel.add_theme_stylebox_override("panel", panel_style)
+	center_box.add_child(panel)
+
+	var vbox = VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 18)
+	panel.add_child(vbox)
+
+	var title = Label.new()
+	title.text = "⏸️ PAUSED"
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title.add_theme_font_size_override("font_size", 28)
+	title.modulate = Color(1.0, 0.88, 0.2)
+	vbox.add_child(title)
+
+	# Volume Section
+	var vol_box = VBoxContainer.new()
+	vol_box.add_theme_constant_override("separation", 6)
+	vbox.add_child(vol_box)
+
+	var vol_label = Label.new()
+	vol_label.text = "🔊 Master Volume: %d%%" % int(SoundManager.get_volume() * 100)
+	vol_label.add_theme_font_size_override("font_size", 16)
+	vol_label.modulate = Color(0.85, 0.9, 1.0)
+	vol_box.add_child(vol_label)
+
+	var vol_slider = HSlider.new()
+	vol_slider.min_value = 0.0
+	vol_slider.max_value = 1.0
+	vol_slider.step = 0.05
+	vol_slider.value = SoundManager.get_volume()
+	vol_slider.value_changed.connect(func(val: float):
+		SoundManager.set_volume(val)
+		vol_label.text = "🔊 Master Volume: %d%%" % int(val * 100)
+	)
+	vol_box.add_child(vol_slider)
+
+	vbox.add_child(HSeparator.new())
+
+	# Button Style helper
+	var create_btn = func(text: String, color_accent: Color) -> Button:
+		var btn = Button.new()
+		btn.text = text
+		btn.custom_minimum_size = Vector2(0, 46)
+		btn.add_theme_font_size_override("font_size", 18)
+		var b_style = StyleBoxFlat.new()
+		b_style.bg_color = Color(0.14, 0.18, 0.26, 0.9)
+		b_style.corner_radius_top_left = 10
+		b_style.corner_radius_top_right = 10
+		b_style.corner_radius_bottom_left = 10
+		b_style.corner_radius_bottom_right = 10
+		b_style.border_width_left = 1
+		b_style.border_width_top = 1
+		b_style.border_width_right = 1
+		b_style.border_width_bottom = 1
+		b_style.border_color = color_accent * 0.7
+		btn.add_theme_stylebox_override("normal", b_style)
+		var h_style = b_style.duplicate()
+		h_style.bg_color = Color(0.2, 0.26, 0.38, 0.95)
+		h_style.border_color = color_accent
+		btn.add_theme_stylebox_override("hover", h_style)
+		return btn
+
+	# Resume Button
+	var resume_btn = create_btn.call("▶️ Resume", Color(0.3, 0.8, 1.0))
+	resume_btn.pressed.connect(toggle_pause)
+	vbox.add_child(resume_btn)
+
+	# Main Menu Button
+	var menu_btn = create_btn.call("🏠 Main Menu", Color(1.0, 0.8, 0.2))
+	menu_btn.pressed.connect(func():
+		get_tree().paused = false
+		GameState.reset_game()
+		get_tree().change_scene_to_file("res://UI/MainMenu.tscn")
+	)
+	vbox.add_child(menu_btn)
+
+	# Exit Game Button
+	var exit_btn = create_btn.call("🚪 Exit Game", Color(1.0, 0.35, 0.35))
+	exit_btn.pressed.connect(func():
+		get_tree().quit()
+	)
+	vbox.add_child(exit_btn)
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event is InputEventKey and event.is_pressed() and not event.echo:
+		if event.keycode == KEY_ESCAPE:
+			toggle_pause()
+
+func toggle_pause() -> void:
+	if not pause_menu:
+		return
+	var is_open = not pause_menu.visible
+	pause_menu.visible = is_open
+	get_tree().paused = is_open
 
 func update_hud() -> void:
 	var hud = get_node_or_null("../HUD")
@@ -166,18 +391,37 @@ func update_hud() -> void:
 			
 			var name_lbl = card.find_child("NameLabel", true, false) as Label
 			if name_lbl:
-				name_lbl.text = "P%d %s %s" % [p_data["id"], p_data.get("icon", ""), p_data.get("major", "")]
+				name_lbl.text = "P%d %s" % [p_data["id"], p_data.get("major", "")]
 				name_lbl.modulate = p_data["color"]
 
 			var stats_lbl = card.find_child("StatsLabel", true, false) as Label
 			if stats_lbl:
 				stats_lbl.text = "🪙 %d  ★ %d" % [p_data["coins"], p_data["stars"]]
 				
-			# Highlight active turn card with scale
+			# Highlight active turn card with border glow and subtle scale
 			var is_active = (i == current_player_index)
 			var target_scale = Vector2(1.08, 1.08) if is_active else Vector2(1.0, 1.0)
 			var tw = card.create_tween()
 			tw.tween_property(card, "scale", target_scale, 0.2)
+
+			var style = card.get_theme_stylebox("panel") as StyleBoxFlat
+			if style:
+				if is_active:
+					style.border_color = p_data["color"] * 1.5
+					style.border_width_bottom = 3
+					style.border_width_top = 3
+					style.border_width_left = 3
+					style.border_width_right = 3
+					style.shadow_color = p_data["color"] * 0.6
+					style.shadow_size = 12
+				else:
+					style.border_color = p_data["color"] * 0.5
+					style.border_width_bottom = 2
+					style.border_width_top = 2
+					style.border_width_left = 2
+					style.border_width_right = 2
+					style.shadow_color = Color(0, 0, 0, 0.4)
+					style.shadow_size = 6
 
 	# Update Round & Turn text
 	var round_lbl = hud.find_child("RoundBannerLabel", true, false) as Label
@@ -229,6 +473,7 @@ func start_player_turn() -> void:
 func _on_roll_button_pressed() -> void:
 	if roll_button:
 		roll_button.disabled = true
+		roll_button.visible = false
 	if current_player_index < players.size():
 		var active_p = players[current_player_index]
 		if active_p.has_method("request_roll"):
@@ -352,4 +597,3 @@ func show_game_over_screen() -> void:
 		get_tree().change_scene_to_file("res://UI/MainMenu.tscn")
 	)
 	btn_row.add_child(menu_btn)
-

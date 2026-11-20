@@ -1,0 +1,247 @@
+[gd_scene format=3 uid="uid://eag0mbaqmomu"]
+
+[ext_resource type="PackedScene" uid="uid://bw27ee6gxjxli" path="res://Board/gameBoard.glb" id="1_s66fm"]
+[ext_resource type="PackedScene" uid="uid://dpupvrnyvh04l" path="res://Board/Tiles/MPTiles.tscn" id="2_pw14y"]
+
+[node name="BoardMap" type="Node" unique_id=409255127]
+
+[node name="marioPartyTiles50" parent="." unique_id=636243728 instance=ExtResource("2_pw14y")]
+transform = Transform3D(5.3765007e-06, 0, 1, 0, 1, 0, -1, 0, 5.3765007e-06, -11.970519, 0.31307817, -4.285446)
+next_nodes = Array[NodePath]([NodePath("../marioPartyTiles32")])
+
+[node name="marioPartyTiles52" parent="." unique_id=1604843204 instance=ExtResource("2_pw14y")]
+transform = Transform3D(1, 0, -5.420212e-06, 0, 1, 0, 5.420212e-06, 0, 1, -1.5377109, 0.32939243, -6.6925783)
+space_type = 2
+next_nodes = Array[NodePath]([NodePath("../marioPartyTiles53")])
+
+[node name="marioPartyTiles53" parent="." unique_id=1833939132 instance=ExtResource("2_pw14y")]
+transform = Transform3D(5.02681e-06, 0, 1, 0, 1, 0, -1, 0, 5.02681e-06, -1.4600198, 0.29762745, -4.3066707)
+next_nodes = Array[NodePath]([NodePath("../marioPartyTiles28")])
+
+[node name="gameBoard" parent="." unique_id=1745901839 instance=ExtResource("1_s66fm")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12.0376625, 0, 8.775969)
+
+[node name="marioPartyTiles44" parent="." unique_id=1257134171 instance=ExtResource("2_pw14y")]
+transform = Transform3D(-1, 0, 1.6610328e-06, 0, 1, 0, -1.6610328e-06, 0, -1, -4.383713, 0.33310246, -11.994262)
+next_nodes = Array[NodePath]([NodePath("../marioPartyTiles45")])
+
+[node name="marioPartyTiles45" parent="." unique_id=1371845966 instance=ExtResource("2_pw14y")]
+transform = Transform3D(1.7047441e-06, 0, 1, 0, 1, 0, -1, 0, 1.7047441e-06, -6.9360747, 0.34941673, -11.958807)
+space_type = 2
+next_nodes = Array[NodePath]([NodePath("../marioPartyTiles46")])
+
+[node name="marioPartyTiles46" parent="." unique_id=155184813 instance=ExtResource("2_pw14y")]
+transform = Transform3D(1.7047441e-06, 0, 1, 0, 1, 0, -1, 0, 1.7047441e-06, -9.475763, 0.41833568, -12.165747)
+space_type = 1
+next_nodes = Array[NodePath]([NodePath("../marioPartyTiles47")])
+
+[node name="marioPartyTiles47" parent="." unique_id=1357181043 instance=ExtResource("2_pw14y")]
+transform = Transform3D(1, 0, -1.2239188e-06, 0, 1, 0, 1.2239188e-06, 0, 1, -11.926968, 0.31765175, -12.233106)
+next_nodes = Array[NodePath]([NodePath("../marioPartyTiles48")])
+
+[node name="marioPartyTiles40" parent="." unique_id=530938275 instance=ExtResource("2_pw14y")]
+transform = Transform3D(-1, 0, 9.616506e-07, 0, 1, 0, -9.616506e-07, 0, -1, 6.1456246, 0.37517333, -11.956499)
+next_nodes = Array[NodePath]([NodePath("../marioPartyTiles41")])
+
+[node name="marioPartyTiles41" parent="." unique_id=1920894814 instance=ExtResource("2_pw14y")]
+transform = Transform3D(1.0053619e-06, 0, 1, 0, 1, 0, -1, 0, 1.0053619e-06, 3.515304, 0.3914876, -12.1690445)
+space_type = 2
+next_nodes = Array[NodePath]([NodePath("../marioPartyTiles42")])
+
+[node name="marioPartyTiles42" parent="." unique_id=1331342498 instance=ExtResource("2_pw14y")]
+transform = Transform3D(1.0053619e-06, 0, 1, 0, 1, 0, -1, 0, 1.0053619e-06, 0.98267126, 0.46040654, -11.956697)
+space_type = 1
+next_nodes = Array[NodePath]([NodePath("../marioPartyTiles43")])
+
+[node name="marioPartyTiles43" parent="." unique_id=1758592846 instance=ExtResource("2_pw14y")]
+transform = Transform3D(-1, 0, 6.119594e-07, 0, 1, 0, -6.119594e-07, 0, -1, -1.5694776, 0.3597226, -12.186363)
+next_nodes = Array[NodePath]([NodePath("../marioPartyTiles44"), NodePath("../marioPartyTiles51")])
+
+[node name="marioPartyTiles36" parent="." unique_id=788667436 instance=ExtResource("2_pw14y")]
+transform = Transform3D(6.556708e-07, 0, 1, 0, 1, 0, -1, 0, 6.556708e-07, 8.752141, 0.42421103, -4.452775)
+next_nodes = Array[NodePath]([NodePath("../marioPartyTiles37")])
+
+[node name="marioPartyTiles37" parent="." unique_id=155958263 instance=ExtResource("2_pw14y")]
+transform = Transform3D(1, 0, -6.993822e-07, 0, 1, 0, 6.993822e-07, 0, 1, 8.808337, 0.3068893, -6.8799367)
+space_type = 2
+next_nodes = Array[NodePath]([NodePath("../marioPartyTiles38")])
+
+[node name="marioPartyTiles38" parent="." unique_id=1187337536 instance=ExtResource("2_pw14y")]
+transform = Transform3D(1, 0, -6.993822e-07, 0, 1, 0, 6.993822e-07, 0, 1, 8.813016, 0.50944424, -9.561913)
+space_type = 1
+next_nodes = Array[NodePath]([NodePath("../marioPartyTiles39")])
+
+[node name="marioPartyTiles39" parent="." unique_id=1738423867 instance=ExtResource("2_pw14y")]
+transform = Transform3D(3.059797e-07, 0, 1, 0, 1, 0, -1, 0, 3.059797e-07, 8.807212, 0.4087603, -11.971256)
+next_nodes = Array[NodePath]([NodePath("../marioPartyTiles40")])
+
+[node name="marioPartyTiles33" parent="." unique_id=1113929545 instance=ExtResource("2_pw14y")]
+transform = Transform3D(-3.934025e-07, 0, -1, 0, 1, 0, 1, 0, -3.934025e-07, -12.083902, 0.2848463, 1.1327829)
+next_nodes = Array[NodePath]([NodePath("../marioPartyTiles34")])
+
+[node name="marioPartyTiles34" parent="." unique_id=1654204202 instance=ExtResource("2_pw14y")]
+transform = Transform3D(-1, 0, 4.371139e-07, 0, 1, 0, -4.371139e-07, 0, -1, -11.926268, 0.30116057, 3.6851454)
+space_type = 2
+next_nodes = Array[NodePath]([NodePath("../marioPartyTiles35")])
+
+[node name="marioPartyTiles35" parent="." unique_id=1217151033 instance=ExtResource("2_pw14y")]
+transform = Transform3D(-1, 0, 4.371139e-07, 0, 1, 0, -4.371139e-07, 0, -1, -12.133202, 0.37007952, 6.2248335)
+space_type = 1
+next_nodes = Array[NodePath]([NodePath("../marioPartyTiles")])
+
+[node name="marioPartyTiles23" parent="." unique_id=1154901972 instance=ExtResource("2_pw14y")]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 11.370355, 0.28054214, -1.5189553)
+next_nodes = Array[NodePath]([NodePath("../marioPartyTiles24")])
+
+[node name="marioPartyTiles24" parent="." unique_id=231837296 instance=ExtResource("2_pw14y")]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 8.794519, 0.28199434, -1.5189556)
+next_nodes = Array[NodePath]([NodePath("../marioPartyTiles25"), NodePath("../marioPartyTiles36")])
+
+[node name="marioPartyTiles25" parent="." unique_id=970812703 instance=ExtResource("2_pw14y")]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 6.193831, 0.28566027, -1.5189558)
+space_type = 1
+next_nodes = Array[NodePath]([NodePath("../marioPartyTiles26")])
+
+[node name="marioPartyTiles26" parent="." unique_id=1796804389 instance=ExtResource("2_pw14y")]
+transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, 3.4877162, 0.4400792, -1.6259335)
+space_type = 3
+next_nodes = Array[NodePath]([NodePath("../marioPartyTiles27")])
+
+[node name="marioPartyTiles27" parent="." unique_id=1271308082 instance=ExtResource("2_pw14y")]
+transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, 1.003195, 0.4400792, -1.6259338)
+next_nodes = Array[NodePath]([NodePath("../marioPartyTiles28")])
+
+[node name="marioPartyTiles28" parent="." unique_id=1295923830 instance=ExtResource("2_pw14y")]
+transform = Transform3D(1.3113416e-07, 0, 1, 0, 1, 0, -1, 0, 1.3113416e-07, -1.5491693, 0.5253124, -1.7564443)
+space_type = 2
+next_nodes = Array[NodePath]([NodePath("../marioPartyTiles29")])
+
+[node name="marioPartyTiles29" parent="." unique_id=1144160665 instance=ExtResource("2_pw14y")]
+transform = Transform3D(1.3113416e-07, 0, 1, 0, 1, 0, -1, 0, 1.3113416e-07, -4.0888567, 0.5253124, -1.6752335)
+space_type = 1
+next_nodes = Array[NodePath]([NodePath("../marioPartyTiles30")])
+
+[node name="marioPartyTiles30" parent="." unique_id=74598399 instance=ExtResource("2_pw14y")]
+transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, -6.9150925, 0.24826074, -1.4367367)
+next_nodes = Array[NodePath]([NodePath("../marioPartyTiles31")])
+
+[node name="marioPartyTiles31" parent="." unique_id=808248853 instance=ExtResource("2_pw14y")]
+transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, -9.334819, 0.2950225, -1.3387376)
+space_type = 3
+next_nodes = Array[NodePath]([NodePath("../marioPartyTiles32")])
+
+[node name="marioPartyTiles32" parent="." unique_id=822764591 instance=ExtResource("2_pw14y")]
+transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, -11.819341, 0.2950225, -1.3387377)
+next_nodes = Array[NodePath]([NodePath("../marioPartyTiles33")])
+
+[node name="marioPartyTiles14" parent="." unique_id=1282243026 instance=ExtResource("2_pw14y")]
+transform = Transform3D(1.3113416e-07, 0, 1, 0, 1, 0, -1, 0, 1.3113416e-07, 19.159262, 0.5677538, 6.117068)
+next_nodes = Array[NodePath]([NodePath("../marioPartyTiles15")])
+
+[node name="marioPartyTiles15" parent="." unique_id=355311698 instance=ExtResource("2_pw14y")]
+transform = Transform3D(1, 0, -1.7484555e-07, 0, 1, 0, 1.7484555e-07, 0, 1, 19.289772, 0.24124146, 3.827762)
+space_type = 2
+next_nodes = Array[NodePath]([NodePath("../marioPartyTiles16")])
+
+[node name="marioPartyTiles16" parent="." unique_id=2039446832 instance=ExtResource("2_pw14y")]
+transform = Transform3D(1, 0, -1.7484555e-07, 0, 1, 0, 1.7484555e-07, 0, 1, 19.20856, 0.652987, 1.0012231)
+space_type = 1
+next_nodes = Array[NodePath]([NodePath("../marioPartyTiles17")])
+
+[node name="marioPartyTiles17" parent="." unique_id=86102895 instance=ExtResource("2_pw14y")]
+transform = Transform3D(1.3113416e-07, 0, 1, 0, 1, 0, -1, 0, 1.3113416e-07, 19.191504, 0.4081068, -1.4983878)
+next_nodes = Array[NodePath]([NodePath("../marioPartyTiles21")])
+
+[node name="marioPartyTiles" parent="." unique_id=8783489 instance=ExtResource("2_pw14y")]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -12.096431, 0.2693956, 8.676037)
+next_nodes = Array[NodePath]([NodePath("../marioPartyTiles2")])
+
+[node name="marioPartyTiles2" parent="." unique_id=626823783 instance=ExtResource("2_pw14y")]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -9.4860115, 0.27084875, 8.676037)
+next_nodes = Array[NodePath]([NodePath("../marioPartyTiles3")])
+
+[node name="marioPartyTiles3" parent="." unique_id=863843549 instance=ExtResource("2_pw14y")]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -6.885324, 0.27451468, 8.676037)
+space_type = 1
+next_nodes = Array[NodePath]([NodePath("../marioPartyTiles4")])
+
+[node name="marioPartyTiles4" parent="." unique_id=346036726 instance=ExtResource("2_pw14y")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.179209, 0.291896, 8.783014)
+space_type = 3
+next_nodes = Array[NodePath]([NodePath("../marioPartyTiles5")])
+
+[node name="marioPartyTiles5" parent="." unique_id=1668550071 instance=ExtResource("2_pw14y")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.6946874, 0.33262622, 8.783014)
+next_nodes = Array[NodePath]([NodePath("../marioPartyTiles6")])
+
+[node name="marioPartyTiles6" parent="." unique_id=2093160659 instance=ExtResource("2_pw14y")]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 1.0117176, 0.40002775, 8.760154)
+space_type = 2
+next_nodes = Array[NodePath]([NodePath("../marioPartyTiles7")])
+
+[node name="marioPartyTiles7" parent="." unique_id=1197935006 instance=ExtResource("2_pw14y")]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 3.5523806, 0.51416683, 8.747609)
+space_type = 1
+next_nodes = Array[NodePath]([NodePath("../marioPartyTiles8")])
+
+[node name="marioPartyTiles8" parent="." unique_id=166788884 instance=ExtResource("2_pw14y")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.2477026, 0.33977795, 8.638219)
+next_nodes = Array[NodePath]([NodePath("../marioPartyTiles9")])
+
+[node name="marioPartyTiles9" parent="." unique_id=1609163998 instance=ExtResource("2_pw14y")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.829917, 0.23694229, 8.697452)
+space_type = 3
+next_nodes = Array[NodePath]([NodePath("../marioPartyTiles10")])
+
+[node name="marioPartyTiles10" parent="." unique_id=1480118267 instance=ExtResource("2_pw14y")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.398951, 0.36527705, 8.750383)
+next_nodes = Array[NodePath]([NodePath("../marioPartyTiles11")])
+
+[node name="marioPartyTiles11" parent="." unique_id=1001540676 instance=ExtResource("2_pw14y")]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 13.680212, 0.3691101, 8.6263275)
+space_type = 2
+next_nodes = Array[NodePath]([NodePath("../marioPartyTiles12"), NodePath("../marioPartyTiles18")])
+
+[node name="marioPartyTiles12" parent="." unique_id=395622602 instance=ExtResource("2_pw14y")]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 16.2199, 0.3691101, 8.545116)
+space_type = 1
+next_nodes = Array[NodePath]([NodePath("../marioPartyTiles13")])
+
+[node name="marioPartyTiles13" parent="." unique_id=163862779 instance=ExtResource("2_pw14y")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18.71951, 0.6803336, 8.528059)
+next_nodes = Array[NodePath]([NodePath("../marioPartyTiles14")])
+
+[node name="marioPartyTiles18" parent="." unique_id=170550225 instance=ExtResource("2_pw14y")]
+transform = Transform3D(1.3113416e-07, 0, 1, 0, 1, 0, -1, 0, 1.3113416e-07, 14.162609, 0.2564938, 6.068142)
+next_nodes = Array[NodePath]([NodePath("../marioPartyTiles19")])
+
+[node name="marioPartyTiles19" parent="." unique_id=1189408339 instance=ExtResource("2_pw14y")]
+transform = Transform3D(1, 0, -1.7484555e-07, 0, 1, 0, 1.7484555e-07, 0, 1, 14.004974, 0.27280807, 3.5157795)
+space_type = 2
+next_nodes = Array[NodePath]([NodePath("../marioPartyTiles20")])
+
+[node name="marioPartyTiles20" parent="." unique_id=1020346546 instance=ExtResource("2_pw14y")]
+transform = Transform3D(1, 0, -1.7484555e-07, 0, 1, 0, 1.7484555e-07, 0, 1, 14.211906, 0.34172702, 0.9760914)
+space_type = 1
+next_nodes = Array[NodePath]([NodePath("../marioPartyTiles22")])
+
+[node name="marioPartyTiles21" parent="." unique_id=770126085 instance=ExtResource("2_pw14y")]
+transform = Transform3D(1.3113416e-07, 0, 1, 0, 1, 0, -1, 0, 1.3113416e-07, 16.694687, 0.6529505, -1.5235195)
+next_nodes = Array[NodePath]([NodePath("../marioPartyTiles22")])
+
+[node name="marioPartyTiles22" parent="." unique_id=152217421 instance=ExtResource("2_pw14y")]
+transform = Transform3D(-1, 0, 2.6226832e-07, 0, 1, 0, -2.6226832e-07, 0, -1, 14.108013, 0.5236268, -1.6292208)
+next_nodes = Array[NodePath]([NodePath("../marioPartyTiles23")])
+
+[node name="marioPartyTiles48" parent="." unique_id=1113630427 instance=ExtResource("2_pw14y")]
+transform = Transform3D(-2.8412403e-06, 0, -1, 0, 1, 0, 1, 0, -2.8412403e-06, -12.095106, 0.33465743, -9.150509)
+next_nodes = Array[NodePath]([NodePath("../marioPartyTiles49")])
+
+[node name="marioPartyTiles49" parent="." unique_id=401654981 instance=ExtResource("2_pw14y")]
+transform = Transform3D(-1, 0, 2.8849515e-06, 0, 1, 0, -2.8849515e-06, 0, -1, -11.937475, 0.3509717, -6.9270945)
+space_type = 2
+next_nodes = Array[NodePath]([NodePath("../marioPartyTiles50")])
+
+[node name="marioPartyTiles51" parent="." unique_id=666950495 instance=ExtResource("2_pw14y")]
+transform = Transform3D(-2.4915491e-06, 0, -1, 0, 1, 0, 1, 0, -2.4915491e-06, -1.6261394, 0.3192067, -9.412003)
+next_nodes = Array[NodePath]([NodePath("../marioPartyTiles52")])

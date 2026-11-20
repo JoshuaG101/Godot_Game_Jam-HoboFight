@@ -47,8 +47,9 @@ func win(player):
 		create_tween().tween_property(cam, "global_position", spot, 1.5)
 
 	# text
-	win_label.text = player.name + " WINS!"
+	win_label.text = player.name + " WINS!\nReturning to Board..."
 	win_label.show()
 
 	await get_tree().create_timer(3.0, true, false, true).timeout
 	Engine.time_scale = 1.0
+	get_tree().change_scene_to_file("res://Board/Board.tscn")
