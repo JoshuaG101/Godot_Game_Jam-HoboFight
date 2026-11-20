@@ -1,0 +1,90 @@
+[gd_scene format=3 uid="uid://oi576ghrjls5"]
+
+[ext_resource type="Script" uid="uid://c4ysc44sbp5yl" path="res://Minigames/SnowballSummit/SnowballSummit_Scripts/playertest.gd" id="1_y8feb"]
+[ext_resource type="Script" uid="uid://d3lepeiveu6qg" path="res://Minigames/SnowballSummit/SnowballSummit_Scripts/snowball.gd" id="2_1wju2"]
+[ext_resource type="Script" uid="uid://dibjl5mgm12rk" path="res://Minigames/SnowballSummit/SnowballSummit_Scripts/background.gd" id="3_h2ivo"]
+[ext_resource type="Script" uid="uid://cswhql7gsc34o" path="res://Minigames/SnowballSummit/SnowballSummit_Scripts/timer_ui.gd" id="4_1wju2"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_5bjbi"]
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_8i30l"]
+
+[sub_resource type="SphereMesh" id="SphereMesh_8i30l"]
+radius = 1.0
+height = 2.0
+
+[sub_resource type="PhysicsMaterial" id="PhysicsMaterial_h2ivo"]
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_1wju2"]
+top_radius = 10.0
+bottom_radius = 9.0
+height = 1.5
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_odfi1"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_pcskf"]
+albedo_color = Color(0.8392157, 0.92156863, 1, 1)
+roughness = 0.95
+normal_enabled = true
+normal_texture = SubResource("NoiseTexture2D_odfi1")
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_yd87q"]
+top_radius = 8.0
+bottom_radius = 1.0
+height = 30.0
+radial_segments = 12
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_g12vs"]
+albedo_color = Color(0.24705882, 0.3529412, 0.41960785, 1)
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_jjgke"]
+height = 1.5
+radius = 10.0
+
+[node name="SnowballSummit" type="Node3D" unique_id=1562868201]
+
+[node name="Camera3D" type="Camera3D" parent="." unique_id=2003922835]
+transform = Transform3D(0.9670459, 0.14220358, -0.21118796, 0, 0.8294825, 0.5585327, 0.25460207, -0.5401268, 0.8021476, -4.780343, 12.860201, 17.665766)
+
+[node name="Player" type="CharacterBody3D" parent="." unique_id=815125480]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.1232512, 5.351221, 0)
+script = ExtResource("1_y8feb")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Player" unique_id=322974277]
+shape = SubResource("CapsuleShape3D_5bjbi")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Player" unique_id=1901717209]
+mesh = SubResource("CapsuleMesh_8i30l")
+
+[node name="Snowball" type="MeshInstance3D" parent="Player" unique_id=1923142041]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -1.5)
+mesh = SubResource("SphereMesh_8i30l")
+script = ExtResource("2_1wju2")
+start_size = 0.0
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=83464035]
+transform = Transform3D(0.06518154, 0.9878215, 0.14128001, -0.6982172, -0.056001656, 0.7136922, 0.7129124, -0.14516367, 0.6860637, -0.7577524, 3.7882786, 11.973876)
+
+[node name="Background" type="Node3D" parent="." unique_id=1138832805]
+script = ExtResource("3_h2ivo")
+
+[node name="TimerUi" type="CanvasLayer" parent="." unique_id=1951721017]
+script = ExtResource("4_1wju2")
+
+[node name="Platform" type="StaticBody3D" parent="." unique_id=579750416]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.005588, 0)
+physics_material_override = SubResource("PhysicsMaterial_h2ivo")
+
+[node name="SnowCap" type="MeshInstance3D" parent="Platform" unique_id=1290508517]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.75, 0)
+mesh = SubResource("CylinderMesh_1wju2")
+surface_material_override/0 = SubResource("StandardMaterial3D_pcskf")
+
+[node name="Cone" type="MeshInstance3D" parent="Platform" unique_id=94832332]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -16.5, 0)
+mesh = SubResource("CylinderMesh_yd87q")
+surface_material_override/0 = SubResource("StandardMaterial3D_g12vs")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Platform" unique_id=613198253]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.75, 0)
+shape = SubResource("CylinderShape3D_jjgke")
