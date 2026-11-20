@@ -4,6 +4,8 @@
 [ext_resource type="Script" uid="uid://d3lepeiveu6qg" path="res://Minigames/SnowballSummit/SnowballSummit_Scripts/snowball.gd" id="2_1wju2"]
 [ext_resource type="Script" uid="uid://dibjl5mgm12rk" path="res://Minigames/SnowballSummit/SnowballSummit_Scripts/background.gd" id="3_h2ivo"]
 [ext_resource type="Script" uid="uid://cswhql7gsc34o" path="res://Minigames/SnowballSummit/SnowballSummit_Scripts/timer_ui.gd" id="4_1wju2"]
+[ext_resource type="Script" uid="uid://bfked7r2jj55c" path="res://victory.gd" id="5_victory"]
+[ext_resource type="Script" uid="uid://bvjou8bwvgyv8" path="res://Minigames/SnowballSummit/SnowballSummit_Scripts/platform.gd" id="6_platform"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_5bjbi"]
 
@@ -47,8 +49,9 @@ radius = 10.0
 transform = Transform3D(0.9670459, 0.14220358, -0.21118796, 0, 0.8294825, 0.5585327, 0.25460207, -0.5401268, 0.8021476, -4.780343, 12.860201, 17.665766)
 
 [node name="Player" type="CharacterBody3D" parent="." unique_id=815125480]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.1232512, 5.351221, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.351221, 5)
 script = ExtResource("1_y8feb")
+player_id = 0
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Player" unique_id=322974277]
 shape = SubResource("CapsuleShape3D_5bjbi")
@@ -57,6 +60,57 @@ shape = SubResource("CapsuleShape3D_5bjbi")
 mesh = SubResource("CapsuleMesh_8i30l")
 
 [node name="Snowball" type="MeshInstance3D" parent="Player" unique_id=1923142041]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -1.5)
+mesh = SubResource("SphereMesh_8i30l")
+script = ExtResource("2_1wju2")
+start_size = 0.0
+
+[node name="Player2" type="CharacterBody3D" parent="." unique_id=815125481]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 0, 5.351221, -5)
+script = ExtResource("1_y8feb")
+player_id = 1
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Player2" unique_id=322974278]
+shape = SubResource("CapsuleShape3D_5bjbi")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Player2" unique_id=1901717210]
+mesh = SubResource("CapsuleMesh_8i30l")
+
+[node name="Snowball" type="MeshInstance3D" parent="Player2" unique_id=1923142042]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -1.5)
+mesh = SubResource("SphereMesh_8i30l")
+script = ExtResource("2_1wju2")
+start_size = 0.0
+
+[node name="Player3" type="CharacterBody3D" parent="." unique_id=815125482]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 5, 5.351221, 0)
+script = ExtResource("1_y8feb")
+player_id = 2
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Player3" unique_id=322974279]
+shape = SubResource("CapsuleShape3D_5bjbi")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Player3" unique_id=1901717211]
+mesh = SubResource("CapsuleMesh_8i30l")
+
+[node name="Snowball" type="MeshInstance3D" parent="Player3" unique_id=1923142043]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -1.5)
+mesh = SubResource("SphereMesh_8i30l")
+script = ExtResource("2_1wju2")
+start_size = 0.0
+
+[node name="Player4" type="CharacterBody3D" parent="." unique_id=815125483]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, -5, 5.351221, 0)
+script = ExtResource("1_y8feb")
+player_id = 3
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Player4" unique_id=322974280]
+shape = SubResource("CapsuleShape3D_5bjbi")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Player4" unique_id=1901717212]
+mesh = SubResource("CapsuleMesh_8i30l")
+
+[node name="Snowball" type="MeshInstance3D" parent="Player4" unique_id=1923142044]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -1.5)
 mesh = SubResource("SphereMesh_8i30l")
 script = ExtResource("2_1wju2")
@@ -74,6 +128,7 @@ script = ExtResource("4_1wju2")
 [node name="Platform" type="StaticBody3D" parent="." unique_id=579750416]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.005588, 0)
 physics_material_override = SubResource("PhysicsMaterial_h2ivo")
+script = ExtResource("6_platform")
 
 [node name="SnowCap" type="MeshInstance3D" parent="Platform" unique_id=1290508517]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.75, 0)
@@ -88,3 +143,6 @@ surface_material_override/0 = SubResource("StandardMaterial3D_g12vs")
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Platform" unique_id=613198253]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.75, 0)
 shape = SubResource("CylinderShape3D_jjgke")
+
+[node name="Victory" type="Node" parent="." unique_id=1510073255]
+script = ExtResource("5_victory")

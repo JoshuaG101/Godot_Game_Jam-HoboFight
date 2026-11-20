@@ -9,7 +9,30 @@ var gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity")
 
 
 func _ready() -> void:
+	add_to_group("players")
 	_setup_input()
+	_apply_player_appearance()
+
+
+func _apply_player_appearance() -> void:
+	var mesh_inst: MeshInstance3D = get_node_or_null("MeshInstance3D")
+	if mesh_inst:
+		var p_color: Color = Color.WHITE
+		if GameState:
+			p_color = GameState.get_player_color(player_id + 1)
+		else:
+			var default_colors = [
+				Color(0.18, 0.75, 0.98),
+				Color(0.22, 0.86, 0.42),
+				Color(1.0, 0.62, 0.16),
+				Color(0.95, 0.35, 0.75)
+			]
+			p_color = default_colors[player_id % default_colors.size()]
+		var mat = StandardMaterial3D.new()
+		mat.albedo_color = p_color
+		mat.metallic = 0.1
+		mat.roughness = 0.4
+		mesh_inst.material_override = mat
 
 
 func _physics_process(delta: float) -> void:
@@ -30,6 +53,20 @@ func _physics_process(delta: float) -> void:
 
 	move_and_slide()
 
+	# Bump / push other players when colliding
+	for i in get_slide_collision_count():
+		var col = get_slide_collision(i)
+		var collider = col.get_collider()
+		if collider is CharacterBody3D and collider != self:
+			var push_dir = -col.get_normal()
+			push_dir.y = 0
+			if push_dir.length_squared() > 0.001:
+				var ball_mult: float = 1.0
+				var ball = get_node_or_null("Snowball")
+				if ball and "size" in ball:
+					ball_mult += ball.size * 0.5
+				collider.velocity += push_dir.normalized() * (8.0 * ball_mult)
+
 
 func _setup_input() -> void:
 	var p := "p%d_" % player_id
@@ -42,6 +79,21 @@ func _setup_input() -> void:
 		_add_key(p + "right", KEY_D)
 		_add_key(p + "up", KEY_W)
 		_add_key(p + "down", KEY_S)
+	elif player_id == 1:
+		_add_key(p + "left", KEY_LEFT)
+		_add_key(p + "right", KEY_RIGHT)
+		_add_key(p + "up", KEY_UP)
+		_add_key(p + "down", KEY_DOWN)
+	elif player_id == 2:
+		_add_key(p + "left", KEY_J)
+		_add_key(p + "right", KEY_L)
+		_add_key(p + "up", KEY_I)
+		_add_key(p + "down", KEY_K)
+	elif player_id == 3:
+		_add_key(p + "left", KEY_F)
+		_add_key(p + "right", KEY_H)
+		_add_key(p + "up", KEY_T)
+		_add_key(p + "down", KEY_G)
 
 
 func _add_axis(action: String, axis: JoyAxis, value: float) -> void:

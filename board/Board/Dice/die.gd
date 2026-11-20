@@ -39,7 +39,7 @@ func _ready() -> void:
 		sleeping_state_changed.connect(_on_sleeping_state_changed)
 
 func _roll() -> void:
-	SoundManager.play_roll()
+	SoundManager.play_dice_rolling()
 	sleeping = false
 	freeze = false
 	transform.origin = start_pos
@@ -100,6 +100,7 @@ func _finalize_roll() -> void:
 	has_reported_roll = true
 	is_rolling = false
 	freeze = true
+	SoundManager.stop_dice_rolling()
 	
 	var result_val: int = detect_face_value()
 	print("[Die] Rolled value: %d" % result_val)

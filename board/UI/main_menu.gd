@@ -11,6 +11,7 @@ var round_options: Array[int] = [3, 5, 10]
 var current_round_idx: int = 1 # default 5 rounds
 
 func _ready() -> void:
+	SoundManager.play_music(SoundManager.music_mix, 0.0)
 	GameState.max_rounds = round_options[current_round_idx]
 	update_rounds_button_text()
 

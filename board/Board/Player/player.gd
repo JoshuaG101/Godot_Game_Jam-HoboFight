@@ -181,7 +181,7 @@ func move_steps(steps: int) -> void:
 		remaining -= 1
 		
 		# Star Space passing check (if passing through before final landing space)
-		if current_space.space_type == BoardNode3D.SpaceType.STAR and remaining > 0:
+		if current_space.space_type == BoardNode3D.SpaceType.STAR and current_space.is_active_star and remaining > 0:
 			await check_star_purchase()
 
 		var target_pos = current_space.global_position + get_tile_offset()
@@ -314,12 +314,19 @@ func hop_to_position(target_pos: Vector3) -> void:
 		current_space.pulse()
 
 func check_star_purchase() -> void:
+	if not current_space or not current_space.is_active_star:
+		return
 	var coins = GameState.get_player_coins(player_id)
 	if coins >= 20:
 		GameState.award_coins(player_id, -20)
 		GameState.award_stars(player_id, 1)
 		SoundManager.play_star()
 		spawn_floating_text("★ STAR BOUGHT! (-20 🪙)", Color(1.0, 0.88, 0.1))
+		
+		# Move star to another random star square
+		var tm = get_node_or_null("../TurnManager")
+		if tm and tm.has_method("relocate_star"):
+			tm.relocate_star()
 		await get_tree().create_timer(1.2).timeout
 	else:
 		spawn_floating_text("Need 20 Coins for Star!", Color(0.9, 0.9, 0.9))
@@ -336,7 +343,10 @@ func trigger_space_event() -> void:
 			SoundManager.play_lose_coin()
 			spawn_floating_text("-3 Coins!", Color(1.0, 0.3, 0.3))
 		BoardNode3D.SpaceType.STAR:
-			await check_star_purchase()
+			if current_space.is_active_star:
+				await check_star_purchase()
+			else:
+				spawn_floating_text("Dormant Star Space", Color(0.7, 0.7, 0.7))
 		BoardNode3D.SpaceType.EVENT:
 			SoundManager.play_event()
 			handle_random_event()

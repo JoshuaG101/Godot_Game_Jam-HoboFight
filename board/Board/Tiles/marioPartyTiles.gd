@@ -6,8 +6,10 @@ enum SpaceType { BLUE, RED, EVENT, STAR, SHOP }
 @export var next_nodes: Array[NodePath] = []
 
 var star_marker: Node3D = null
+var is_active_star: bool = false
 
 func _ready() -> void:
+	add_to_group("board_tiles")
 	apply_space_visuals()
 
 func apply_space_visuals() -> void:
@@ -87,13 +89,35 @@ func apply_space_visuals() -> void:
 			label.text = "?"
 			label.modulate = Color(0.8, 1.0, 0.8)
 		SpaceType.STAR:
-			label.text = "★"
-			label.modulate = Color(1.0, 0.95, 0.3)
-			label.font_size = 48
-			spawn_star_trophy()
+			label.text = "★" if is_active_star else "☆"
+			label.modulate = Color(1.0, 0.95, 0.3) if is_active_star else Color(0.7, 0.7, 0.7, 0.5)
+			label.font_size = 48 if is_active_star else 32
+			if is_active_star:
+				spawn_star_trophy()
 		SpaceType.SHOP:
 			label.text = "SHOP"
 			label.modulate = Color(0.9, 0.7, 1.0)
+
+func set_star_active(active: bool) -> void:
+	is_active_star = active
+	if active:
+		if not star_marker:
+			spawn_star_trophy()
+		if star_marker:
+			star_marker.visible = true
+		var label = get_node_or_null("TileLabel") as Label3D
+		if label:
+			label.text = "★"
+			label.modulate = Color(1.0, 0.95, 0.3)
+			label.font_size = 48
+	else:
+		if star_marker:
+			star_marker.visible = false
+		var label = get_node_or_null("TileLabel") as Label3D
+		if label:
+			label.text = "☆"
+			label.modulate = Color(0.7, 0.7, 0.7, 0.5)
+			label.font_size = 32
 
 func spawn_star_trophy() -> void:
 	if star_marker:

@@ -8,9 +8,68 @@ var sfx_roll: AudioStreamWAV
 var sfx_event: AudioStreamWAV
 var sfx_click: AudioStreamWAV
 
+var music_bosanova: AudioStream = preload("res://music/bosanova.wav")
+var music_mix: AudioStream = preload("res://music/mix.wav")
+var sfx_dice_roll_faster: AudioStream = preload("res://music/dice roll faster.wav")
+
+var bgm_player: AudioStreamPlayer = null
+var dice_roll_player: AudioStreamPlayer = null
+
 func _ready() -> void:
 	init_sfx()
-	set_volume(0.8)
+	set_volume(1.0)
+	_init_players()
+
+func _init_players() -> void:
+	if bgm_player == null:
+		bgm_player = AudioStreamPlayer.new()
+		bgm_player.name = "BGMPlayer"
+		bgm_player.bus = "Master"
+		add_child(bgm_player)
+		bgm_player.finished.connect(_on_bgm_finished)
+
+	if dice_roll_player == null:
+		dice_roll_player = AudioStreamPlayer.new()
+		dice_roll_player.name = "DiceRollPlayer"
+		dice_roll_player.bus = "Master"
+		add_child(dice_roll_player)
+
+func _on_bgm_finished() -> void:
+	if bgm_player and bgm_player.stream:
+		bgm_player.play()
+
+func play_music(stream: AudioStream, volume_db: float = 0.0) -> void:
+	if not stream:
+		return
+	if bgm_player == null:
+		_init_players()
+	if stream is AudioStreamWAV:
+		(stream as AudioStreamWAV).loop_mode = AudioStreamWAV.LOOP_FORWARD
+	if bgm_player.stream == stream and bgm_player.playing:
+		return
+	bgm_player.stream = stream
+	bgm_player.volume_db = volume_db
+	bgm_player.play()
+
+func stop_music() -> void:
+	if bgm_player and bgm_player.playing:
+		bgm_player.stop()
+
+func play_dice_rolling(volume_db: float = 0.0) -> void:
+	if dice_roll_player == null:
+		_init_players()
+	if sfx_dice_roll_faster:
+		if sfx_dice_roll_faster is AudioStreamWAV:
+			(sfx_dice_roll_faster as AudioStreamWAV).loop_mode = AudioStreamWAV.LOOP_FORWARD
+		dice_roll_player.stream = sfx_dice_roll_faster
+		dice_roll_player.volume_db = volume_db
+		dice_roll_player.play()
+
+func stop_dice_rolling() -> void:
+	if dice_roll_player and dice_roll_player.playing:
+		var tween = create_tween()
+		tween.tween_property(dice_roll_player, "volume_db", -35.0, 0.15)
+		tween.tween_callback(dice_roll_player.stop)
 
 func play_sound(stream: AudioStream, pitch_scale: float = 1.0, volume_db: float = 0.0) -> void:
 	if not stream:
@@ -24,16 +83,14 @@ func play_sound(stream: AudioStream, pitch_scale: float = 1.0, volume_db: float 
 	player.finished.connect(player.queue_free)
 
 func set_volume(val: float) -> void:
-	# val from 0.0 to 1.0
-	for i in AudioServer.bus_count:
-		if val <= 0.001:
-			AudioServer.set_bus_mute(i, true)
-			AudioServer.set_bus_volume_db(i, -80.0)
-		else:
-			AudioServer.set_bus_mute(i, false)
-			# Convert linear 0..1 to db
-			var db = linear_to_db(val)
-			AudioServer.set_bus_volume_db(i, db)
+	# val from 0.0 to 1.0 (Master Bus)
+	if val <= 0.001:
+		AudioServer.set_bus_mute(0, true)
+		AudioServer.set_bus_volume_db(0, -80.0)
+	else:
+		AudioServer.set_bus_mute(0, false)
+		var db = linear_to_db(val)
+		AudioServer.set_bus_volume_db(0, db)
 
 func get_volume() -> float:
 	if AudioServer.is_bus_mute(0):
@@ -106,9 +163,7 @@ func play_star() -> void:
 	play_sound(sfx_star, 1.0, 2.0)
 
 func play_roll() -> void:
-	if sfx_roll == null:
-		init_sfx()
-	play_sound(sfx_roll, randf_range(0.9, 1.2), 0.0)
+	play_dice_rolling(0.0)
 
 func play_event() -> void:
 	if sfx_event == null:

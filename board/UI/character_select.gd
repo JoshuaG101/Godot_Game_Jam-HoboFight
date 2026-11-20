@@ -12,6 +12,7 @@ var player_cards: Dictionary = {}
 var major_card_buttons: Dictionary = {}
 
 func _ready() -> void:
+	SoundManager.play_music(SoundManager.music_mix, 0.0)
 	start_btn.pressed.connect(_on_start_pressed)
 	random_btn.pressed.connect(_on_randomize_pressed)
 	back_btn.pressed.connect(_on_back_pressed)

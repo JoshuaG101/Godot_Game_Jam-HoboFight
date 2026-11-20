@@ -14,8 +14,12 @@ var pause_menu: Control = null
 var camera: Camera3D = null
 var base_cam_offset: Vector3 = Vector3.ZERO
 var initial_cam_pos: Vector3 = Vector3.ZERO
+var star_tiles: Array[BoardNode3D] = []
+var active_star_tile: BoardNode3D = null
 
 func _ready() -> void:
+	SoundManager.play_music(SoundManager.music_bosanova, 0.0)
+	init_star_spaces()
 	camera = get_node_or_null("../Camera3D") as Camera3D
 	if camera:
 		initial_cam_pos = camera.global_position
@@ -519,7 +523,36 @@ func end_of_round() -> void:
 
 	GameState.current_round += 1
 	print("Switching to minigame scene: ", minigame_scene)
+	SoundManager.stop_music()
 	get_tree().change_scene_to_file(minigame_scene)
+
+func init_star_spaces() -> void:
+	star_tiles.clear()
+	var board_map = get_node_or_null("../BoardMap")
+	if board_map:
+		for child in board_map.get_children():
+			if child is BoardNode3D and child.space_type == BoardNode3D.SpaceType.STAR:
+				star_tiles.append(child)
+				child.set_star_active(false)
+	relocate_star()
+
+func relocate_star() -> void:
+	if star_tiles.is_empty():
+		return
+	if active_star_tile:
+		active_star_tile.set_star_active(false)
+	
+	var candidates: Array[BoardNode3D] = []
+	for st in star_tiles:
+		if st != active_star_tile:
+			candidates.append(st)
+	if candidates.is_empty():
+		candidates = star_tiles
+	
+	active_star_tile = candidates.pick_random()
+	active_star_tile.set_star_active(true)
+	active_star_tile.pulse()
+	print("[TurnManager] Star is now active on: ", active_star_tile.name)
 
 func show_game_over_screen() -> void:
 	SoundManager.play_star()

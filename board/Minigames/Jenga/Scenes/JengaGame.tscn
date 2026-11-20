@@ -2,24 +2,71 @@
 
 [ext_resource type="Script" uid="uid://cvru506epod7" path="res://Minigames/Jenga/Scripts/jenga_game.gd" id="1_b36j4"]
 [ext_resource type="AudioStream" uid="uid://w8dys02ojyc" path="res://Minigames/Jenga/Scripts/bosanova.ogg" id="2_2nq8u"]
+[ext_resource type="Environment" uid="uid://chsj3hofujogp" path="res://Assets/Shaders/starry_sky_environment.tres" id="3_env"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_table"]
+albedo_color = Color(0.14, 0.09, 0.06, 1)
+metallic = 0.15
+roughness = 0.35
+rim_enabled = true
+rim = 0.3
+rim_tint = 0.4
 
 [sub_resource type="BoxMesh" id="BoxMesh_ahg1b"]
-size = Vector3(20, 0.2, 20)
+size = Vector3(24, 0.2, 24)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_4owis"]
 
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_felt"]
+albedo_color = Color(0.08, 0.28, 0.18, 1)
+roughness = 0.85
+rim_enabled = true
+rim = 0.5
+rim_tint = 0.5
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_mat"]
+top_radius = 2.4
+bottom_radius = 2.5
+height = 0.03
+radial_segments = 36
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_goldrim"]
+albedo_color = Color(0.9, 0.78, 0.42, 1)
+metallic = 0.85
+roughness = 0.25
+
+[sub_resource type="TorusMesh" id="TorusMesh_ring"]
+inner_radius = 2.44
+outer_radius = 2.52
+rings = 36
+ring_segments = 16
+
 [node name="jenga_game" type="Node3D" unique_id=217276838]
 script = ExtResource("1_b36j4")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1481912831]
+environment = ExtResource("3_env")
 
 [node name="Floor(StaticBody3D)" type="StaticBody3D" parent="." unique_id=1828580786]
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Floor(StaticBody3D)" unique_id=1017546825]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.1, 0)
+material_override = SubResource("StandardMaterial3D_table")
 mesh = SubResource("BoxMesh_ahg1b")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Floor(StaticBody3D)" unique_id=399817412]
-transform = Transform3D(20, 0, 0, 0, 0.2, 0, 0, 0, 20, 0, -0.1, 0)
+transform = Transform3D(24, 0, 0, 0, 0.2, 0, 0, 0, 24, 0, -0.1, 0)
 shape = SubResource("BoxShape3D_4owis")
+
+[node name="TableMat" type="MeshInstance3D" parent="." unique_id=1938472911]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.015, 0)
+material_override = SubResource("StandardMaterial3D_felt")
+mesh = SubResource("CylinderMesh_mat")
+
+[node name="MatRim" type="MeshInstance3D" parent="TableMat" unique_id=1938472912]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.01, 0)
+material_override = SubResource("StandardMaterial3D_goldrim")
+mesh = SubResource("TorusMesh_ring")
 
 [node name="CameraPivot" type="Node3D" parent="." unique_id=1072371226]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 0)
@@ -29,6 +76,19 @@ transform = Transform3D(0.80644447, -0.31771058, 0.4987057, 0, 0.8433915, 0.5372
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=1238003279]
 transform = Transform3D(0.8660254, 0.35355338, -0.35355338, 0, 0.70710677, 0.70710677, 0.5, -0.6123724, 0.6123724, 0, 0, 0)
+light_color = Color(0.98, 0.95, 0.9, 1)
+light_energy = 0.8
+shadow_enabled = true
+shadow_blur = 1.2
+
+[node name="TableLamp" type="OmniLight3D" parent="." unique_id=1293847111]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 6.0, 0)
+light_color = Color(1.0, 0.93, 0.82, 1)
+light_energy = 1.8
+omni_range = 14.0
+omni_attenuation = 1.1
+shadow_enabled = true
+shadow_blur = 1.5
 
 [node name="BackgroundMusic" type="AudioStreamPlayer" parent="." unique_id=1536059779]
 stream = ExtResource("2_2nq8u")
@@ -37,13 +97,15 @@ autoplay = true
 [node name="HUD" type="CanvasLayer" parent="." unique_id=889204915]
 
 [node name="TurnLabel" type="Label" parent="HUD" unique_id=11495319]
-offset_right = 40.0
-offset_bottom = 23.0
-offset_transform_position = Vector2(20, 20)
+offset_left = 20.0
+offset_top = 20.0
+offset_right = 320.0
+offset_bottom = 60.0
 text = "Player 1's Turn"
 
 [node name="PowerUpLabel" type="Label" parent="HUD" unique_id=1354157162]
-offset_left = 126.0
-offset_right = 276.0
-offset_bottom = 23.0
+offset_left = 20.0
+offset_top = 65.0
+offset_right = 400.0
+offset_bottom = 95.0
 text = "Power-up: None"

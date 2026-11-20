@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://hxdcvokc3tvs"]
 
 [ext_resource type="Script" path="res://UI/character_select.gd" id="1_select"]
+[ext_resource type="AudioStream" uid="uid://c1rpmafc6lwyh" path="res://music/mix.wav" id="2_mix"]
 
 [node name="CharacterSelect" type="Control"]
 layout_mode = 3
@@ -10,6 +11,11 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_select")
+
+[node name="MenuMusic" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("2_mix")
+autoplay = true
+bus = &"Master"
 
 [node name="Background" type="ColorRect" parent="."]
 layout_mode = 1

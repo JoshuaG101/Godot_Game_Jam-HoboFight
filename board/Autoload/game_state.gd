@@ -99,7 +99,7 @@ var max_rounds: int = 5
 
 var minigame_scenes: Array[String] = [
 	"res://Minigames/Jenga/Scenes/JengaGame.tscn",
-	"res://Minigames/snowball/SnowballSummit.tscn",
+	"res://Minigames/SnowballSummit/Scenes/SnowballSummit.tscn",
 	"res://Minigames/Sword_Fight/main.tscn",
 	"res://Minigames/PlatformRace/race/platform_race.tscn"
 ]
