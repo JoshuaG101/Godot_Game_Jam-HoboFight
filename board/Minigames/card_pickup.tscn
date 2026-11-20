@@ -1,0 +1,22 @@
+[gd_scene format=3 uid="uid://3e84umawqfy"]
+
+[ext_resource type="Script" uid="uid://4sbmm37go0u4" path="res://Minigames/CardCollapse/card_pickup.gd" id="1_1clk6"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_3d1hy"]
+albedo_color = Color(0.8980392, 0.22352941, 0.20784314, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_ff84f"]
+size = Vector3(0.6, 0.1, 0.9)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_ff84f"]
+size = Vector3(0.8, 1, 1)
+
+[node name="CardPickup" type="Area3D" unique_id=37558068]
+script = ExtResource("1_1clk6")
+
+[node name="CardMesh" type="MeshInstance3D" parent="." unique_id=321395620]
+material_override = SubResource("StandardMaterial3D_3d1hy")
+mesh = SubResource("BoxMesh_ff84f")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=951467941]
+shape = SubResource("BoxShape3D_ff84f")
