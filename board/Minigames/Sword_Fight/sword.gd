@@ -85,11 +85,11 @@ func _on_body_entered(body: Node3D) -> void:
 	# Ignore ourselves, the floor, and anything that can't be hit
 	if body == wielder or not body.has_method("receive_hit"):
 		return
-	# One hit per body per swing
 	if body in already_hit:
 		return
 	already_hit.append(body)
 
 	# Report the hit; the target decides what it does (knockback, deflect, ...)
 	var direction: Vector3 = body.global_position - wielder.global_position
-	body.receive_hit(direction, knockback_strength * power_multiplier, wielder)
+	var strength: float = knockback_strength * power_multiplier * wielder.get_power_effect()
+	body.receive_hit(direction, strength, wielder)

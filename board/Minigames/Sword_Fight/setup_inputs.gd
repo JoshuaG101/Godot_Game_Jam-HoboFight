@@ -10,6 +10,7 @@ func _run() -> void:
 		"down": [KEY_S, KEY_DOWN],
 		"attack": [KEY_F, KEY_COMMA],
 		"deflect": [KEY_G, KEY_PERIOD],
+		"ability": [KEY_H, KEY_SLASH],
 	}
 
 	for action in bindings:

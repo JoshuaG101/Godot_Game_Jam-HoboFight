@@ -7,7 +7,7 @@ signal sudden_death_started
 # Relays every landed hit, for effects like camera shake.
 signal hit_landed(strength: float)
 
-@export var sudden_death_time: float = 10   # seconds until sudden death begins
+@export var sudden_death_time: float = 90   # seconds until sudden death begins
 
 var match_over: bool = false
 var sudden_death: bool = false
@@ -82,5 +82,9 @@ func end_match(winner_id: int) -> void:
 	# Freeze every player so nothing keeps happening after the match
 	for player in get_tree().get_nodes_in_group("players"):
 		player.process_mode = Node.PROCESS_MODE_DISABLED
+
+	# Stop arena hazards too (the train, and anything added later)
+	for hazard in get_tree().get_nodes_in_group("hazards"):
+		hazard.process_mode = Node.PROCESS_MODE_DISABLED
 
 	match_ended.emit(winner_id)

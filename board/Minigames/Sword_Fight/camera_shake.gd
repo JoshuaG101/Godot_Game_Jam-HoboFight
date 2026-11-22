@@ -7,21 +7,19 @@ extends Camera3D
 @export var shake_decay: float = 0.8            # how fast the shake dies down, per second
 
 var shake: float = 0.0
-var base_position: Vector3
 
 
 # LOCAL ONLY: purely cosmetic (online: every player's machine runs its own copy)
 func _ready() -> void:
 	assert(match_manager != null, "Assign the Match Manager in the Inspector")
-	base_position = position   # remember where the camera normally sits
 	match_manager.hit_landed.connect(_on_hit_landed)
 
 
 func _process(delta: float) -> void:
 	shake = move_toward(shake, 0.0, shake_decay * delta)
-	# Jitter the camera by a random amount up to "shake" meters, or rest at base
-	var offset := Vector3(randf_range(-1.0, 1.0), randf_range(-1.0, 1.0), randf_range(-1.0, 1.0))
-	position = base_position + offset * shake
+	# h_offset and v_offset slide the view sideways and up/down without moving the camera
+	h_offset = randf_range(-1.0, 1.0) * shake
+	v_offset = randf_range(-1.0, 1.0) * shake
 
 
 func _on_hit_landed(strength: float) -> void:
