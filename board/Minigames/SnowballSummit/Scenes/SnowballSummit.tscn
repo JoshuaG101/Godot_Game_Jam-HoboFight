@@ -51,7 +51,6 @@ transform = Transform3D(0.9670459, 0.14220358, -0.21118796, 0, 0.8294825, 0.5585
 [node name="Player" type="CharacterBody3D" parent="." unique_id=815125480]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.351221, 5)
 script = ExtResource("1_y8feb")
-player_id = 0
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Player" unique_id=322974277]
 shape = SubResource("CapsuleShape3D_5bjbi")

@@ -38,7 +38,6 @@ func _apply_major_powerup() -> void:
 		"philosophy":
 			set_meta("knockback_resist", 0.5)
 
-
 func _apply_player_appearance() -> void:
 	var mesh_inst: MeshInstance3D = get_node_or_null("MeshInstance3D")
 	if mesh_inst:
@@ -151,6 +150,24 @@ func _physics_process(delta: float) -> void:
 				collider.velocity += push_dir.normalized() * (8.0 * ball_mult * my_bump * target_resist)
 
 
+var _joy_fire_was_down := false
+
+
+func _process(_delta: float) -> void:
+	var fire := Input.is_action_just_pressed("p%d_fire" % player_id)
+
+	var joy_down := Input.is_joy_button_pressed(player_id, JOY_BUTTON_A) \
+		or Input.is_joy_button_pressed(player_id, JOY_BUTTON_RIGHT_SHOULDER)
+	if joy_down and not _joy_fire_was_down:
+		fire = true
+	_joy_fire_was_down = joy_down
+
+	if fire:
+		var ball := get_node_or_null("Snowball")
+		if ball:
+			ball.release()
+
+
 func _setup_input() -> void:
 	var p := "p%d_" % player_id
 	_add_axis(p + "left", JOY_AXIS_LEFT_X, -1.0)
@@ -178,6 +195,18 @@ func _setup_input() -> void:
 		_add_key(p + "up", KEY_T)
 		_add_key(p + "down", KEY_G)
 
+	# Fire (outside the if/elif chain above)
+	match player_id:
+		0:
+			_add_key(p + "fire", KEY_SPACE)
+			_add_mouse(p + "fire", MOUSE_BUTTON_LEFT)
+		1:
+			_add_key(p + "fire", KEY_ENTER)
+		2:
+			_add_key(p + "fire", KEY_O)
+		3:
+			_add_key(p + "fire", KEY_Y)
+
 
 func _add_axis(action: String, axis: JoyAxis, value: float) -> void:
 	if not InputMap.has_action(action):
@@ -194,4 +223,10 @@ func _add_key(action: String, key: Key) -> void:
 		InputMap.add_action(action, 0.2)
 	var e := InputEventKey.new()
 	e.physical_keycode = key
+	InputMap.action_add_event(action, e)
+func _add_mouse(action: String, button: MouseButton) -> void:
+	if not InputMap.has_action(action):
+		InputMap.add_action(action, 0.2)
+	var e := InputEventMouseButton.new()
+	e.button_index = button
 	InputMap.action_add_event(action, e)
