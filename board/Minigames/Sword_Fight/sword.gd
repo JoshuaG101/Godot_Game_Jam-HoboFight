@@ -91,5 +91,10 @@ func _on_body_entered(body: Node3D) -> void:
 
 	# Report the hit; the target decides what it does (knockback, deflect, ...)
 	var direction: Vector3 = body.global_position - wielder.global_position
-	var strength: float = knockback_strength * power_multiplier * wielder.get_power_effect()
+	var atk_mult: float = 1.0
+	if wielder.has_method("get_power_effect"):
+		atk_mult = wielder.get_power_effect()
+	elif wielder.has_meta("knockback_mult"):
+		atk_mult = wielder.get_meta("knockback_mult")
+	var strength: float = knockback_strength * power_multiplier * atk_mult
 	body.receive_hit(direction, strength, wielder)

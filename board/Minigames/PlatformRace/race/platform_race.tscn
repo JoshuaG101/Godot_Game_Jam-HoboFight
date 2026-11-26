@@ -1,0 +1,144 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://Minigames/PlatformRace/race/core/race_manager.gd" id="1_mgr"]
+[ext_resource type="Script" path="res://Minigames/PlatformRace/race/core/race_input.gd" id="2_input"]
+[ext_resource type="PackedScene" path="res://Minigames/PlatformRace/race/course/course.tscn" id="3_course"]
+[ext_resource type="PackedScene" path="res://Minigames/PlatformRace/race/runner/runner.tscn" id="4_runner"]
+[ext_resource type="Script" path="res://Minigames/PlatformRace/race/buddy/buddy.gd" id="5_buddy"]
+[ext_resource type="Script" path="res://Minigames/PlatformRace/race/runner/race_camera.gd" id="6_cam"]
+[ext_resource type="Script" path="res://Minigames/PlatformRace/race/ui/race_hud.gd" id="7_hud"]
+[ext_resource type="Script" path="res://Minigames/PlatformRace/race/ui/race_overlays.gd" id="8_overlays"]
+[ext_resource type="Script" path="res://Minigames/PlatformRace/race/core/race_sfx.gd" id="9_sfx"]
+
+[sub_resource type="ProceduralSkyMaterial" id="Sky_mat"]
+sky_top_color = Color(0.2, 0.14, 0.36, 1)
+sky_horizon_color = Color(0.96, 0.52, 0.36, 1)
+sky_curve = 0.12
+ground_bottom_color = Color(0.08, 0.06, 0.1, 1)
+ground_horizon_color = Color(0.62, 0.34, 0.3, 1)
+sun_angle_max = 20.0
+
+[sub_resource type="Sky" id="Sky_res"]
+sky_material = SubResource("Sky_mat")
+
+[sub_resource type="Environment" id="Env"]
+background_mode = 2
+sky = SubResource("Sky_res")
+ambient_light_source = 3
+ambient_light_color = Color(0.55, 0.48, 0.7, 1)
+ambient_light_sky_contribution = 0.6
+ambient_light_energy = 0.75
+tonemap_mode = 2
+tonemap_exposure = 1.05
+glow_enabled = true
+glow_intensity = 0.55
+glow_bloom = 0.04
+glow_hdr_threshold = 0.95
+adjustment_enabled = true
+adjustment_saturation = 1.08
+
+[node name="PlatformRace" type="Node3D"]
+script = ExtResource("1_mgr")
+
+[node name="Input" type="Node" parent="."]
+script = ExtResource("2_input")
+
+[node name="Sfx" type="Node" parent="."]
+script = ExtResource("9_sfx")
+
+[node name="World" type="Node3D" parent="."]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="World"]
+environment = SubResource("Env")
+
+[node name="Sun" type="DirectionalLight3D" parent="World"]
+position = Vector3(0, 40, 20)
+rotation_degrees = Vector3(-35, 40, 0)
+light_color = Color(1, 0.74, 0.5, 1)
+light_energy = 0.95
+shadow_enabled = true
+shadow_opacity = 0.75
+directional_shadow_max_distance = 60.0
+
+[node name="Fill" type="DirectionalLight3D" parent="World"]
+position = Vector3(0, 40, 20)
+rotation_degrees = Vector3(-30, -50, 0)
+light_color = Color(0.6, 0.55, 1, 1)
+light_energy = 0.25
+
+[node name="CourseBlue" parent="World" instance=ExtResource("3_course")]
+
+[node name="CourseGold" parent="World" instance=ExtResource("3_course")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 200, 0, 0)
+team = 1
+
+[node name="RunnerBlue" parent="." instance=ExtResource("4_runner")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 0, 0)
+
+[node name="RunnerGold" parent="." instance=ExtResource("4_runner")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 195, 0, 0)
+team = 1
+
+[node name="BuddyBlue" type="Node" parent="."]
+script = ExtResource("5_buddy")
+
+[node name="BuddyGold" type="Node" parent="."]
+script = ExtResource("5_buddy")
+
+[node name="Views" type="CanvasLayer" parent="."]
+layer = 0
+
+[node name="Split" type="HBoxContainer" parent="Views"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 0
+
+[node name="ViewBlue" type="SubViewportContainer" parent="Views/Split"]
+layout_mode = 2
+size_flags_horizontal = 3
+stretch = true
+
+[node name="SubViewport" type="SubViewport" parent="Views/Split/ViewBlue"]
+handle_input_locally = false
+audio_listener_enable_3d = true
+size = Vector2i(534, 648)
+render_target_update_mode = 4
+
+[node name="CameraBlue" type="Camera3D" parent="Views/Split/ViewBlue/SubViewport"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 9, 25.4)
+keep_aspect = 0
+fov = 35.0
+script = ExtResource("6_cam")
+
+[node name="Divider" type="ColorRect" parent="Views/Split"]
+custom_minimum_size = Vector2(72, 0)
+layout_mode = 2
+color = Color(0.027, 0.039, 0.07, 1)
+
+[node name="ViewGold" type="SubViewportContainer" parent="Views/Split"]
+layout_mode = 2
+size_flags_horizontal = 3
+stretch = true
+
+[node name="SubViewport" type="SubViewport" parent="Views/Split/ViewGold"]
+handle_input_locally = false
+size = Vector2i(534, 648)
+render_target_update_mode = 4
+
+[node name="CameraGold" type="Camera3D" parent="Views/Split/ViewGold/SubViewport"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 200, 9, 25.4)
+keep_aspect = 0
+fov = 35.0
+script = ExtResource("6_cam")
+
+[node name="HUD" type="CanvasLayer" parent="."]
+layer = 5
+script = ExtResource("7_hud")
+
+[node name="Overlays" type="CanvasLayer" parent="."]
+process_mode = 3
+layer = 10
+script = ExtResource("8_overlays")

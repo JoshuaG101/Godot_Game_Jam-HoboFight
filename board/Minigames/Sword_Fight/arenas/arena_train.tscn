@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://b8s8ttr0aaida"]
 
-[ext_resource type="Script" uid="uid://dpxalaldfq65o" path="res://arenas/arena.gd" id="1_o6i0y"]
-[ext_resource type="Script" uid="uid://ceh3p2htrn8j8" path="res://train.gd" id="2_or1l0"]
+[ext_resource type="Script" path="res://Minigames/Sword_Fight/arenas/arena.gd" id="1_o6i0y"]
+[ext_resource type="Script" path="res://Minigames/Sword_Fight/train.gd" id="2_or1l0"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_231di"]
 size = Vector3(40, 1, 30)

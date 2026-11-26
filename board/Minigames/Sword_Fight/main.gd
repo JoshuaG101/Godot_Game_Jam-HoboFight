@@ -1,5 +1,7 @@
 extends Node3D
 
+const Arena = preload("res://Minigames/Sword_Fight/arenas/arena.gd")
+
 # Every arena that can be played. Add more scenes here later, and one is picked at random.
 @export var arena_scenes: Array[PackedScene] = []
 

@@ -1,0 +1,97 @@
+[gd_scene format=3 uid="uid://hxdcvokc3tvs"]
+
+[ext_resource type="Script" path="res://UI/character_select.gd" id="1_select"]
+
+[node name="CharacterSelect" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_select")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.07, 0.09, 0.13, 1)
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 40
+theme_override_constants/margin_top = 25
+theme_override_constants/margin_right = 40
+theme_override_constants/margin_bottom = 25
+
+[node name="VBox" type="VBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="Header" type="VBoxContainer" parent="MarginContainer/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 6
+alignment = 1
+
+[node name="Title" type="Label" parent="MarginContainer/VBox/Header"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.88, 0.2, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.9)
+theme_override_constants/outline_size = 10
+theme_override_font_sizes/font_size = 36
+text = "🎓 SELECT YOUR MAJOR 🎓"
+horizontal_alignment = 1
+
+[node name="PromptLabel" type="Label" parent="MarginContainer/VBox/Header"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.9, 1, 0.9)
+theme_override_font_sizes/font_size = 18
+text = "Click a player slot, then choose a major!"
+horizontal_alignment = 1
+
+[node name="PlayerSlotsContainer" type="HBoxContainer" parent="MarginContainer/VBox"]
+custom_minimum_size = Vector2(0, 75)
+layout_mode = 2
+theme_override_constants/separation = 16
+alignment = 1
+
+[node name="MajorsGrid" type="GridContainer" parent="MarginContainer/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/h_separation = 16
+theme_override_constants/v_separation = 16
+columns = 3
+
+[node name="BottomBar" type="HBoxContainer" parent="MarginContainer/VBox"]
+custom_minimum_size = Vector2(0, 56)
+layout_mode = 2
+theme_override_constants/separation = 20
+alignment = 1
+
+[node name="BackButton" type="Button" parent="MarginContainer/VBox/BottomBar"]
+custom_minimum_size = Vector2(160, 50)
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "⬅ Main Menu"
+
+[node name="RandomButton" type="Button" parent="MarginContainer/VBox/BottomBar"]
+custom_minimum_size = Vector2(200, 50)
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "🎲 Randomize All"
+
+[node name="StartButton" type="Button" parent="MarginContainer/VBox/BottomBar"]
+custom_minimum_size = Vector2(300, 50)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 20
+text = "🚀 START SEMESTER (PLAY)"
+

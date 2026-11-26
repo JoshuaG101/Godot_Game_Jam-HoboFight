@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cjnh2bc12gcql"
-path="res://.godot/imported/icon.svg-218a8f2b3041327d8a5756f3a245f83b.ctex"
+path="res://.godot/imported/icon.svg-865e3248574c5c76272b0886af64357e.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://icon.svg"
-dest_files=["res://.godot/imported/icon.svg-218a8f2b3041327d8a5756f3a245f83b.ctex"]
+source_file="res://Minigames/Sword_Fight/icon.svg"
+dest_files=["res://.godot/imported/icon.svg-865e3248574c5c76272b0886af64357e.ctex"]
 
 [params]
 

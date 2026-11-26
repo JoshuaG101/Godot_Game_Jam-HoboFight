@@ -11,8 +11,10 @@ var shake: float = 0.0
 
 # LOCAL ONLY: purely cosmetic (online: every player's machine runs its own copy)
 func _ready() -> void:
-	assert(match_manager != null, "Assign the Match Manager in the Inspector")
-	match_manager.hit_landed.connect(_on_hit_landed)
+	if not match_manager:
+		match_manager = get_node_or_null("../MatchManager")
+	if match_manager:
+		match_manager.hit_landed.connect(_on_hit_landed)
 
 
 func _process(delta: float) -> void:
@@ -24,6 +26,6 @@ func _process(delta: float) -> void:
 
 func _on_hit_landed(strength: float) -> void:
 	# Only shake in sudden death (delete these two lines to shake on every hit)
-	if not match_manager.sudden_death:
+	if match_manager and not match_manager.sudden_death:
 		return
 	shake = minf(shake + strength * shake_per_strength, max_shake)

@@ -15,6 +15,11 @@ var time_elapsed: float = 0.0
 
 
 func _ready() -> void:
+	var sm = get_node_or_null("/root/SoundManager") if is_inside_tree() else null
+	if sm:
+		var sword_music = load("res://music/sword fight.wav")
+		if sword_music:
+			sm.play_music(sword_music)
 	# Wait one frame so every player has finished its own _ready and joined the group
 	await get_tree().process_frame
 	for player in get_tree().get_nodes_in_group("players"):
@@ -81,7 +86,9 @@ func end_match(winner_id: int) -> void:
 
 	# Freeze every player so nothing keeps happening after the match
 	for player in get_tree().get_nodes_in_group("players"):
-		player.process_mode = Node.PROCESS_MODE_DISABLED
+		player.set_physics_process(false)
+		if player.player_id == winner_id and player.has_method("play_anim"):
+			player.play_anim("victory", true, 0.2)
 
 	# Stop arena hazards too (the train, and anything added later)
 	for hazard in get_tree().get_nodes_in_group("hazards"):

@@ -1,5 +1,5 @@
 class_name DashAbility
-extends Ability
+extends "res://Minigames/Sword_Fight/Abilities/ability.gd"
 
 @export var dash_distance: float = 5.0   # meters
 @export var dash_time: float = 0.2       # seconds the dash lasts

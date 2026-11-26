@@ -1,8 +1,8 @@
 [gd_scene format=3 uid="uid://dqevvrvawlndm"]
 
-[ext_resource type="Script" uid="uid://m6ich1ofkb7g" path="res://player.gd" id="1_4flbx"]
-[ext_resource type="Script" uid="uid://cuiowtlukk1mh" path="res://sword.gd" id="2_onrkg"]
-[ext_resource type="Script" uid="uid://dsyu0stdaqmgw" path="res://deflect.gd" id="3_i3pqv"]
+[ext_resource type="Script" uid="uid://m6ich1ofkb7g" path="res://Minigames/Sword_Fight/player.gd" id="1_4flbx"]
+[ext_resource type="Script" uid="uid://cuiowtlukk1mh" path="res://Minigames/Sword_Fight/sword.gd" id="2_onrkg"]
+[ext_resource type="Script" uid="uid://dsyu0stdaqmgw" path="res://Minigames/Sword_Fight/deflect.gd" id="3_i3pqv"]
 
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_d8m2m"]
 

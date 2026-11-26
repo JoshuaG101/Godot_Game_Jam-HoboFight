@@ -1,5 +1,3 @@
-
-
 extends Node3D
 
 const BLOCK_SCENE: PackedScene = preload(
@@ -21,18 +19,63 @@ var selected_block: RigidBody3D = null
 var active_players: Array[int] = [1, 2, 3, 4]
 var is_checking_collapse: bool = false
 var game_over: bool = false
+var player_characters: Dictionary = {}
+
+var camera_orbiting: bool = false
+var camera_yaw: float = 0.0
+var camera_start_offset: Vector3
+
+# All power-up logic lives in jenga_power_ups.gd. The path is relative to THIS
+# file, so keep the two scripts in the same folder (or use a full res:// path).
+const JengaPowerUpsScript = preload("jenga_power_ups.gd")
+var power_ups  # An instance of jenga_power_ups.gd
+
+# Tower settling / collapse detection.
+const SETTLE_CHECK_INTERVAL: float = 0.1
+const MIN_SETTLE_TIME: float = 1.0
+const MAX_SETTLE_TIME: float = 8.0
+const REQUIRED_CALM_TIME: float = 0.5
+const REST_LINEAR_SPEED: float = 0.05
+const REST_ANGULAR_SPEED: float = 0.05
 
 
 func _ready() -> void:
-	$Camera3D.current = true
-	$Camera3D.look_at(Vector3(0, 2, 0), Vector3.UP)
+	power_ups = JengaPowerUpsScript.new()
+	power_ups.name = "PowerUps"
+	add_child(power_ups)
+	power_ups.setup(self)
+
+	var camera := find_child("Camera3D", true, false) as Camera3D
+
+	if camera == null:
+		push_error("Could not find Camera3D. Check its name in the scene tree.")
+		return
+
+	camera.global_position = Vector3(5, 5, 7)
+	camera.current = true
+	camera.look_at(Vector3(0, 2, 0), Vector3.UP)
+
+	camera_start_offset = camera.global_position - Vector3(0, 2, 0)
+	camera_yaw = 0.0
+
+	update_camera_light()
 
 	build_tower()
+	spawn_players()
 	update_turn_label()
 
+	$BackgroundMusic.finished.connect(_on_music_finished)
+	$BackgroundMusic.play()
+
+	power_ups.assign_power_ups_from_majors()
 
 
 func build_tower() -> void:
+	# Clears Art Blocks, vacant slots and rewind history.
+	power_ups.reset_for_new_tower()
+
+	clear_selection()
+
 	var spacing: float = BLOCK_WIDTH + BLOCK_GAP
 
 	for layer in range(LAYER_COUNT):
@@ -40,7 +83,6 @@ func build_tower() -> void:
 			var block = BLOCK_SCENE.instantiate() as RigidBody3D
 			add_child(block)
 
-			# Remember this block's original tower position.
 			block.set_meta("tower_layer", layer)
 			block.set_meta("tower_slot", i)
 
@@ -56,19 +98,173 @@ func build_tower() -> void:
 				block.position.z = 0.0
 				block.rotation.y = PI / 2.0
 
+	update_block_difficulties()
+
+
+func get_block_half_extents(block: RigidBody3D) -> Vector2:
+	var layer: int = int(block.get_meta("tower_layer", 0))
+
+	if layer % 2 == 0:
+		return Vector2(BLOCK_WIDTH / 2.0, BLOCK_LENGTH / 2.0)
+
+	return Vector2(BLOCK_LENGTH / 2.0, BLOCK_WIDTH / 2.0)
+
+
+func get_footprint_overlap_area(
+	block_a: RigidBody3D,
+	block_b: RigidBody3D
+) -> float:
+	var position_a: Vector3 = block_a.global_position
+	var position_b: Vector3 = block_b.global_position
+
+	var half_a: Vector2 = get_block_half_extents(block_a)
+	var half_b: Vector2 = get_block_half_extents(block_b)
+
+	var overlap_x: float = minf(
+		position_a.x + half_a.x,
+		position_b.x + half_b.x
+	) - maxf(
+		position_a.x - half_a.x,
+		position_b.x - half_b.x
+	)
+
+	var overlap_z: float = minf(
+		position_a.z + half_a.y,
+		position_b.z + half_b.y
+	) - maxf(
+		position_a.z - half_a.y,
+		position_b.z - half_b.y
+	)
+
+	if overlap_x <= 0.0 or overlap_z <= 0.0:
+		return 0.0
+
+	return overlap_x * overlap_z
+
+
+# Calculate removal difficulty, including Art Block support.
+func calculate_removal_difficulty(
+	candidate: RigidBody3D,
+	blocks: Array
+) -> int:
+	var candidate_layer: int = int(
+		candidate.get_meta("tower_layer", 0)
+	)
+
+	var worst_remaining_support: float = 1.0
+	var found_supported_block: bool = false
+
+	var ideal_support_area: float = BLOCK_LENGTH * BLOCK_WIDTH
+
+	# Regular blocks and Art Blocks can provide support.
+	var support_blocks: Array = blocks.duplicate()
+
+	support_blocks.append_array(power_ups.get_art_block_nodes())
+
+	# Examine blocks directly above the candidate.
+	for upper_block in blocks:
+		var upper_layer: int = int(
+			upper_block.get_meta("tower_layer", 0)
+		)
+
+		if upper_layer != candidate_layer + 1:
+			continue
+
+		var total_support_area: float = 0.0
+
+		for support_block in support_blocks:
+			var support_layer: int = int(
+				support_block.get_meta("tower_layer", 0)
+			)
+
+			if support_layer != candidate_layer:
+				continue
+
+			total_support_area += get_footprint_overlap_area(
+				support_block,
+				upper_block
+			)
+
+		var candidate_support: float = get_footprint_overlap_area(
+			candidate,
+			upper_block
+		)
+
+		if candidate_support <= 0.0:
+			continue
+
+		found_supported_block = true
+
+		var remaining_support: float = maxf(
+			0.0,
+			total_support_area - candidate_support
+		)
+
+		var remaining_coverage: float = clampf(
+			remaining_support / ideal_support_area,
+			0.0,
+			1.0
+		)
+
+		worst_remaining_support = minf(
+			worst_remaining_support,
+			remaining_coverage
+		)
+
+	if not found_supported_block:
+		return 1
+
+	var support_risk: int = ceili(
+		(1.0 - worst_remaining_support) * 6.0
+	)
+
+	var load_bonus: int = mini(
+		3,
+		LAYER_COUNT - candidate_layer - 1
+	)
+
+	var difficulty: int = 1 + support_risk + load_bonus
+
+	return clampi(difficulty, 1, 10)
+
+
+func update_block_difficulties() -> void:
+	var blocks: Array = get_tree().get_nodes_in_group("jenga_blocks")
+
+	for block in blocks:
+		block.removal_difficulty = calculate_removal_difficulty(
+			block,
+			blocks
+		)
+
 
 func _input(event: InputEvent) -> void:
 	if game_over or is_checking_collapse:
 		return
 
 	if event is InputEventMouseButton:
+		if event.button_index == MOUSE_BUTTON_RIGHT:
+			camera_orbiting = event.pressed
+
 		if event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
-			select_block_at_mouse(event.position)
+			if power_ups.art_block_placement_active:
+				power_ups.select_art_slot_at_mouse(event.position)
+			else:
+				select_block_at_mouse(event.position)
+
+	if event is InputEventMouseMotion and camera_orbiting:
+		rotate_camera(-event.relative.x * 0.005)
 
 	if event is InputEventKey:
 		if event.pressed and not event.echo:
 			if event.keycode == KEY_E:
-				place_selected_block()
+				if power_ups.art_block_placement_active:
+					power_ups.place_art_block()
+				else:
+					place_selected_block()
+
+			elif event.keycode == KEY_Q:
+				power_ups.activate_power_up()
 
 
 func select_block_at_mouse(mouse_position: Vector2) -> void:
@@ -101,7 +297,7 @@ func select_block_at_mouse(mouse_position: Vector2) -> void:
 
 		print(
 			"Selected block difficulty: ",
-			selected_block.get("removal_difficulty")
+			selected_block.removal_difficulty
 		)
 	else:
 		clear_selection()
@@ -114,8 +310,6 @@ func clear_selection() -> void:
 	selected_block = null
 
 
-
-
 func place_selected_block() -> void:
 	if not is_instance_valid(selected_block):
 		print("Click a block first!")
@@ -124,7 +318,6 @@ func place_selected_block() -> void:
 	var blocks: Array = get_tree().get_nodes_in_group("jenga_blocks")
 	var highest_layer: int = 0
 
-	# Find the highest intended layer, ignoring the moving block.
 	for block in blocks:
 		if block == selected_block:
 			continue
@@ -132,7 +325,25 @@ func place_selected_block() -> void:
 		var layer: int = int(block.get_meta("tower_layer", 0))
 		highest_layer = maxi(highest_layer, layer)
 
-	# Record which slots on the highest layer are occupied.
+	# Prevent removing the top layer unless Rabbit's Foot is lucky.
+	if (
+		int(selected_block.get_meta("tower_layer", 0)) >= highest_layer
+		and not power_ups.rabbits_foot_lucky
+	):
+		print("You can't remove a block from the top layer!")
+		return
+
+	# Save the tower as it was BEFORE this move (for Architectural Prowess).
+	power_ups.record_move_snapshot()
+
+	# Record the empty space only after a legal removal.
+	var original_slot := Vector2i(
+		int(selected_block.get_meta("tower_layer", 0)),
+		int(selected_block.get_meta("tower_slot", 0))
+	)
+
+	power_ups.record_vacant_slot(original_slot, selected_block.global_transform)
+
 	var occupied_slots: Array[bool] = [false, false, false]
 
 	for block in blocks:
@@ -149,7 +360,6 @@ func place_selected_block() -> void:
 		if slot >= 0 and slot < BLOCKS_PER_LAYER:
 			occupied_slots[slot] = true
 
-	# Look for an open slot on the current top layer.
 	var destination_layer: int = highest_layer
 	var destination_slot: int = -1
 
@@ -158,16 +368,23 @@ func place_selected_block() -> void:
 			destination_slot = i
 			break
 
-	# Only create another layer when all three slots are occupied.
 	if destination_slot == -1:
 		destination_layer += 1
 		destination_slot = 0
+
+	# If the block lands in a slot that was listed as vacant, it isn't anymore.
+	var destination_id := Vector2i(destination_layer, destination_slot)
+	power_ups.clear_vacant_slot(destination_id)
 
 	var spacing: float = BLOCK_WIDTH + BLOCK_GAP
 	var destination_height: float = BLOCK_HEIGHT / 2.0
 	destination_height += destination_layer * (BLOCK_HEIGHT + BLOCK_GAP)
 
-	# Freeze while moving the block.
+	# Stabilize the tower during Amped Up.
+	if power_ups.amped_up_active:
+		power_ups.freeze_tower_except(selected_block)
+
+	# Move the selected block.
 	selected_block.freeze = true
 	selected_block.linear_velocity = Vector3.ZERO
 	selected_block.angular_velocity = Vector3.ZERO
@@ -183,33 +400,62 @@ func place_selected_block() -> void:
 		selected_block.position.z = 0.0
 		selected_block.rotation = Vector3(0.0, PI / 2.0, 0.0)
 
-	# Save the block's new intended position.
 	selected_block.set_meta("tower_layer", destination_layer)
 	selected_block.set_meta("tower_slot", destination_slot)
+
+	update_block_difficulties()
 
 	selected_block.freeze = false
 
 	clear_selection()
 
-	# Allow the tower to settle before checking for a collapse.
 	is_checking_collapse = true
-	await get_tree().create_timer(1.5).timeout
 
-	if check_tower_collapsed():
+	# Wait for the tower to actually stop moving before judging it.
+	var collapse_detected: bool = await wait_for_tower_to_settle()
+
+	# Art Blocks expire at the end of the turn. If one was holding the tower
+	# up, the player who just moved answers for it, so check again afterward.
+	if not collapse_detected:
+		if power_ups.on_turn_completed():
+			collapse_detected = await wait_for_tower_to_settle(true)
+
+	if power_ups.rabbits_foot_lucky:
+		power_ups.consume_rabbits_foot()
+
+		# Protected, but don't hand the next player a pile of blocks.
+		if collapse_detected:
+			await rebuild_tower()
+
+		advance_turn()
+
+	elif power_ups.amped_up_active:
+		# The tower was frozen for the move, so let it loose and see what happens.
+		power_ups.end_amped_up()
+
+		if not collapse_detected:
+			collapse_detected = await wait_for_tower_to_settle()
+
+		if collapse_detected:
+			await rebuild_tower()
+
+		advance_turn()
+
+	elif collapse_detected:
 		await eliminate_current_player()
+
 	else:
 		advance_turn()
 
 	is_checking_collapse = false
 
 
-
 func find_available_slot(layer: int, height: float) -> int:
 	var spacing: float = BLOCK_WIDTH + BLOCK_GAP
 
 	for slot in range(BLOCKS_PER_LAYER):
-		var target_x: float = 0
-		var target_z: float = 0
+		var target_x: float = 0.0
+		var target_z: float = 0.0
 
 		if layer % 2 == 0:
 			target_z = (slot - 1) * spacing
@@ -240,18 +486,15 @@ func find_available_slot(layer: int, height: float) -> int:
 
 func check_tower_collapsed() -> bool:
 	for block in get_tree().get_nodes_in_group("jenga_blocks"):
-		# A block has fallen below the floor area.
 		if block.global_position.y < 0.1:
 			return true
 
-		# A block has moved too far away from the tower.
 		if (
 			absf(block.global_position.x) > 1.8
 			or absf(block.global_position.z) > 1.8
 		):
 			return true
 
-		# A block has tilted too far from upright.
 		var up_direction: Vector3 = \
 			block.global_transform.basis.y.normalized()
 
@@ -261,17 +504,89 @@ func check_tower_collapsed() -> bool:
 	return false
 
 
+# Waits until the tower stops moving. Returns true if it collapsed.
+func wait_for_tower_to_settle(wake_blocks: bool = false) -> bool:
+	if wake_blocks:
+		# Let a freed Art Block leave the physics world, then wake the blocks.
+		# Sleeping bodies don't notice that their support disappeared.
+		await get_tree().physics_frame
+		await get_tree().physics_frame
+		wake_all_blocks()
+
+	var elapsed: float = 0.0
+	var calm_time: float = 0.0
+
+	while elapsed < MAX_SETTLE_TIME:
+		await get_tree().create_timer(SETTLE_CHECK_INTERVAL).timeout
+		elapsed += SETTLE_CHECK_INTERVAL
+
+		if check_tower_collapsed():
+			return true
+
+		if elapsed >= MIN_SETTLE_TIME and is_tower_at_rest():
+			calm_time += SETTLE_CHECK_INTERVAL
+
+			if calm_time >= REQUIRED_CALM_TIME:
+				break
+		else:
+			calm_time = 0.0
+
+	return check_tower_collapsed()
+
+
+func is_tower_at_rest() -> bool:
+	for block in get_tree().get_nodes_in_group("jenga_blocks"):
+		if block.sleeping:
+			continue
+
+		if (
+			block.linear_velocity.length() > REST_LINEAR_SPEED
+			or block.angular_velocity.length() > REST_ANGULAR_SPEED
+		):
+			return false
+
+	return true
+
+
+func wake_all_blocks() -> void:
+	for block in get_tree().get_nodes_in_group("jenga_blocks"):
+		block.sleeping = false
+
+
+func rebuild_tower() -> void:
+	for block in get_tree().get_nodes_in_group("jenga_blocks"):
+		block.queue_free()
+
+	await get_tree().process_frame
+
+	build_tower()
+
+
+func _get_game_state() -> Node:
+	if not is_inside_tree():
+		return null
+	return get_node_or_null("/root/GameState")
+
 func eliminate_current_player() -> void:
 	var eliminated_player: int = current_player
+	play_player_anim(eliminated_player, "block", false)
 
 	active_players.erase(eliminated_player)
 
 	if active_players.size() <= 1:
 		game_over = true
+		var winner_num = active_players[0] if active_players.size() == 1 else 1
+		play_player_anim(winner_num, "victory", true)
+		var gs = _get_game_state()
+		if gs:
+			gs.award_coins(winner_num, 7)
+		var p_name = gs.get_player_name(winner_num) if gs else ("Player %d" % winner_num)
 		$HUD/TurnLabel.text = (
-			"Player " + str(active_players[0]) + " Wins!"
+			"%s Wins!\n(+7 Coins Awarded!)\nReturning to Board..." % p_name
 		)
-		print("Player ", active_players[0], " wins!")
+		print("Player ", winner_num, " wins! (+7 coins)")
+		await get_tree().create_timer(3.0).timeout
+		get_tree().change_scene_to_file("res://Board/Board.tscn")
 		return
 
 	$HUD/TurnLabel.text = (
@@ -280,19 +595,11 @@ func eliminate_current_player() -> void:
 
 	print("Player ", eliminated_player, " is out!")
 
-	# Give everyone time to see the elimination message.
 	await get_tree().create_timer(2.0).timeout
 
-	# Choose the next player who has not been eliminated.
 	current_player = get_next_active_player(eliminated_player)
 
-	# Remove the fallen tower and build a fresh one.
-	for block in get_tree().get_nodes_in_group("jenga_blocks"):
-		block.queue_free()
-
-	await get_tree().process_frame
-
-	build_tower()
+	await rebuild_tower()
 	update_turn_label()
 
 
@@ -313,5 +620,161 @@ func advance_turn() -> void:
 	update_turn_label()
 
 
+# Lets other scripts (like the power-ups) set the HUD message.
+func set_turn_text(text: String) -> void:
+	$HUD/TurnLabel.text = text
+
+
 func update_turn_label() -> void:
 	$HUD/TurnLabel.text = "Player " + str(current_player) + "'s Turn"
+	power_ups.update_powerup_label()
+	for pid in player_characters:
+		if pid == current_player:
+			play_player_anim(pid, "push", true)
+		else:
+			play_player_anim(pid, "idle", true)
+
+
+func spawn_players() -> void:
+	var player_spots = [
+		Vector3(0, 0, 2.85),
+		Vector3(-2.85, 0, 0),
+		Vector3(0, 0, -2.85),
+		Vector3(2.85, 0, 0)
+	]
+	for i in range(PLAYER_COUNT):
+		var pid = i + 1
+		var spot = player_spots[i]
+		var holder = Node3D.new()
+		holder.name = "PlayerCharacter_%d" % pid
+		holder.position = spot
+		add_child(holder)
+		holder.look_at(Vector3(0, 0, 0), Vector3.UP)
+
+		var gs = _get_game_state()
+		var model_scene = gs.get_player_model_scene(pid) if gs else null
+		var anim_player: AnimationPlayer = null
+		if model_scene:
+			var model = model_scene.instantiate()
+			model.name = "Model"
+			model.rotation.y = PI # Face toward center (-Z)
+			model.scale = Vector3(0.9, 0.9, 0.9)
+			holder.add_child(model)
+			anim_player = model.find_child("AnimationPlayer", true, false) as AnimationPlayer
+			if anim_player:
+				if gs and gs.has_method("setup_character_idle_animation"):
+					gs.setup_character_idle_animation(anim_player)
+				else:
+					var jump_anim = anim_player.get_animation("jump") if anim_player.has_animation("jump") else null
+					if jump_anim and not anim_player.has_animation("idle"):
+						var idle_anim = Animation.new()
+						idle_anim.length = 0.5
+						idle_anim.loop_mode = Animation.LOOP_LINEAR
+						for t in range(jump_anim.get_track_count()):
+							if jump_anim.track_get_key_count(t) > 0:
+								var idx = idle_anim.add_track(jump_anim.track_get_type(t))
+								idle_anim.track_set_path(idx, jump_anim.track_get_path(t))
+								idle_anim.track_insert_key(idx, 0.0, jump_anim.track_get_key_value(t, 0))
+						var lib = anim_player.get_animation_library("")
+						if lib:
+							lib.add_animation("idle", idle_anim)
+
+		var color = gs.get_player_color(pid) if gs else Color.WHITE
+
+		# Glowing team pedestal ring
+		var ring = MeshInstance3D.new()
+		ring.name = "Ring"
+		var torus = TorusMesh.new()
+		torus.inner_radius = 0.35
+		torus.outer_radius = 0.45
+		ring.mesh = torus
+		ring.position = Vector3(0, 0.04, 0)
+		var ring_mat = StandardMaterial3D.new()
+		ring_mat.albedo_color = color
+		ring_mat.emission_enabled = true
+		ring_mat.emission = color * 1.5
+		ring.material_override = ring_mat
+		holder.add_child(ring)
+
+		# Overhead badge
+		var badge = Label3D.new()
+		badge.name = "Badge"
+		badge.text = "P%d %s" % [pid, gs.get_player_name(pid) if gs else ""]
+		badge.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+		badge.pixel_size = 0.009
+		badge.position = Vector3(0, 1.85, 0)
+		badge.font_size = 32
+		badge.modulate = color
+		badge.outline_size = 8
+		badge.outline_modulate = Color.BLACK
+		holder.add_child(badge)
+
+		player_characters[pid] = {
+			"holder": holder,
+			"anim": anim_player
+		}
+		play_player_anim(pid, "idle", true)
+
+
+func play_player_anim(pid: int, anim_name: String, loop: bool = false) -> void:
+	if not player_characters.has(pid):
+		return
+	var anim_player = player_characters[pid]["anim"] as AnimationPlayer
+	if not anim_player or not anim_player.has_animation(anim_name):
+		return
+	var anim = anim_player.get_animation(anim_name)
+	if anim:
+		anim.loop_mode = Animation.LOOP_LINEAR if loop else Animation.LOOP_NONE
+	if anim_player.current_animation != anim_name or not anim_player.is_playing():
+		anim_player.play(anim_name, 0.15)
+
+
+func stop_player_anim(pid: int) -> void:
+	if not player_characters.has(pid):
+		return
+	var anim_player = player_characters[pid]["anim"] as AnimationPlayer
+	if anim_player and anim_player.is_playing():
+		anim_player.stop()
+
+
+func rotate_camera(amount: float) -> void:
+	var camera := find_child("Camera3D", true, false) as Camera3D
+
+	if camera == null:
+		return
+
+	camera_yaw += amount
+
+	var target: Vector3 = Vector3(0, 2, 0)
+	var original_offset: Vector3 = camera_start_offset
+
+	var rotated_offset: Vector3 = Vector3(
+		original_offset.x * cos(camera_yaw)
+			+ original_offset.z * sin(camera_yaw),
+		original_offset.y,
+		-original_offset.x * sin(camera_yaw)
+			+ original_offset.z * cos(camera_yaw)
+	)
+
+	camera.global_position = target + rotated_offset
+	camera.look_at(target, Vector3.UP)
+
+	update_camera_light()
+
+
+func update_camera_light() -> void:
+	var camera := find_child("Camera3D", true, false) as Camera3D
+	var light := find_child(
+		"DirectionalLight3D", true, false
+	) as DirectionalLight3D
+
+	if camera == null or light == null:
+		return
+
+	light.global_rotation = camera.global_rotation
+	light.light_energy = 1.2
+	light.shadow_enabled = true
+
+
+func _on_music_finished() -> void:
+	$BackgroundMusic.play()

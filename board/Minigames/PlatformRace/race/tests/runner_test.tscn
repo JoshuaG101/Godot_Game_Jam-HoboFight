@@ -1,0 +1,6 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://Minigames/PlatformRace/race/tests/runner_test.gd" id="1_test"]
+
+[node name="RunnerTest" type="Node3D"]
+script = ExtResource("1_test")

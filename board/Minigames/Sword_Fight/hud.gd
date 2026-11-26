@@ -1,5 +1,8 @@
 extends CanvasLayer
 
+const PlayerClass = preload("res://Minigames/Sword_Fight/player_class.gd")
+const Ability = preload("res://Minigames/Sword_Fight/Abilities/ability.gd")
+
 # Drag the MatchManager node into this slot in the Inspector
 @export var match_manager: MatchManager
 
@@ -12,7 +15,8 @@ var ability_labels: Dictionary = {}   # player_id -> Label
 
 # LOCAL ONLY: purely cosmetic (online: every player's machine runs its own copy)
 func _ready() -> void:
-	assert(match_manager != null, "Assign the Match Manager in the Inspector")
+	if not match_manager:
+		match_manager = get_node_or_null("../MatchManager")
 
 	# Red tint over the whole screen, invisible until sudden death
 	tint = ColorRect.new()
@@ -48,11 +52,14 @@ func _ready() -> void:
 	ability_row.grow_vertical = Control.GROW_DIRECTION_BEGIN   # grow upward, not off-screen
 	ability_row.offset_bottom = -12.0
 
-	match_manager.sudden_death_started.connect(_on_sudden_death_started)
+	if match_manager:
+		match_manager.sudden_death_started.connect(_on_sudden_death_started)
 
 
 # _process runs every rendered frame, which suits cosmetic updates like this one
 func _process(_delta: float) -> void:
+	if not match_manager:
+		return
 	if match_manager.sudden_death:
 		timer_label.text = "SUDDEN DEATH"
 	else:
@@ -62,38 +69,53 @@ func _process(_delta: float) -> void:
 	_update_ability_labels()
 
 
-func _update_ability_labels() -> void:
-	var players := get_tree().get_nodes_in_group("players")
-	players.sort_custom(func(a, b): return a.player_id < b.player_id)
-
-	for player in players:
-		var id: int = player.player_id
-
-		# Create this player's label the first time we see them
-		if not ability_labels.has(id):
-			var label := Label.new()
-			label.add_theme_font_size_override("font_size", 22)
-			ability_row.add_child(label)
-			ability_labels[id] = label
-
-		var text := "P%d: %s" % [id, PlayerClass.display_name(player.player_class)]
-		var ability: Ability = player.ability
-		if ability != null:
-			if ability.cooldown_left > 0.0:
-				text += "\n%s  %.1fs" % [ability.get_ability_name(), ability.cooldown_left]
-			else:
-				text += "\n%s  READY" % ability.get_ability_name()
-		ability_labels[id].text = text
-
-
 func _on_sudden_death_started() -> void:
-	# Banner: fade in, hold, fade out
-	var banner_tween := create_tween()
-	banner_tween.tween_property(banner_label, "modulate:a", 1.0, 0.15)
-	banner_tween.tween_interval(1.2)
-	banner_tween.tween_property(banner_label, "modulate:a", 0.0, 0.5)
+	# Keep the red tint on for the rest of the match
+	tint.color = Color(1.0, 0.05, 0.0, 0.22)
 
-	# Tint: a bright red flash that settles into a faint red tint
-	tint.color.a = 0.45
-	var tint_tween := create_tween()
-	tint_tween.tween_property(tint, "color:a", 0.12, 0.8)
+	# Flash the SUDDEN DEATH! banner, hold it, and fade it out
+	var tween := create_tween()
+	tween.tween_property(banner_label, "modulate:a", 1.0, 0.2)
+	tween.tween_interval(1.5)
+	tween.tween_property(banner_label, "modulate:a", 0.0, 0.5)
+
+
+func _update_ability_labels() -> void:
+	# Add a label for any player that doesn't have one yet
+	for player in get_tree().get_nodes_in_group("players"):
+		if not ability_labels.has(player.player_id):
+			var label := Label.new()
+			label.add_theme_font_size_override("font_size", 20)
+			ability_row.add_child(label)
+			ability_labels[player.player_id] = label
+
+		var label: Label = ability_labels[player.player_id]
+		label.text = _format_player_status(player)
+
+
+func _format_player_status(player: Node3D) -> String:
+	var class_name_str := PlayerClass.display_name(player.player_class)
+	var ability: Ability = player.ability
+
+	# No class or no ability assigned
+	if ability == null:
+		return "P%d: %s" % [player.player_id, class_name_str]
+
+	var ability_name := ability.get_ability_name()
+
+	# Cooldown counting down, or ready to use
+	var cd_text: String
+	if ability.cooldown_left > 0.0:
+		cd_text = "%ds" % int(ceil(ability.cooldown_left))
+	else:
+		cd_text = "READY"
+
+	var text := "P%d: %s | %s [%s]" % [player.player_id, class_name_str, ability_name, cd_text]
+
+	# Abilities can add extra text (e.g. Roulette shows what genre was rolled)
+	if ability.has_method("get_status_text"):
+		var extra: String = ability.get_status_text()
+		if extra != "":
+			text += "  (%s)" % extra
+
+	return text

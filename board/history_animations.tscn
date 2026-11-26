@@ -1,0 +1,5 @@
+[gd_scene format=3 uid="uid://canmqknc4ugjx"]
+
+[ext_resource type="PackedScene" uid="uid://qiaqvukmnmur" path="res://Assets/Models/Animations/HistoryAnimations.glb" id="1_t4ffw"]
+
+[node name="HistoryAnimations" unique_id=882710024 instance=ExtResource("1_t4ffw")]

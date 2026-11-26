@@ -13,10 +13,18 @@ func _ready() -> void:
 
 func _on_match_ended(winner_id: int) -> void:
 	if winner_id == -1:
-		label.text = "Draw!\nPress R to restart"
+		label.text = "Draw!\nReturning to Board..."
 	else:
-		label.text = "Player %d wins!\nPress R to restart" % winner_id
+		var gs = get_node_or_null("/root/GameState") if is_inside_tree() else null
+		if gs:
+			gs.award_coins(winner_id, 7)
+		var p_name = gs.get_player_name(winner_id) if gs else ("Player %d" % winner_id)
+		label.text = "%s wins!\n(+7 Coins Awarded!)\nReturning to Board..." % p_name
 	label.visible = true
+	
+	# Automatically transition back to board after match ends
+	await get_tree().create_timer(3.0).timeout
+	get_tree().change_scene_to_file("res://Board/Board.tscn")
 
 
 # Testing convenience only. The larger game will decide what happens after a match.

@@ -1,5 +1,5 @@
 class_name UndoAbility
-extends Ability
+extends "res://Minigames/Sword_Fight/Abilities/ability.gd"
 
 @export var rewind_time: float = 2.0     # how far back in time you return, in seconds
 @export var latest_use_y: float = -3.0   # can't be used once you've fallen below this height

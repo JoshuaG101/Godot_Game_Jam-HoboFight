@@ -1,0 +1,173 @@
+[gd_scene format=3 uid="uid://df1e1a5lq5i8y"]
+
+[ext_resource type="Environment" uid="uid://chsj3hofujogp" path="res://Assets/Shaders/starry_sky_environment.tres" id="1_blpxu"]
+[ext_resource type="Script" uid="uid://bfked7r2jj55c" path="res://victory.gd" id="2_88rjr"]
+
+[sub_resource type="GDScript" id="GDScript_paot2"]
+script/source = "extends CharacterBody3D
+
+@export var player_id := 0
+@export var base_speed := 7.0
+@export var accel := 25.0
+@export var turn_speed := 12.0
+
+var gravity: float = ProjectSettings.get_setting(\"physics/3d/default_gravity\")
+
+
+func _ready() -> void:
+	add_to_group(\"players\")
+	_setup_input()
+
+
+func _physics_process(delta: float) -> void:
+	var p := \"p%d_\" % player_id
+	var input := Input.get_vector(p + \"left\", p + \"right\", p + \"up\", p + \"down\")
+	var dir := Vector3(input.x, 0.0, input.y)
+
+	velocity.x = move_toward(velocity.x, dir.x * base_speed, accel * delta)
+	velocity.z = move_toward(velocity.z, dir.z * base_speed, accel * delta)
+
+	if not is_on_floor():
+		velocity.y -= gravity * delta
+	else:
+		velocity.y = 0.0
+
+	if dir.length() > 0.1:
+		rotation.y = lerp_angle(rotation.y, atan2(-dir.x, -dir.z), turn_speed * delta)
+
+	move_and_slide()
+
+
+func _setup_input() -> void:
+	var p := \"p%d_\" % player_id
+	_add_axis(p + \"left\", JOY_AXIS_LEFT_X, -1.0)
+	_add_axis(p + \"right\", JOY_AXIS_LEFT_X, 1.0)
+	_add_axis(p + \"up\", JOY_AXIS_LEFT_Y, -1.0)
+	_add_axis(p + \"down\", JOY_AXIS_LEFT_Y, 1.0)
+	if player_id == 0:
+		_add_key(p + \"left\", KEY_A)
+		_add_key(p + \"right\", KEY_D)
+		_add_key(p + \"up\", KEY_W)
+		_add_key(p + \"down\", KEY_S)
+
+
+func _add_axis(action: String, axis: JoyAxis, value: float) -> void:
+	if not InputMap.has_action(action):
+		InputMap.add_action(action, 0.2)
+	var e := InputEventJoypadMotion.new()
+	e.device = player_id
+	e.axis = axis
+	e.axis_value = value
+	InputMap.action_add_event(action, e)
+
+
+func _add_key(action: String, key: Key) -> void:
+	if not InputMap.has_action(action):
+		InputMap.add_action(action, 0.2)
+	var e := InputEventKey.new()
+	e.physical_keycode = key
+	InputMap.action_add_event(action, e)
+"
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_5bjbi"]
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_8i30l"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_player"]
+albedo_color = Color(0.9, 0.3, 0.2, 1)
+metallic = 0.2
+roughness = 0.3
+rim_enabled = true
+rim = 0.6
+
+[sub_resource type="SphereMesh" id="SphereMesh_hgfvv"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_snowball"]
+albedo_color = Color(0.92, 0.96, 1, 1)
+roughness = 0.4
+rim_enabled = true
+rim = 0.8
+rim_tint = 0.3
+
+[sub_resource type="PhysicsMaterial" id="PhysicsMaterial_uuc0u"]
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_uuc0u"]
+top_radius = 0.455
+height = 3.749
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_glacier"]
+albedo_color = Color(0.72, 0.88, 0.98, 1)
+metallic = 0.1
+roughness = 0.15
+rim_enabled = true
+rim = 0.7
+rim_tint = 0.8
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_saa18"]
+
+[node name="SnowballSummit" type="Node3D" unique_id=1562868201]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1188694961]
+environment = ExtResource("1_blpxu")
+
+[node name="Camera3D" type="Camera3D" parent="." unique_id=2003922835]
+transform = Transform3D(1, 0, 0, 0, 0.866025, 0.5, 0, -0.5, 0.866025, 0, 8, 12)
+
+[node name="Player" type="CharacterBody3D" parent="." unique_id=815125480]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.1232512, 0, 0)
+script = SubResource("GDScript_paot2")
+player_id = 1
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Player" unique_id=322974277]
+shape = SubResource("CapsuleShape3D_5bjbi")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Player" unique_id=1901717209]
+mesh = SubResource("CapsuleMesh_8i30l")
+surface_material_override/0 = SubResource("StandardMaterial3D_player")
+
+[node name="Snowball" type="Node3D" parent="Player" unique_id=99233343]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Player/Snowball" unique_id=1603757600]
+mesh = SubResource("SphereMesh_hgfvv")
+surface_material_override/0 = SubResource("StandardMaterial3D_snowball")
+
+[node name="Player2" type="CharacterBody3D" parent="." unique_id=1838965730]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0, 0)
+script = SubResource("GDScript_paot2")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Player2" unique_id=299590886]
+shape = SubResource("CapsuleShape3D_5bjbi")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Player2" unique_id=973761086]
+mesh = SubResource("CapsuleMesh_8i30l")
+surface_material_override/0 = SubResource("StandardMaterial3D_player")
+
+[node name="Snowball" type="Node3D" parent="Player2" unique_id=882058731]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Player2/Snowball" unique_id=75358021]
+mesh = SubResource("SphereMesh_hgfvv")
+surface_material_override/0 = SubResource("StandardMaterial3D_snowball")
+
+[node name="Floor" type="StaticBody3D" parent="." unique_id=1690489979]
+transform = Transform3D(2.81, 0, 0, 0, 2.81, 0, 0, 0, 2.81, 0, -2.3289888, 0)
+physics_material_override = SubResource("PhysicsMaterial_uuc0u")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Floor" unique_id=1644637209]
+transform = Transform3D(3.915315, 0, 0, 0, 0.45438412, 0, 0, 0, 3.915315, 0, -0.5063096, 0)
+mesh = SubResource("CylinderMesh_uuc0u")
+surface_material_override/0 = SubResource("StandardMaterial3D_glacier")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Floor" unique_id=1737724668]
+transform = Transform3D(3.955, 0, 0, 0, 3.955, 0, 0, 0, 3.955, 0, -3.656886, 0.01337418)
+shape = SubResource("CylinderShape3D_saa18")
+debug_color = Color(0.79293865, 0.20436728, 0.764313, 0.41960785)
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=83464035]
+transform = Transform3D(0.866025, -0.353553, 0.353553, 0, 0.707107, 0.707107, -0.5, -0.612372, 0.612372, 0, 10, 0)
+light_color = Color(0.9, 0.95, 1, 1)
+light_energy = 1.15
+shadow_enabled = true
+shadow_blur = 1.2
+
+[node name="Node" type="Node" parent="." unique_id=1510073255]
+script = ExtResource("2_88rjr")

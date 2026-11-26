@@ -1,5 +1,7 @@
 class_name ArtilleryAbility
-extends Ability
+extends "res://Minigames/Sword_Fight/Abilities/ability.gd"
+
+const ArtilleryStrike = preload("res://Minigames/Sword_Fight/Abilities/artillery_strike_history.gd")
 
 @export var target_distance: float = 10.0   # how far ahead of the player the shells land
 @export var strike_radius: float = 3.5      # blast radius, in meters

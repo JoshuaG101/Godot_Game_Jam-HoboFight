@@ -1,5 +1,5 @@
 class_name RouletteAbility
-extends Ability
+extends "res://Minigames/Sword_Fight/Abilities/ability.gd"
 
 enum Genre { ROCK, HIP_HOP, JAZZ, POP, CLASSICAL }
 

@@ -1,0 +1,5 @@
+[gd_scene format=3 uid="uid://dhdb8ka20yptr"]
+
+[ext_resource type="PackedScene" uid="uid://v3ipa56kv1yx" path="res://Assets/Models/Animations/AntrhoAnimations.glb" id="1_xbmrr"]
+
+[node name="AntrhoAnimations" unique_id=1147005215 instance=ExtResource("1_xbmrr")]
