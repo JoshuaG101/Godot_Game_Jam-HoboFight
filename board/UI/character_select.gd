@@ -58,7 +58,7 @@ func build_majors_grid() -> void:
 		vbox.offset_right = -15
 		vbox.offset_bottom = -10
 		vbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		vbox.theme_override_constants.separation = 4
+		vbox.add_theme_constant_override("separation", 4)
 		card.add_child(vbox)
 
 		var title_row = HBoxContainer.new()

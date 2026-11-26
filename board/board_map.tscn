@@ -19,7 +19,7 @@ transform = Transform3D(5.02681e-06, 0, 1, 0, 1, 0, -1, 0, 5.02681e-06, -1.46001
 next_nodes = Array[NodePath]([NodePath("../marioPartyTiles28")])
 
 [node name="gameBoard" parent="." unique_id=1745901839 instance=ExtResource("1_s66fm")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12.0376625, 0, 8.775969)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12.102446, 0.03392124, 8.712065)
 
 [node name="marioPartyTiles44" parent="." unique_id=1257134171 instance=ExtResource("2_pw14y")]
 transform = Transform3D(-1, 0, 1.6610328e-06, 0, 1, 0, -1.6610328e-06, 0, -1, -4.383713, 0.33310246, -11.994262)

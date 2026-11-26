@@ -1,7 +1,6 @@
 [gd_scene format=3 uid="uid://41yw1q2pe4b5"]
 
 [ext_resource type="Script" uid="uid://bbxhgsqk7oxvk" path="res://UI/main_menu.gd" id="1_menu"]
-[ext_resource type="AudioStream" uid="uid://c1rpmafc6lwyh" path="res://music/mix.wav" id="2_mix"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_card"]
 content_margin_left = 25.0
@@ -36,11 +35,6 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 color = Color(0.07, 0.09, 0.14, 1)
-
-[node name="MenuMusic" type="AudioStreamPlayer" parent="." unique_id=987654322]
-stream = ExtResource("2_mix")
-autoplay = true
-bus = &"Master"
 
 [node name="TitleBox" type="VBoxContainer" parent="." unique_id=261591853]
 layout_mode = 1

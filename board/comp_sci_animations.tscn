@@ -1,0 +1,5 @@
+[gd_scene format=3 uid="uid://b2g7fr84uid7r"]
+
+[ext_resource type="PackedScene" uid="uid://cn3rbajrotoe" path="res://Assets/Models/Animations/CompSciAnimations.glb" id="1_7ibyi"]
+
+[node name="CompSciAnimations" unique_id=855905857 instance=ExtResource("1_7ibyi")]

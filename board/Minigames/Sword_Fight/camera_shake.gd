@@ -12,9 +12,11 @@ var base_position: Vector3
 
 # LOCAL ONLY: purely cosmetic (online: every player's machine runs its own copy)
 func _ready() -> void:
-	assert(match_manager != null, "Assign the Match Manager in the Inspector")
+	if not match_manager:
+		match_manager = get_node_or_null("../MatchManager")
 	base_position = position   # remember where the camera normally sits
-	match_manager.hit_landed.connect(_on_hit_landed)
+	if match_manager:
+		match_manager.hit_landed.connect(_on_hit_landed)
 
 
 func _process(delta: float) -> void:

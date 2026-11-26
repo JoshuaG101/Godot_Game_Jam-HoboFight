@@ -78,10 +78,13 @@ func win(player: Node) -> void:
 	# slow mo
 	Engine.time_scale = 0.4
 
+	if player.has_method("play_anim"):
+		player.play_anim("victory", true, 0.2)
+
 	var p_id: int = player.get("player_id") if "player_id" in player else 0
 	var p_name: String = GameState.get_player_name(p_id + 1) if GameState else player.name
 	if GameState:
-		GameState.award_coins(p_id + 1, 10)
+		GameState.award_coins(p_id + 1, 7)
 
 	# camera moves in on winner
 	var cam = get_viewport().get_camera_3d()
@@ -91,7 +94,7 @@ func win(player: Node) -> void:
 		create_tween().tween_property(cam, "global_position", spot, 1.2)
 
 	# text
-	win_label.text = "%s WINS!\nReturning to Board..." % p_name
+	win_label.text = "%s WINS!\n(+7 Coins Awarded!)\nReturning to Board..." % p_name
 	win_label.show()
 
 	await get_tree().create_timer(3.0, true, false, true).timeout

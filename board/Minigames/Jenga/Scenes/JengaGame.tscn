@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://cdutpkn5k4fi4"]
 
 [ext_resource type="Script" uid="uid://cvru506epod7" path="res://Minigames/Jenga/Scripts/jenga_game.gd" id="1_b36j4"]
-[ext_resource type="AudioStream" uid="uid://w8dys02ojyc" path="res://Minigames/Jenga/Scripts/bosanova.ogg" id="2_2nq8u"]
+[ext_resource type="AudioStream" uid="uid://ct67rqp8mvek1" path="res://music/bosanova.wav" id="2_2nq8u"]
 [ext_resource type="Environment" uid="uid://chsj3hofujogp" path="res://Assets/Shaders/starry_sky_environment.tres" id="3_env"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_table"]

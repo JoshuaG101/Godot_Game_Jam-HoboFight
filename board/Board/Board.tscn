@@ -5,7 +5,6 @@
 [ext_resource type="Script" uid="uid://djbloql54pbh4" path="res://Board/turn_manager.gd" id="4_tmgr"]
 [ext_resource type="Environment" uid="uid://chsj3hofujogp" path="res://Assets/Shaders/starry_sky_environment.tres" id="5_env"]
 [ext_resource type="PackedScene" uid="uid://eag0mbaqmomu" path="res://board_map.tscn" id="5_s27tx"]
-[ext_resource type="AudioStream" uid="uid://ct67rqp8mvek1" path="res://music/bosanova.wav" id="6_bosa"]
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_shskd"]
 bounce = 1.0
@@ -22,7 +21,7 @@ size = Vector3(17.038666, 0.33984375, 17.61441)
 environment = ExtResource("5_env")
 
 [node name="Camera3D" type="Camera3D" parent="." unique_id=1758973941]
-transform = Transform3D(0.999783, -0.014731115, 0.014731112, -1.7763568e-15, 0.70710677, 0.7071069, -0.02083294, -0.7069534, 0.7069533, 3.5832624, 14.917284, 15.835232)
+transform = Transform3D(0.999783, -0.014731116, 0.014731111, -0.0042196363, 0.5492595, 0.8356412, -0.02040113, -0.83552206, 0.54907805, 3.5832624, 14.638319, 11.454086)
 
 [node name="Player1" parent="." unique_id=2069941534 node_paths=PackedStringArray("dice") groups=["players"] instance=ExtResource("2_3ng4l")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.025871038, 0.24175477, 0.03738749)
@@ -71,7 +70,7 @@ theme_override_font_sizes/font_size = 16
 text = "Round 1"
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=86552288]
-transform = Transform3D(0.78090036, -0.013084079, 0.62451833, -0.37442523, 0.7904614, 0.48474354, -0.50000024, -0.612372, 0.6123727, 39.074574, 15, 0)
+transform = Transform3D(0.8647732, -0.3150325, 0.39105228, -0.04655217, 0.72508985, 0.6870793, -0.5000003, -0.612372, 0.61237264, 39.074574, 15, 0)
 light_color = Color(1, 0.95, 0.88, 1)
 light_energy = 1.2
 shadow_enabled = true
@@ -133,7 +132,3 @@ mass = 1.0
 gravity_scale = 2.0
 
 [node name="BoardMap" parent="." unique_id=409255127 instance=ExtResource("5_s27tx")]
-
-[node name="BoardMusic" type="AudioStreamPlayer" parent="." unique_id=987654321]
-stream = ExtResource("6_bosa")
-autoplay = true

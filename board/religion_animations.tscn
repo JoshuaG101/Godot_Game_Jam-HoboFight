@@ -1,0 +1,5 @@
+[gd_scene format=3 uid="uid://cxcvwfket7226"]
+
+[ext_resource type="PackedScene" uid="uid://g7ff135afy0l" path="res://Assets/Models/Animations/religionAnimations.glb" id="1_qt7vd"]
+
+[node name="religionAnimations" unique_id=573554229 instance=ExtResource("1_qt7vd")]

@@ -83,7 +83,7 @@ func _exit_tree() -> void:
 ## Plays a slot. pitch_jitter adds a little random pitch so repeats sound alive.
 func play(slot: String, volume_db := 0.0, pitch_jitter := 0.0) -> void:
 	var stream := get_stream(slot)
-	if stream == null:
+	if stream == null or not (stream is AudioStreamWAV):
 		return
 	var p := _voices[_next]
 	_next = (_next + 1) % _voices.size()
@@ -97,13 +97,11 @@ func get_stream(slot: String) -> AudioStream:
 	if _cache.has(slot):
 		return _cache[slot]
 	var stream: AudioStream = null
-	for ext: String in ["ogg", "wav", "mp3"]:
+	for ext: String in ["wav"]:
 		var path := SFX_DIR + slot + "." + ext
 		if ResourceLoader.exists(path):
 			stream = load(path)
 			break
-	if stream == null and RECIPES.has(slot):
-		stream = _synth(RECIPES[slot])
 	_cache[slot] = stream
 	return stream
 
@@ -111,18 +109,19 @@ func get_stream(slot: String) -> AudioStream:
 func start_music() -> void:
 	if _music.playing:
 		return
-	for ext: String in ["ogg", "wav", "mp3"]:
+	for ext: String in ["wav"]:
 		var path := MUSIC_BASE + "." + ext
 		if ResourceLoader.exists(path):
 			var stream: AudioStream = load(path)
-			if stream is AudioStreamOggVorbis:
-				(stream as AudioStreamOggVorbis).loop = true
-			elif stream is AudioStreamMP3:
-				(stream as AudioStreamMP3).loop = true
-			elif stream is AudioStreamWAV:
+			if stream is AudioStreamWAV:
 				var wav := stream as AudioStreamWAV
 				wav.loop_mode = AudioStreamWAV.LOOP_FORWARD
 				var bytes_per_frame := (2 if wav.format == AudioStreamWAV.FORMAT_16_BITS else 1) * (2 if wav.stereo else 1)
+				@warning_ignore("integer_division")
+				wav.loop_end = wav.data.size() / bytes_per_frame
+				_music.stream = stream
+				_music.play()
+				return
 				@warning_ignore("integer_division")
 				wav.loop_end = wav.data.size() / bytes_per_frame
 			_music.stream = stream

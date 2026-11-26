@@ -139,9 +139,41 @@ func set_model(scene: PackedScene) -> void:
 	if _model:
 		_model.queue_free()
 	_model = scene.instantiate() as Node3D
+	_model.rotation.y = PI
+	_model.scale = Vector3(0.9, 0.9, 0.9)
 	_model_slot.add_child(_model)
 	_anim = _model.find_child("AnimationPlayer", true, false) as AnimationPlayer
+	if _anim:
+		var gs = get_node_or_null("/root/GameState") if is_inside_tree() else null
+		if gs and gs.has_method("setup_character_idle_animation"):
+			gs.setup_character_idle_animation(_anim)
+		else:
+			_setup_idle_animation(_anim)
 	_model_slot.rotation.y = PI * 0.5 * _facing
+
+
+func _setup_idle_animation(anim_player: AnimationPlayer) -> void:
+	if not anim_player or not anim_player.has_animation("jump"):
+		return
+	if anim_player.has_animation("idle"):
+		return
+	var jump_anim = anim_player.get_animation("jump")
+	if not jump_anim:
+		return
+	var idle_anim = Animation.new()
+	idle_anim.length = 0.5
+	idle_anim.loop_mode = Animation.LOOP_LINEAR
+	for t in range(jump_anim.get_track_count()):
+		var track_path = jump_anim.track_get_path(t)
+		var track_type = jump_anim.track_get_type(t)
+		if jump_anim.track_get_key_count(t) > 0:
+			var idx = idle_anim.add_track(track_type)
+			idle_anim.track_set_path(idx, track_path)
+			var val = jump_anim.track_get_key_value(t, 0)
+			idle_anim.track_insert_key(idx, 0.0, val)
+	var lib = anim_player.get_animation_library("")
+	if lib:
+		lib.add_animation("idle", idle_anim)
 
 
 ## Puts the Runner at a checkpoint without any respawn delay (race start).
@@ -577,18 +609,51 @@ func _update_look(delta: float, axis: float) -> void:
 		_anim_lock -= delta
 		if _anim_lock > 0.0 and _forced_anim != &"":
 			return
-	var want: StringName = &"Idle"
+	var want: StringName = &"idle"
 	if has_finished:
-		want = &"Cheer"
+		want = &"victory"
 	elif not is_on_floor():
-		want = &"Jump_Idle"
+		want = &"jump"
 	elif absf(velocity.x) > 0.6:
-		want = &"Running_A"
+		want = &"run"
 	_play(want, 0.15)
 
 
+func _resolve_anim_name(anim: StringName) -> StringName:
+	if _anim == null:
+		return &""
+	if _anim.has_animation(anim):
+		return anim
+	match anim:
+		&"Idle", &"idle":
+			if _anim.has_animation(&"idle"): return &"idle"
+			if _anim.has_animation(&"Idle"): return &"Idle"
+		&"Running_A", &"run":
+			if _anim.has_animation(&"run"): return &"run"
+		&"Jump_Start", &"Jump_Idle", &"jump":
+			if _anim.has_animation(&"jump"): return &"jump"
+		&"Cheer", &"victory":
+			if _anim.has_animation(&"victory"): return &"victory"
+		&"Hit_A", &"Hit_B", &"block":
+			if _anim.has_animation(&"block"): return &"block"
+		&"push":
+			if _anim.has_animation(&"push"): return &"push"
+		&"slash":
+			if _anim.has_animation(&"slash"): return &"slash"
+	return &""
+
+
 func _play(anim: StringName, blend: float) -> void:
-	if _anim == null or not _anim.has_animation(anim):
+	if _anim == null:
 		return
-	if _anim.current_animation != anim or not _anim.is_playing():
-		_anim.play(anim, blend)
+	var resolved := _resolve_anim_name(anim)
+	if resolved == &"":
+		if _anim.is_playing() and _anim.current_animation == &"run":
+			_anim.stop()
+		return
+	if resolved == &"run" or resolved == &"idle":
+		var a = _anim.get_animation(resolved)
+		if a:
+			a.loop_mode = Animation.LOOP_LINEAR
+	if _anim.current_animation != resolved or not _anim.is_playing():
+		_anim.play(resolved, blend)

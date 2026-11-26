@@ -6,33 +6,111 @@ extends CharacterBody3D
 @export var turn_speed := 12.0
 
 var gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity")
+var character_model: Node3D = null
+var anim_player: AnimationPlayer = null
 
 
 func _ready() -> void:
 	add_to_group("players")
 	_setup_input()
 	_apply_player_appearance()
+	_apply_major_powerup()
+
+
+func _apply_major_powerup() -> void:
+	if not GameState or player_id >= GameState.player_data.size():
+		return
+	var m_id: String = GameState.player_data[player_id].get("major_id", "")
+	match m_id.to_lower():
+		"cs":
+			turn_speed = 18.0
+			accel = 32.0
+		"business":
+			base_speed = 8.2
+			accel = 30.0
+		"arts":
+			set_meta("growth_boost", 1.5)
+		"engineering":
+			set_meta("bump_mult", 1.5)
+			set_meta("knockback_resist", 0.65)
+		"premed":
+			base_speed = 8.5
+		"philosophy":
+			set_meta("knockback_resist", 0.5)
 
 
 func _apply_player_appearance() -> void:
 	var mesh_inst: MeshInstance3D = get_node_or_null("MeshInstance3D")
 	if mesh_inst:
-		var p_color: Color = Color.WHITE
-		if GameState:
-			p_color = GameState.get_player_color(player_id + 1)
-		else:
-			var default_colors = [
-				Color(0.18, 0.75, 0.98),
-				Color(0.22, 0.86, 0.42),
-				Color(1.0, 0.62, 0.16),
-				Color(0.95, 0.35, 0.75)
-			]
-			p_color = default_colors[player_id % default_colors.size()]
+		mesh_inst.visible = false
+
+	var p_color: Color = Color.WHITE
+	if GameState:
+		p_color = GameState.get_player_color(player_id + 1)
+	else:
+		var default_colors = [
+			Color(0.18, 0.75, 0.98),
+			Color(0.22, 0.86, 0.42),
+			Color(1.0, 0.62, 0.16),
+			Color(0.95, 0.35, 0.75)
+		]
+		p_color = default_colors[player_id % default_colors.size()]
+
+	var model_scene = GameState.get_player_model_scene(player_id + 1) if GameState else null
+	if model_scene:
+		character_model = model_scene.instantiate()
+		character_model.name = "CharacterModel"
+		character_model.rotation.y = PI # Face forward (-Z)
+		character_model.scale = Vector3(1.0, 1.0, 1.0)
+		add_child(character_model)
+		anim_player = character_model.find_child("AnimationPlayer", true, false) as AnimationPlayer
+		if anim_player and GameState:
+			GameState.setup_character_idle_animation(anim_player)
+			play_anim("idle", true)
+	elif mesh_inst:
+		mesh_inst.visible = true
 		var mat = StandardMaterial3D.new()
 		mat.albedo_color = p_color
-		mat.metallic = 0.1
-		mat.roughness = 0.4
 		mesh_inst.material_override = mat
+
+	# Base ring
+	var ring = MeshInstance3D.new()
+	ring.name = "PlayerRing"
+	var torus = TorusMesh.new()
+	torus.inner_radius = 0.4
+	torus.outer_radius = 0.52
+	torus.rings = 24
+	ring.mesh = torus
+	ring.position = Vector3(0, 0.05, 0)
+	var ring_mat = StandardMaterial3D.new()
+	ring_mat.albedo_color = p_color
+	ring_mat.emission_enabled = true
+	ring_mat.emission = p_color * 1.5
+	ring.material_override = ring_mat
+	add_child(ring)
+
+	# Overhead badge
+	var overhead = Label3D.new()
+	overhead.name = "OverheadBadge"
+	overhead.text = "P%d %s" % [player_id + 1, GameState.get_player_name(player_id + 1) if GameState else ""]
+	overhead.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	overhead.pixel_size = 0.010
+	overhead.position = Vector3(0, 2.1, 0)
+	overhead.font_size = 32
+	overhead.modulate = p_color
+	overhead.outline_size = 8
+	overhead.outline_modulate = Color.BLACK
+	add_child(overhead)
+
+
+func play_anim(anim_name: String, loop: bool = false, blend_time: float = 0.15) -> void:
+	if not anim_player or not anim_player.has_animation(anim_name):
+		return
+	var anim = anim_player.get_animation(anim_name)
+	if anim:
+		anim.loop_mode = Animation.LOOP_LINEAR if loop else Animation.LOOP_NONE
+	if anim_player.current_animation != anim_name or not anim_player.is_playing():
+		anim_player.play(anim_name, blend_time)
 
 
 func _physics_process(delta: float) -> void:
@@ -50,6 +128,9 @@ func _physics_process(delta: float) -> void:
 
 	if dir.length() > 0.1:
 		rotation.y = lerp_angle(rotation.y, atan2(-dir.x, -dir.z), turn_speed * delta)
+		play_anim("push", true, 0.12)
+	else:
+		play_anim("idle", true, 0.15)
 
 	move_and_slide()
 
@@ -65,7 +146,9 @@ func _physics_process(delta: float) -> void:
 				var ball = get_node_or_null("Snowball")
 				if ball and "size" in ball:
 					ball_mult += ball.size * 0.5
-				collider.velocity += push_dir.normalized() * (8.0 * ball_mult)
+				var my_bump: float = get_meta("bump_mult") if has_meta("bump_mult") else 1.0
+				var target_resist: float = collider.get_meta("knockback_resist") if collider.has_meta("knockback_resist") else 1.0
+				collider.velocity += push_dir.normalized() * (8.0 * ball_mult * my_bump * target_resist)
 
 
 func _setup_input() -> void:

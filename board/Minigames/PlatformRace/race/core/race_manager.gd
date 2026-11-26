@@ -17,10 +17,18 @@ signal quit_requested
 
 enum State { SIDES, MAJORS, VERSUS, COUNTDOWN, RACING, PAUSED, RESULTS }
 
-const MODELS: Array[PackedScene] = [
-	preload("res://Minigames/PlatformRace/scenes/skeleton_rogue.tscn"),
-	preload("res://Minigames/PlatformRace/scenes/skeleton_mage.tscn"),
-]
+const MAJOR_MODELS: Dictionary = {
+	PRMajors.Major.ART: preload("res://art_animations.tscn"),
+	PRMajors.Major.ANTHROPOLOGY: preload("res://antrho_animations.tscn"),
+	PRMajors.Major.MUSIC: preload("res://music_animations.tscn"),
+	PRMajors.Major.HISTORY: preload("res://history_animations.tscn"),
+	PRMajors.Major.RELIGION: preload("res://religion_animations.tscn"),
+	PRMajors.Major.COMPUTER_SCIENCE: preload("res://comp_sci_animations.tscn"),
+}
+
+static func get_model_for_major(major: int) -> PackedScene:
+	return MAJOR_MODELS.get(major, MAJOR_MODELS[PRMajors.Major.COMPUTER_SCIENCE])
+
 ## Carries the roster across a scene reload (Rematch / Change sides).
 const META_KEY := &"pr_platform_race_next"
 ## Starting majors so a quick start still shows four different powers.
@@ -67,6 +75,24 @@ var _resume_time := 0.0
 var _results_menu_on := false
 
 
+static func major_from_gamestate(m_id: String) -> int:
+	match m_id.to_lower():
+		"cs", "computer science":
+			return PRMajors.Major.COMPUTER_SCIENCE
+		"arts", "fine arts", "art":
+			return PRMajors.Major.ART
+		"business", "business & finance":
+			return PRMajors.Major.HISTORY
+		"engineering", "architecture":
+			return PRMajors.Major.ANTHROPOLOGY
+		"premed", "pre-med":
+			return PRMajors.Major.MUSIC
+		"philosophy", "theology":
+			return PRMajors.Major.RELIGION
+		_:
+			return PRMajors.Major.COMPUTER_SCIENCE
+
+
 func _ready() -> void:
 	# The root keeps running while paused (menus); gameplay nodes pause.
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -79,6 +105,15 @@ func _ready() -> void:
 		get_tree().root.remove_meta(META_KEY)
 	if carry.has("roster"):
 		roster = PRRoster.from_dict(carry["roster"])
+	elif GameState and GameState.player_data.size() >= 4:
+		roster = PRRoster.keyboard_only()
+		roster.majors = [
+			major_from_gamestate(GameState.player_data[0].get("major_id", "")),
+			major_from_gamestate(GameState.player_data[1].get("major_id", "")),
+			major_from_gamestate(GameState.player_data[2].get("major_id", "")),
+			major_from_gamestate(GameState.player_data[3].get("major_id", ""))
+		]
+		show_select = false
 	else:
 		roster = PRRoster.keyboard_only()
 		roster.majors = DEFAULT_MAJORS.duplicate()
@@ -89,7 +124,8 @@ func _ready() -> void:
 		var course := courses[team]
 		course.set_team(team)
 		var r := runners[team]
-		r.setup(team, MODELS[team], "", roster.runner_major(team))
+		var maj := roster.runner_major(team)
+		r.setup(team, get_model_for_major(maj), "", maj)
 		r.place_at(course.get_start_position(), 1)
 		var cp1 := course.get_checkpoint(1)
 		if cp1:
@@ -132,7 +168,9 @@ func _ready() -> void:
 func _apply_roster() -> void:
 	for team in 2:
 		var r := runners[team]
-		r.assign_major(roster.runner_major(team), PRMajors.short_name(roster.runner_major(team)))
+		var maj := roster.runner_major(team)
+		r.set_model(get_model_for_major(maj))
+		r.assign_major(maj, PRMajors.short_name(maj))
 		r.power.enemy_buddy = buddies[1 - team]
 		buddies[team].major = roster.buddy_major(team)
 
@@ -419,7 +457,14 @@ func _end_race(kind: String, winner: int, reason: String) -> void:
 
 func _show_results() -> void:
 	var winner: int = result["winner"]
-	var title := "DRAW!" if winner < 0 else "%s WINS!" % PRConfig.team_name(winner).to_upper()
+	if winner >= 0 and GameState:
+		var p_runner = 1 if winner == 0 else 3
+		var p_buddy = 2 if winner == 0 else 4
+		GameState.award_coins(p_runner, 7)
+		GameState.award_coins(p_buddy, 7)
+		print("[PlatformRace] Awarded +7 coins each to Player %d and Player %d!" % [p_runner, p_buddy])
+
+	var title := "DRAW!" if winner < 0 else "%s WINS! (+7 Coins)" % PRConfig.team_name(winner).to_upper()
 	var accent := PRTheme.WHITE if winner < 0 else PRConfig.team_color(winner)
 	var reached := ["", ""]
 	for team in 2:

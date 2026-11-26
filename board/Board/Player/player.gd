@@ -13,6 +13,8 @@ var is_rolling: bool = false
 var has_rolled_this_turn: bool = false
 var is_my_turn: bool = false
 var overhead_label: Label3D
+var character_model: Node3D = null
+var anim_player: AnimationPlayer = null
 
 # Offset per player so 4 players stand neatly on the same space without overlapping
 var tile_offsets: Dictionary = {
@@ -56,24 +58,36 @@ func get_tile_offset() -> Vector3:
 func setup_player_visuals() -> void:
 	var color = GameState.get_player_color(player_id)
 	
-	# Set capsule material
+	# Hide placeholder capsule mesh
 	var mesh_inst = get_node_or_null("MeshInstance3D") as MeshInstance3D
 	if mesh_inst:
+		mesh_inst.visible = false
+
+	# Instantiate the 3D model according to the player's major
+	var model_scene = GameState.get_player_model_scene(player_id)
+	if model_scene:
+		character_model = model_scene.instantiate()
+		character_model.name = "CharacterModel"
+		character_model.rotation.y = PI # Face forward (-Z)
+		character_model.scale = Vector3(0.85, 0.85, 0.85)
+		add_child(character_model)
+		anim_player = character_model.find_child("AnimationPlayer", true, false) as AnimationPlayer
+		if anim_player:
+			GameState.setup_character_idle_animation(anim_player)
+			play_anim("idle", true)
+	elif mesh_inst:
+		# Fallback to colored capsule
+		mesh_inst.visible = true
 		var mat = StandardMaterial3D.new()
 		mat.albedo_color = color
-		mat.roughness = 0.2
-		mat.metallic = 0.35
-		mat.rim_enabled = true
-		mat.rim = 0.6
-		mat.rim_tint = 0.5
 		mesh_inst.material_override = mat
 
 	# Add glowing player base ring / pedestal
 	var ring = MeshInstance3D.new()
 	ring.name = "PlayerRing"
 	var torus = TorusMesh.new()
-	torus.inner_radius = 0.28
-	torus.outer_radius = 0.36
+	torus.inner_radius = 0.35
+	torus.outer_radius = 0.45
 	torus.rings = 24
 	torus.ring_segments = 16
 	ring.mesh = torus
@@ -88,7 +102,7 @@ func setup_player_visuals() -> void:
 	ring.material_override = ring_mat
 	add_child(ring)
 
-	# Add subtle idle bobbing tween to mesh
+	# Add subtle idle bobbing tween if model has no animation player
 	start_idle_animation()
 
 	# Add overhead 3D player badge with major identity
@@ -97,24 +111,35 @@ func setup_player_visuals() -> void:
 	overhead_label.text = "P%d %s" % [player_id, GameState.get_player_name(player_id)]
 	overhead_label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 	overhead_label.pixel_size = 0.009
-	overhead_label.position = Vector3(0, 1.65, 0)
+	overhead_label.position = Vector3(0, 1.85, 0)
 	overhead_label.font_size = 32
 	overhead_label.modulate = color
 	overhead_label.outline_size = 8
 	overhead_label.outline_modulate = Color(0, 0, 0, 0.9)
 	add_child(overhead_label)
 
-func start_idle_animation() -> void:
-	var mesh_inst = get_node_or_null("MeshInstance3D")
-	if not mesh_inst:
+func play_anim(anim_name: String, loop: bool = false, blend_time: float = 0.15) -> void:
+	if not anim_player or not anim_player.has_animation(anim_name):
 		return
-	var initial_y = mesh_inst.position.y
-	# Offset tween phase by player_id so players do not bob in robotic unison
-	var delay = float(player_id) * 0.25
-	var tw = create_tween().set_loops()
-	tw.tween_interval(delay)
-	tw.tween_property(mesh_inst, "position:y", initial_y + 0.05, 0.7).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-	tw.tween_property(mesh_inst, "position:y", initial_y, 0.7).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	var anim = anim_player.get_animation(anim_name)
+	if anim:
+		anim.loop_mode = Animation.LOOP_LINEAR if loop else Animation.LOOP_NONE
+	if anim_player.current_animation != anim_name or not anim_player.is_playing():
+		anim_player.play(anim_name, blend_time)
+
+func stop_anim(blend_time: float = 0.15) -> void:
+	if anim_player:
+		play_anim("idle", true, blend_time)
+
+func start_idle_animation() -> void:
+	# If model has no anim_player (e.g. Music), add subtle bobbing tween
+	if character_model and anim_player == null:
+		var initial_y = character_model.position.y
+		var delay = float(player_id) * 0.25
+		var tw = create_tween().set_loops()
+		tw.tween_interval(delay)
+		tw.tween_property(character_model, "position:y", initial_y + 0.05, 0.7).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+		tw.tween_property(character_model, "position:y", initial_y, 0.7).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 
 func start_turn() -> void:
 	is_my_turn = true
@@ -279,6 +304,7 @@ func choose_branch_path(options: Array[BoardNode3D]) -> BoardNode3D:
 
 func hop_to_position(target_pos: Vector3) -> void:
 	SoundManager.play_hop()
+	play_anim("run", true)
 	
 	# Smoothly orient player toward the direction of travel
 	var dir = (target_pos - global_position)
@@ -304,6 +330,7 @@ func hop_to_position(target_pos: Vector3) -> void:
 	tween.chain().tween_property(self, "global_position:y", target_pos.y, half_dur).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 	
 	await tween.finished
+	stop_anim(0.1)
 	
 	# Squash and stretch upon landing
 	var squash_tw = create_tween()
@@ -321,6 +348,7 @@ func check_star_purchase() -> void:
 		GameState.award_coins(player_id, -20)
 		GameState.award_stars(player_id, 1)
 		SoundManager.play_star()
+		play_anim("victory", false)
 		spawn_floating_text("★ STAR BOUGHT! (-20 🪙)", Color(1.0, 0.88, 0.1))
 		
 		# Move star to another random star square
@@ -328,6 +356,7 @@ func check_star_purchase() -> void:
 		if tm and tm.has_method("relocate_star"):
 			tm.relocate_star()
 		await get_tree().create_timer(1.2).timeout
+		stop_anim(0.2)
 	else:
 		spawn_floating_text("Need 20 Coins for Star!", Color(0.9, 0.9, 0.9))
 		await get_tree().create_timer(0.8).timeout
@@ -337,10 +366,12 @@ func trigger_space_event() -> void:
 		BoardNode3D.SpaceType.BLUE:
 			GameState.award_coins(player_id, 3)
 			SoundManager.play_coin()
+			play_anim("victory", false)
 			spawn_floating_text("+3 Coins!", Color(0.3, 0.7, 1.0))
 		BoardNode3D.SpaceType.RED:
 			GameState.award_coins(player_id, -3)
 			SoundManager.play_lose_coin()
+			play_anim("block", false)
 			spawn_floating_text("-3 Coins!", Color(1.0, 0.3, 0.3))
 		BoardNode3D.SpaceType.STAR:
 			if current_space.is_active_star:
@@ -349,11 +380,13 @@ func trigger_space_event() -> void:
 				spawn_floating_text("Dormant Star Space", Color(0.7, 0.7, 0.7))
 		BoardNode3D.SpaceType.EVENT:
 			SoundManager.play_event()
+			play_anim("victory", false)
 			handle_random_event()
 		BoardNode3D.SpaceType.SHOP:
 			spawn_floating_text("Shop closed for renovations!", Color(0.8, 0.4, 0.9))
 			
 	await get_tree().create_timer(1.2).timeout
+	stop_anim(0.2)
 
 func handle_random_event() -> void:
 	var roll = randi_range(1, 3)

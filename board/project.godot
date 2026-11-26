@@ -33,6 +33,10 @@ window/stretch/aspect="expand"
 
 project/assembly_name="Campus Clash"
 
+[filesystem]
+
+import/blender/enabled=false
+
 [input]
 
 ui_accept={

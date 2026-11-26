@@ -8,42 +8,48 @@ const AVAILABLE_MAJORS: Array[Dictionary] = [
 		"name": "Computer Science",
 		"icon": "💻",
 		"tagline": "Runs on caffeine and uncommitted code. Optimizes every hop.",
-		"color": Color(0.18, 0.75, 0.98) # Cyan / Electric Blue
-	},
-	{
-		"id": "business",
-		"name": "Business & Finance",
-		"icon": "💼",
-		"tagline": "High-stakes ROI trades and aggressive coin management.",
-		"color": Color(0.22, 0.86, 0.42) # Emerald Green
+		"color": Color(0.18, 0.75, 0.98), # Cyan / Electric Blue
+		"scene_path": "res://comp_sci_animations.tscn"
 	},
 	{
 		"id": "arts",
 		"name": "Fine Arts",
 		"icon": "🎨",
 		"tagline": "Chaotic inspiration and expressive, unpredictable energy.",
-		"color": Color(0.95, 0.35, 0.75) # Magenta Pink
+		"color": Color(0.95, 0.35, 0.75), # Magenta Pink
+		"scene_path": "res://art_animations.tscn"
 	},
 	{
-		"id": "engineering",
-		"name": "Engineering",
-		"icon": "⚙️",
-		"tagline": "Calculated structural durability. Built to survive finals week.",
-		"color": Color(1.0, 0.62, 0.16) # Safety Amber / Orange
+		"id": "anthro",
+		"name": "Anthropology",
+		"icon": "🏛️",
+		"tagline": "Excavates ancient lore and calculated structural survival.",
+		"color": Color(1.0, 0.62, 0.16), # Safety Amber / Orange
+		"scene_path": "res://antrho_animations.tscn"
 	},
 	{
-		"id": "premed",
-		"name": "Pre-Med",
-		"icon": "🩺",
-		"tagline": "Zero sleep, maximum caffeine, and laser-sharp focus under pressure.",
-		"color": Color(0.18, 0.88, 0.78) # Mint Teal
+		"id": "history",
+		"name": "History",
+		"icon": "📜",
+		"tagline": "Tracks the past to predict and conquer every encounter.",
+		"color": Color(0.22, 0.86, 0.42), # Emerald Green
+		"scene_path": "res://history_animations.tscn"
 	},
 	{
-		"id": "philosophy",
-		"name": "Philosophy",
-		"icon": "📖",
-		"tagline": "If a die rolls in a forest and no one sees it, did it roll?",
-		"color": Color(0.95, 0.32, 0.32) # Crimson Red
+		"id": "music",
+		"name": "Music",
+		"icon": "🎵",
+		"tagline": "Up-tempo rhythm, high frequencies, and laser focus.",
+		"color": Color(0.72, 0.45, 0.98), # Violet / Purple
+		"scene_path": "res://music_animations.tscn"
+	},
+	{
+		"id": "religion",
+		"name": "Religion & Philosophy",
+		"icon": "✨",
+		"tagline": "Leaps of faith, cosmic contemplation, and divine fortune.",
+		"color": Color(0.95, 0.32, 0.32), # Crimson Red
+		"scene_path": "res://religion_animations.tscn"
 	}
 ]
 
@@ -62,9 +68,9 @@ var player_data: Array[Dictionary] = [
 	{
 		"id": 2,
 		"name": "Player 2",
-		"major_id": "business",
-		"major": "Business & Finance",
-		"icon": "💼",
+		"major_id": "history",
+		"major": "History",
+		"icon": "📜",
 		"coins": 10,
 		"stars": 0,
 		"saved_space": "",
@@ -73,9 +79,9 @@ var player_data: Array[Dictionary] = [
 	{
 		"id": 3,
 		"name": "Player 3",
-		"major_id": "engineering",
-		"major": "Engineering",
-		"icon": "⚙️",
+		"major_id": "anthro",
+		"major": "Anthropology",
+		"icon": "🏛️",
 		"coins": 10,
 		"stars": 0,
 		"saved_space": "",
@@ -125,10 +131,66 @@ func get_available_majors() -> Array[Dictionary]:
 	return AVAILABLE_MAJORS
 
 func get_major_by_id(major_id: String) -> Dictionary:
+	var mid = major_id.to_lower().strip_edges()
+	match mid:
+		"business", "business & finance":
+			mid = "history"
+		"engineering":
+			mid = "anthro"
+		"premed", "pre-med":
+			mid = "music"
+		"philosophy", "theology":
+			mid = "religion"
+		"art":
+			mid = "arts"
+		"anthropology":
+			mid = "anthro"
+		"computer science":
+			mid = "cs"
+
 	for m in AVAILABLE_MAJORS:
-		if m["id"] == major_id:
+		if m["id"] == mid:
 			return m
 	return AVAILABLE_MAJORS[0]
+
+func get_model_scene_path_for_major(major_id: String) -> String:
+	var m = get_major_by_id(major_id)
+	return m.get("scene_path", "res://comp_sci_animations.tscn")
+
+func get_player_model_path(player_id: int) -> String:
+	for p in player_data:
+		if p["id"] == player_id:
+			return get_model_scene_path_for_major(p.get("major_id", "cs"))
+	return "res://comp_sci_animations.tscn"
+
+func get_player_model_scene(player_id: int) -> PackedScene:
+	var path = get_player_model_path(player_id)
+	if ResourceLoader.exists(path):
+		return load(path) as PackedScene
+	return null
+
+static func setup_character_idle_animation(anim_player: AnimationPlayer) -> void:
+	if not anim_player or not anim_player.has_animation("jump"):
+		return
+	if anim_player.has_animation("idle"):
+		return
+	var jump_anim = anim_player.get_animation("jump")
+	if not jump_anim:
+		return
+	var idle_anim = Animation.new()
+	idle_anim.length = 0.5
+	idle_anim.loop_mode = Animation.LOOP_LINEAR
+	for t in range(jump_anim.get_track_count()):
+		var track_path = jump_anim.track_get_path(t)
+		var track_type = jump_anim.track_get_type(t)
+		if jump_anim.track_get_key_count(t) > 0:
+			var idx = idle_anim.add_track(track_type)
+			idle_anim.track_set_path(idx, track_path)
+			var val = jump_anim.track_get_key_value(t, 0)
+			idle_anim.track_insert_key(idx, 0.0, val)
+	var lib = anim_player.get_animation_library("")
+	if lib:
+		lib.add_animation("idle", idle_anim)
 
 func set_player_major(player_id: int, major_id: String) -> void:
 	var major_info = get_major_by_id(major_id)

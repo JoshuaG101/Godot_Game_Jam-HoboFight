@@ -41,10 +41,15 @@ func _on_bgm_finished() -> void:
 func play_music(stream: AudioStream, volume_db: float = 0.0) -> void:
 	if not stream:
 		return
+	# Only allow real .wav audio files
+	if not (stream is AudioStreamWAV):
+		return
+	var res_path: String = stream.resource_path.to_lower()
+	if res_path != "" and not res_path.ends_with(".wav"):
+		return
+
 	if bgm_player == null:
 		_init_players()
-	if stream is AudioStreamWAV:
-		(stream as AudioStreamWAV).loop_mode = AudioStreamWAV.LOOP_FORWARD
 	if bgm_player.stream == stream and bgm_player.playing:
 		return
 	bgm_player.stream = stream
@@ -58,9 +63,7 @@ func stop_music() -> void:
 func play_dice_rolling(volume_db: float = 0.0) -> void:
 	if dice_roll_player == null:
 		_init_players()
-	if sfx_dice_roll_faster:
-		if sfx_dice_roll_faster is AudioStreamWAV:
-			(sfx_dice_roll_faster as AudioStreamWAV).loop_mode = AudioStreamWAV.LOOP_FORWARD
+	if sfx_dice_roll_faster and sfx_dice_roll_faster is AudioStreamWAV:
 		dice_roll_player.stream = sfx_dice_roll_faster
 		dice_roll_player.volume_db = volume_db
 		dice_roll_player.play()
@@ -74,6 +77,13 @@ func stop_dice_rolling() -> void:
 func play_sound(stream: AudioStream, pitch_scale: float = 1.0, volume_db: float = 0.0) -> void:
 	if not stream:
 		return
+	# Only allow .wav audio
+	if not (stream is AudioStreamWAV):
+		return
+	var res_path: String = stream.resource_path.to_lower()
+	if res_path != "" and not res_path.ends_with(".wav"):
+		return
+
 	var player = AudioStreamPlayer.new()
 	player.stream = stream
 	player.pitch_scale = pitch_scale
@@ -133,14 +143,8 @@ func create_tone_wav(frequencies: Array, duration: float, wave_type: String = "s
 	return wav
 
 func init_sfx() -> void:
-	if sfx_hop == null:
-		sfx_hop = create_tone_wav([280.0, 420.0], 0.12, "triangle", 10.0)
-		sfx_coin = create_tone_wav([987.77, 1318.51], 0.35, "sine", 4.0) # B5 -> E6
-		sfx_lose_coin = create_tone_wav([260.0, 190.0, 140.0], 0.3, "square", 6.0)
-		sfx_star = create_tone_wav([523.25, 659.25, 783.99, 1046.50], 0.6, "sine", 2.5) # C5, E5, G5, C6
-		sfx_roll = create_tone_wav([120.0, 180.0, 100.0], 0.25, "noise", 4.0)
-		sfx_event = create_tone_wav([440.0, 554.37, 659.25, 880.0], 0.5, "triangle", 3.0)
-		sfx_click = create_tone_wav([600.0, 900.0], 0.08, "sine", 12.0)
+	# Only .wav sound files are enabled; procedural synth placeholder tones are disabled
+	pass
 
 func play_hop() -> void:
 	if sfx_hop == null:

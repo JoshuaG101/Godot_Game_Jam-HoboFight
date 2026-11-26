@@ -11,6 +11,8 @@ var remaining_steps_label: Label = null
 var player_hud_containers: Array[PanelContainer] = []
 var victory_overlay: Control = null
 var pause_menu: Control = null
+var pause_bg: ColorRect = null
+var pause_center_box: CenterContainer = null
 var camera: Camera3D = null
 var base_cam_offset: Vector3 = Vector3.ZERO
 var initial_cam_pos: Vector3 = Vector3.ZERO
@@ -252,21 +254,27 @@ func setup_pause_menu() -> void:
 
 	pause_menu = Control.new()
 	pause_menu.name = "PauseMenu"
-	pause_menu.anchors_preset = Control.PRESET_FULL_RECT
 	pause_menu.visible = false
 	pause_menu.process_mode = Node.PROCESS_MODE_ALWAYS
 	hud.add_child(pause_menu)
+	pause_menu.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	pause_menu.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	pause_menu.grow_vertical = Control.GROW_DIRECTION_BOTH
 
 	# Dim background overlay
-	var bg = ColorRect.new()
-	bg.anchors_preset = Control.PRESET_FULL_RECT
-	bg.color = Color(0, 0, 0, 0.75)
-	pause_menu.add_child(bg)
+	pause_bg = ColorRect.new()
+	pause_bg.color = Color(0, 0, 0, 0.75)
+	pause_menu.add_child(pause_bg)
+	pause_bg.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	pause_bg.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	pause_bg.grow_vertical = Control.GROW_DIRECTION_BOTH
 
 	# Center Dialog Box
-	var center_box = CenterContainer.new()
-	center_box.anchors_preset = Control.PRESET_FULL_RECT
-	pause_menu.add_child(center_box)
+	pause_center_box = CenterContainer.new()
+	pause_menu.add_child(pause_center_box)
+	pause_center_box.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	pause_center_box.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	pause_center_box.grow_vertical = Control.GROW_DIRECTION_BOTH
 
 	var panel = PanelContainer.new()
 	panel.custom_minimum_size = Vector2(380, 420)
@@ -288,7 +296,7 @@ func setup_pause_menu() -> void:
 	panel_style.content_margin_top = 24
 	panel_style.content_margin_bottom = 24
 	panel.add_theme_stylebox_override("panel", panel_style)
-	center_box.add_child(panel)
+	pause_center_box.add_child(panel)
 
 	var vbox = VBoxContainer.new()
 	vbox.add_theme_constant_override("separation", 18)
@@ -379,8 +387,26 @@ func toggle_pause() -> void:
 	if not pause_menu:
 		return
 	var is_open = not pause_menu.visible
+	if is_open:
+		_update_pause_layout()
 	pause_menu.visible = is_open
 	get_tree().paused = is_open
+
+func _update_pause_layout() -> void:
+	if not pause_menu:
+		return
+	var vp_size = get_viewport().get_visible_rect().size
+	pause_menu.position = Vector2.ZERO
+	pause_menu.size = vp_size
+	pause_menu.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	if pause_bg:
+		pause_bg.position = Vector2.ZERO
+		pause_bg.size = vp_size
+		pause_bg.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	if pause_center_box:
+		pause_center_box.position = Vector2.ZERO
+		pause_center_box.size = vp_size
+		pause_center_box.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 
 func update_hud() -> void:
 	var hud = get_node_or_null("../HUD")

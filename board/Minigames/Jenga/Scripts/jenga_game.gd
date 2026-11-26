@@ -19,6 +19,7 @@ var selected_block: RigidBody3D = null
 var active_players: Array[int] = [1, 2, 3, 4]
 var is_checking_collapse: bool = false
 var game_over: bool = false
+var player_characters: Dictionary = {}
 
 var camera_orbiting: bool = false
 var camera_yaw: float = 0.0
@@ -60,6 +61,7 @@ func _ready() -> void:
 	update_camera_light()
 
 	build_tower()
+	spawn_players()
 	update_turn_label()
 
 	$BackgroundMusic.finished.connect(_on_music_finished)
@@ -560,18 +562,29 @@ func rebuild_tower() -> void:
 	build_tower()
 
 
+func _get_game_state() -> Node:
+	if not is_inside_tree():
+		return null
+	return get_node_or_null("/root/GameState")
+
 func eliminate_current_player() -> void:
 	var eliminated_player: int = current_player
+	play_player_anim(eliminated_player, "block", false)
 
 	active_players.erase(eliminated_player)
 
 	if active_players.size() <= 1:
 		game_over = true
 		var winner_num = active_players[0] if active_players.size() == 1 else 1
+		play_player_anim(winner_num, "victory", true)
+		var gs = _get_game_state()
+		if gs:
+			gs.award_coins(winner_num, 7)
+		var p_name = gs.get_player_name(winner_num) if gs else ("Player %d" % winner_num)
 		$HUD/TurnLabel.text = (
-			"Player " + str(winner_num) + " Wins!\nReturning to Board..."
+			"%s Wins!\n(+7 Coins Awarded!)\nReturning to Board..." % p_name
 		)
-		print("Player ", winner_num, " wins!")
+		print("Player ", winner_num, " wins! (+7 coins)")
 		await get_tree().create_timer(3.0).timeout
 		get_tree().change_scene_to_file("res://Board/Board.tscn")
 		return
@@ -615,6 +628,113 @@ func set_turn_text(text: String) -> void:
 func update_turn_label() -> void:
 	$HUD/TurnLabel.text = "Player " + str(current_player) + "'s Turn"
 	power_ups.update_powerup_label()
+	for pid in player_characters:
+		if pid == current_player:
+			play_player_anim(pid, "push", true)
+		else:
+			play_player_anim(pid, "idle", true)
+
+
+func spawn_players() -> void:
+	var player_spots = [
+		Vector3(0, 0, 2.85),
+		Vector3(-2.85, 0, 0),
+		Vector3(0, 0, -2.85),
+		Vector3(2.85, 0, 0)
+	]
+	for i in range(PLAYER_COUNT):
+		var pid = i + 1
+		var spot = player_spots[i]
+		var holder = Node3D.new()
+		holder.name = "PlayerCharacter_%d" % pid
+		holder.position = spot
+		add_child(holder)
+		holder.look_at(Vector3(0, 0, 0), Vector3.UP)
+
+		var gs = _get_game_state()
+		var model_scene = gs.get_player_model_scene(pid) if gs else null
+		var anim_player: AnimationPlayer = null
+		if model_scene:
+			var model = model_scene.instantiate()
+			model.name = "Model"
+			model.rotation.y = PI # Face toward center (-Z)
+			model.scale = Vector3(0.9, 0.9, 0.9)
+			holder.add_child(model)
+			anim_player = model.find_child("AnimationPlayer", true, false) as AnimationPlayer
+			if anim_player:
+				if gs and gs.has_method("setup_character_idle_animation"):
+					gs.setup_character_idle_animation(anim_player)
+				else:
+					var jump_anim = anim_player.get_animation("jump") if anim_player.has_animation("jump") else null
+					if jump_anim and not anim_player.has_animation("idle"):
+						var idle_anim = Animation.new()
+						idle_anim.length = 0.5
+						idle_anim.loop_mode = Animation.LOOP_LINEAR
+						for t in range(jump_anim.get_track_count()):
+							if jump_anim.track_get_key_count(t) > 0:
+								var idx = idle_anim.add_track(jump_anim.track_get_type(t))
+								idle_anim.track_set_path(idx, jump_anim.track_get_path(t))
+								idle_anim.track_insert_key(idx, 0.0, jump_anim.track_get_key_value(t, 0))
+						var lib = anim_player.get_animation_library("")
+						if lib:
+							lib.add_animation("idle", idle_anim)
+
+		var color = gs.get_player_color(pid) if gs else Color.WHITE
+
+		# Glowing team pedestal ring
+		var ring = MeshInstance3D.new()
+		ring.name = "Ring"
+		var torus = TorusMesh.new()
+		torus.inner_radius = 0.35
+		torus.outer_radius = 0.45
+		ring.mesh = torus
+		ring.position = Vector3(0, 0.04, 0)
+		var ring_mat = StandardMaterial3D.new()
+		ring_mat.albedo_color = color
+		ring_mat.emission_enabled = true
+		ring_mat.emission = color * 1.5
+		ring.material_override = ring_mat
+		holder.add_child(ring)
+
+		# Overhead badge
+		var badge = Label3D.new()
+		badge.name = "Badge"
+		badge.text = "P%d %s" % [pid, gs.get_player_name(pid) if gs else ""]
+		badge.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+		badge.pixel_size = 0.009
+		badge.position = Vector3(0, 1.85, 0)
+		badge.font_size = 32
+		badge.modulate = color
+		badge.outline_size = 8
+		badge.outline_modulate = Color.BLACK
+		holder.add_child(badge)
+
+		player_characters[pid] = {
+			"holder": holder,
+			"anim": anim_player
+		}
+		play_player_anim(pid, "idle", true)
+
+
+func play_player_anim(pid: int, anim_name: String, loop: bool = false) -> void:
+	if not player_characters.has(pid):
+		return
+	var anim_player = player_characters[pid]["anim"] as AnimationPlayer
+	if not anim_player or not anim_player.has_animation(anim_name):
+		return
+	var anim = anim_player.get_animation(anim_name)
+	if anim:
+		anim.loop_mode = Animation.LOOP_LINEAR if loop else Animation.LOOP_NONE
+	if anim_player.current_animation != anim_name or not anim_player.is_playing():
+		anim_player.play(anim_name, 0.15)
+
+
+func stop_player_anim(pid: int) -> void:
+	if not player_characters.has(pid):
+		return
+	var anim_player = player_characters[pid]["anim"] as AnimationPlayer
+	if anim_player and anim_player.is_playing():
+		anim_player.stop()
 
 
 func rotate_camera(amount: float) -> void:

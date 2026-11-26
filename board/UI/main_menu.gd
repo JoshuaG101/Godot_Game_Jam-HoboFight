@@ -5,7 +5,7 @@ extends Control
 @onready var rounds_btn: Button = $VBoxContainer/RoundsButton
 @onready var quit_btn: Button = $VBoxContainer/QuitButton
 @onready var rules_modal: Control = $RulesModal
-@onready var close_rules_btn: Button = $RulesModal/Panel/CloseButton
+@onready var close_rules_btn: Button = $RulesModal/Panel/VBox/CloseButton
 
 var round_options: Array[int] = [3, 5, 10]
 var current_round_idx: int = 1 # default 5 rounds

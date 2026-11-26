@@ -17,6 +17,10 @@ var input_dir: Vector2 = Vector2.ZERO
 var attack_pressed: bool = false
 var deflect_pressed: bool = false
 
+var character_model: Node3D = null
+var anim_player: AnimationPlayer = null
+var current_action_lock: float = 0.0
+
 # Sword and Deflect have their own scripts (sword.gd, deflect.gd)
 @onready var sword: Sword = $Sword
 @onready var deflect: Deflect = $Deflect
@@ -24,18 +28,125 @@ var deflect_pressed: bool = false
 
 func _ready() -> void:
 	add_to_group("players")   # lets the match manager find every player
+	_setup_model()
+	_apply_major_powerup()
+
+
+func _setup_model() -> void:
+	var model_scene = GameState.get_player_model_scene(player_id) if GameState else null
+	if model_scene:
+		character_model = model_scene.instantiate()
+		character_model.name = "CharacterModel"
+		character_model.rotation.y = PI # Face forward (-Z)
+		character_model.scale = Vector3(1.0, 1.0, 1.0)
+		add_child(character_model)
+		anim_player = character_model.find_child("AnimationPlayer", true, false) as AnimationPlayer
+		if anim_player and GameState:
+			GameState.setup_character_idle_animation(anim_player)
+			play_anim("idle", true)
+		var mesh_inst = get_node_or_null("MeshInstance3D")
+		if mesh_inst:
+			mesh_inst.visible = false
+
+	# Add glowing ring under player's feet
+	var ring = MeshInstance3D.new()
+	ring.name = "PlayerRing"
+	var torus = TorusMesh.new()
+	torus.inner_radius = 0.4
+	torus.outer_radius = 0.52
+	torus.rings = 24
+	ring.mesh = torus
+	ring.position = Vector3(0, 0.05, 0)
+	var ring_mat = StandardMaterial3D.new()
+	var p_color = GameState.get_player_color(player_id) if GameState else (Color.CYAN if player_id == 1 else Color.ORANGE)
+	ring_mat.albedo_color = p_color
+	ring_mat.emission_enabled = true
+	ring_mat.emission = p_color * 1.5
+	ring.material_override = ring_mat
+	add_child(ring)
+
+	# Overhead badge
+	var overhead = Label3D.new()
+	overhead.name = "OverheadBadge"
+	overhead.text = "P%d %s" % [player_id, GameState.get_player_name(player_id) if GameState else ""]
+	overhead.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	overhead.pixel_size = 0.010
+	overhead.position = Vector3(0, 2.1, 0)
+	overhead.font_size = 32
+	overhead.modulate = p_color
+	overhead.outline_size = 8
+	overhead.outline_modulate = Color.BLACK
+	add_child(overhead)
+
+
+func play_anim(anim_name: String, loop: bool = false, blend_time: float = 0.15) -> void:
+	if not anim_player or not anim_player.has_animation(anim_name):
+		return
+	var anim = anim_player.get_animation(anim_name)
+	if anim:
+		anim.loop_mode = Animation.LOOP_LINEAR if loop else Animation.LOOP_NONE
+	if anim_player.current_animation != anim_name or not anim_player.is_playing():
+		anim_player.play(anim_name, blend_time)
+
+
+func _apply_major_powerup() -> void:
+	if not GameState:
+		return
+	var idx = player_id - 1
+	if idx < 0 or idx >= GameState.player_data.size():
+		return
+	var p_data = GameState.player_data[idx]
+	var mesh_inst: MeshInstance3D = get_node_or_null("MeshInstance3D")
+	if mesh_inst:
+		var mat = StandardMaterial3D.new()
+		mat.albedo_color = p_data.get("color", Color.WHITE)
+		mat.metallic = 0.2
+		mat.roughness = 0.4
+		mesh_inst.material_override = mat
+
+	var m_id: String = p_data.get("major_id", "")
+	match m_id.to_lower():
+		"cs":
+			speed = 7.2
+			turn_speed = 16.0
+		"business":
+			set_meta("knockback_resist", 0.6)
+		"arts":
+			speed = 6.8
+			turn_speed = 18.0
+		"engineering":
+			set_meta("knockback_mult", 1.45)
+		"premed":
+			if deflect:
+				deflect.deflect_duration = 0.45
+		"philosophy":
+			set_meta("knockback_resist", 0.5)
 
 
 func _physics_process(delta: float) -> void:
 	gather_input()   # LOCAL PLAYER ONLY (online: remote players get input from the network)
 	simulate(delta)
 
+	if current_action_lock > 0.0:
+		current_action_lock -= delta
+
 	# Attacking and deflecting can't overlap.
 	# HOST DECIDES (online: the host validates attack and deflect requests)
 	if deflect_pressed and not sword.is_swinging():
 		deflect.try_deflect()
+		play_anim("block", false, 0.08)
+		current_action_lock = 0.35
 	if attack_pressed and not deflect.is_active():
 		sword.try_attack()
+		play_anim("slash", false, 0.08)
+		current_action_lock = 0.35
+
+	# Update locomotion animation when not performing action
+	if current_action_lock <= 0.0 and not is_defeated:
+		if is_on_floor() and input_dir.length_squared() > 0.01:
+			play_anim("run", true, 0.12)
+		else:
+			play_anim("idle", true, 0.15)
 
 	# Falling off the arena means defeat
 	if global_position.y < fall_limit_y:
@@ -92,7 +203,8 @@ func receive_hit(direction: Vector3, strength: float, attacker: Node3D) -> void:
 # HOST DECIDES (online: only the host should call this)
 func apply_knockback(direction: Vector3, strength: float) -> void:
 	direction.y = 0.0   # keep the push along the ground, never upward
-	knockback = direction.normalized() * strength
+	var resist: float = get_meta("knockback_resist") if has_meta("knockback_resist") else 1.0
+	knockback = direction.normalized() * (strength * resist)
 
 
 # Takes this player out of the match and announces it. Anything can call this:

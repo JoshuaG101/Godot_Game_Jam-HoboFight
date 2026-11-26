@@ -52,12 +52,30 @@ const POWER_UP_INFO: Dictionary = {
 # These entries are EXAMPLES. Replace them with your real majors.
 # Keys are lowercase; lookups ignore capitalization and extra spaces.
 const MAJOR_TO_POWER_UP: Dictionary = {
+	"cs": PROBABILITY_COMMAND,
+	"computer science": PROBABILITY_COMMAND,
 	"statistics": PROBABILITY_COMMAND,
+
 	"business": RABBITS_FOOT,
-	"music": AMPED_UP,
-	"theology": GODS_FAVORITE_CHILD,
+	"business & finance": RABBITS_FOOT,
+	"history": RABBITS_FOOT,
+
+	"arts": ART_BLOCK,
+	"fine arts": ART_BLOCK,
 	"art": ART_BLOCK,
-	"architecture": ARCHITECTURAL_PROWESS
+
+	"engineering": ARCHITECTURAL_PROWESS,
+	"architecture": ARCHITECTURAL_PROWESS,
+	"anthro": ARCHITECTURAL_PROWESS,
+	"anthropology": ARCHITECTURAL_PROWESS,
+
+	"premed": AMPED_UP,
+	"pre-med": AMPED_UP,
+	"music": AMPED_UP,
+
+	"philosophy": GODS_FAVORITE_CHILD,
+	"theology": GODS_FAVORITE_CHILD,
+	"religion": GODS_FAVORITE_CHILD
 }
 
 # Temporary player data until the board game selection system is ready.

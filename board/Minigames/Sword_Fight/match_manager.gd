@@ -15,6 +15,10 @@ var time_elapsed: float = 0.0
 
 
 func _ready() -> void:
+	if SoundManager:
+		var sword_music = load("res://music/sword fight.wav")
+		if sword_music:
+			SoundManager.play_music(sword_music)
 	# Wait one frame so every player has finished its own _ready and joined the group
 	await get_tree().process_frame
 	for player in get_tree().get_nodes_in_group("players"):
@@ -81,6 +85,8 @@ func end_match(winner_id: int) -> void:
 
 	# Freeze every player so nothing keeps happening after the match
 	for player in get_tree().get_nodes_in_group("players"):
-		player.process_mode = Node.PROCESS_MODE_DISABLED
+		player.set_physics_process(false)
+		if player.player_id == winner_id and player.has_method("play_anim"):
+			player.play_anim("victory", true, 0.2)
 
 	match_ended.emit(winner_id)

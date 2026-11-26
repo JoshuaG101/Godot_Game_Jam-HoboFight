@@ -59,6 +59,10 @@ func setup(game) -> void:
 # ---------------------------------------------------------------------------
 
 func get_player_major(player: int) -> String:
+	if GameState:
+		for p in GameState.player_data:
+			if p["id"] == player:
+				return p.get("major_id", "")
 	return test_player_majors.get(player, "")
 
 

@@ -10,7 +10,8 @@ var banner_label: Label
 
 # LOCAL ONLY: purely cosmetic (online: every player's machine runs its own copy)
 func _ready() -> void:
-	assert(match_manager != null, "Assign the Match Manager in the Inspector")
+	if not match_manager:
+		match_manager = get_node_or_null("../MatchManager")
 	# Red tint over the whole screen, invisible until sudden death
 	tint = ColorRect.new()
 	tint.color = Color(1.0, 0.0, 0.0, 0.0)
@@ -41,6 +42,8 @@ func _ready() -> void:
 
 # _process runs every rendered frame, which suits cosmetic updates like this one
 func _process(_delta: float) -> void:
+	if not match_manager:
+		return
 	if match_manager.sudden_death:
 		timer_label.text = "SUDDEN DEATH"
 	else:
