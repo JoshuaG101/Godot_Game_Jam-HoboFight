@@ -7,7 +7,7 @@ signal sudden_death_started
 # Relays every landed hit, for effects like camera shake.
 signal hit_landed(strength: float)
 
-@export var sudden_death_time: float = 10   # seconds until sudden death begins
+@export var sudden_death_time: float = 90   # seconds until sudden death begins
 
 var match_over: bool = false
 var sudden_death: bool = false
@@ -15,10 +15,11 @@ var time_elapsed: float = 0.0
 
 
 func _ready() -> void:
-	if SoundManager:
+	var sm = get_node_or_null("/root/SoundManager") if is_inside_tree() else null
+	if sm:
 		var sword_music = load("res://music/sword fight.wav")
 		if sword_music:
-			SoundManager.play_music(sword_music)
+			sm.play_music(sword_music)
 	# Wait one frame so every player has finished its own _ready and joined the group
 	await get_tree().process_frame
 	for player in get_tree().get_nodes_in_group("players"):
@@ -88,5 +89,9 @@ func end_match(winner_id: int) -> void:
 		player.set_physics_process(false)
 		if player.player_id == winner_id and player.has_method("play_anim"):
 			player.play_anim("victory", true, 0.2)
+
+	# Stop arena hazards too (the train, and anything added later)
+	for hazard in get_tree().get_nodes_in_group("hazards"):
+		hazard.process_mode = Node.PROCESS_MODE_DISABLED
 
 	match_ended.emit(winner_id)
