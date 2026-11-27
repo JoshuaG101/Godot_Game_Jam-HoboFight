@@ -2,6 +2,7 @@ extends Node3D
 
 const Arena = preload("res://Minigames/Sword_Fight/arenas/arena.gd")
 const PlayerScene = preload("res://Minigames/Sword_Fight/player.tscn")
+const TutorialScene = preload("res://UI/minigame_tutorial.gd")
 
 # Every arena that can be played. Add more scenes here later, and one is picked at random.
 @export var arena_scenes: Array[PackedScene] = []
@@ -14,6 +15,55 @@ var current_arena: Arena
 func _ready() -> void:
 	_setup_players()
 	load_arena()
+	_show_tutorial()
+
+
+func _show_tutorial() -> void:
+	# Freeze players and match timer during tutorial
+	var match_mgr = get_node_or_null("MatchManager")
+	if match_mgr:
+		match_mgr.set_physics_process(false)
+
+	for p in get_tree().get_nodes_in_group("players"):
+		p.set_physics_process(false)
+
+	var tut = TutorialScene.new()
+	var controls_data: Array[Dictionary] = [
+		{
+			"player": "Player 1",
+			"color": Color(0.18, 0.75, 0.98),
+			"controls": [["Move", "WASD"], ["Slash", "F / Space"], ["Deflect", "G Key"], ["Major Ability", "H Key"]]
+		},
+		{
+			"player": "Player 2",
+			"color": Color(0.22, 0.86, 0.42),
+			"controls": [["Move", "Arrow Keys"], ["Slash", ", / Enter"], ["Deflect", ". Key"], ["Major Ability", "/ Key"]]
+		},
+		{
+			"player": "Player 3",
+			"color": Color(1.0, 0.62, 0.16),
+			"controls": [["Move", "I J K L"], ["Slash", "U Key"], ["Deflect", "O Key"], ["Major Ability", "P Key"]]
+		},
+		{
+			"player": "Player 4",
+			"color": Color(0.95, 0.35, 0.75),
+			"controls": [["Move", "Numpad 8456"], ["Slash", "Pad 1 / Z"], ["Deflect", "Pad 2 / X"], ["Major Ability", "Pad 3 / C"]]
+		}
+	]
+	var tips: Array[String] = [
+		"Controllers: Left Stick to move, X / R1 to Slash, B to Deflect, Y for Major Ability.",
+		"Time your Deflect to bounce away enemy strikes and avoid getting knocked off.",
+		"Knock opponents off the arena platform! Last duelist standing wins."
+	]
+	tut.setup("Sword Fight", "Slash, deflect, and knock all opponents off the arena!", controls_data, tips, 7)
+	tut.tutorial_finished.connect(func():
+		for p in get_tree().get_nodes_in_group("players"):
+			p.set_physics_process(true)
+		if match_mgr:
+			match_mgr.set_physics_process(true)
+	)
+	add_child(tut)
+	tut.start_tutorial()
 
 
 func _setup_players() -> void:

@@ -30,6 +30,9 @@ var camera_start_offset: Vector3
 const JengaPowerUpsScript = preload("jenga_power_ups.gd")
 var power_ups  # An instance of jenga_power_ups.gd
 
+const TutorialScene = preload("res://UI/minigame_tutorial.gd")
+var tutorial_active: bool = true
+
 # Tower settling / collapse detection.
 const SETTLE_CHECK_INTERVAL: float = 0.1
 const MIN_SETTLE_TIME: float = 1.0
@@ -68,6 +71,34 @@ func _ready() -> void:
 	$BackgroundMusic.play()
 
 	power_ups.assign_power_ups_from_majors()
+	_show_tutorial()
+
+
+func _show_tutorial() -> void:
+	var tut = TutorialScene.new()
+	var controls_data: Array[Dictionary] = [
+		{
+			"player": "Turn-Based Controls (All Players)",
+			"color": Color(0.3, 0.8, 1.0),
+			"controls": [
+				["Select Block", "Left Click"],
+				["Rotate Camera", "Right Click + Drag"],
+				["Place on Top", "E Key"],
+				["Major Power-Up", "Q Key"]
+			]
+		}
+	]
+	var tips: Array[String] = [
+		"Carefully pull blocks and stack them on top without toppling the tower.",
+		"Each Major gives unique power-ups (e.g. CS rewinds, Arts adds blocks, Engineering locks rows).",
+		"Last players standing who don't knock over the tower win!"
+	]
+	tut.setup("Jenga Tower", "Extract blocks and stack them on top without collapsing the tower!", controls_data, tips, 7)
+	tut.tutorial_finished.connect(func():
+		tutorial_active = false
+	)
+	add_child(tut)
+	tut.start_tutorial()
 
 
 func build_tower() -> void:
@@ -239,7 +270,7 @@ func update_block_difficulties() -> void:
 
 
 func _input(event: InputEvent) -> void:
-	if game_over or is_checking_collapse:
+	if game_over or is_checking_collapse or tutorial_active:
 		return
 
 	if event is InputEventMouseButton:

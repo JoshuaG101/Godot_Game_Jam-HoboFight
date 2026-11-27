@@ -3,6 +3,7 @@ extends Node
 # last player standing wins. fall off the summit and you're out.
 
 const DEATH_Y = -5.0
+const TutorialScene = preload("res://UI/minigame_tutorial.gd")
 
 var win_label: Label
 var winner = null
@@ -28,9 +29,56 @@ func _ready() -> void:
 	var timer_ui = get_parent().get_node_or_null("TimerUi")
 	if timer_ui and timer_ui.has_signal("time_up"):
 		timer_ui.time_up.connect(_on_time_up)
+		timer_ui.running = false # Pause timer until tutorial ends
 
-	await get_tree().create_timer(1.0).timeout
-	started = true
+	# Freeze player controls during tutorial
+	for p in get_tree().get_nodes_in_group("players"):
+		p.set_physics_process(false)
+		p.set_process(false)
+
+	_show_tutorial(timer_ui)
+
+
+func _show_tutorial(timer_ui: CanvasLayer) -> void:
+	var tut = TutorialScene.new()
+	var controls_data: Array[Dictionary] = [
+		{
+			"player": "Player 1",
+			"color": Color(0.18, 0.75, 0.98),
+			"controls": [["Move", "WASD"], ["Roll Snowball", "Keep Moving"], ["Launch Ball", "Space / LMB"]]
+		},
+		{
+			"player": "Player 2",
+			"color": Color(0.22, 0.86, 0.42),
+			"controls": [["Move", "Arrow Keys"], ["Roll Snowball", "Keep Moving"], ["Launch Ball", "Enter"]]
+		},
+		{
+			"player": "Player 3",
+			"color": Color(1.0, 0.62, 0.16),
+			"controls": [["Move", "I J K L"], ["Roll Snowball", "Keep Moving"], ["Launch Ball", "O Key"]]
+		},
+		{
+			"player": "Player 4",
+			"color": Color(0.95, 0.35, 0.75),
+			"controls": [["Move", "T F G H"], ["Roll Snowball", "Keep Moving"], ["Launch Ball", "Y Key"]]
+		}
+	]
+	var tips: Array[String] = [
+		"Roll around on the icy mountain to grow your snowball bigger and heavier.",
+		"Bumping into players or launching your snowball knocks them backward.",
+		"Knock your rivals off the summit! Last player standing wins."
+	]
+	tut.setup("Snowball Summit", "Grow your snowball and knock opponents off the summit!", controls_data, tips, 7)
+	tut.tutorial_finished.connect(func():
+		for p in get_tree().get_nodes_in_group("players"):
+			p.set_physics_process(true)
+			p.set_process(true)
+		if timer_ui and "running" in timer_ui:
+			timer_ui.running = true
+		started = true
+	)
+	add_child(tut)
+	tut.start_tutorial()
 
 func _process(_delta: float) -> void:
 	if not started or match_over:
