@@ -10,7 +10,17 @@ extends Node3D
 # Looks for a Marker3D named Spawn1, Spawn2, ... under SpawnPoints.
 func get_spawn_position(player_id: int) -> Vector3:
 	var spawn: Node3D = get_node_or_null("SpawnPoints/Spawn%d" % player_id)
-	if spawn == null:
-		push_warning("Arena has no spawn point named Spawn%d" % player_id)
-		return global_position
-	return spawn.global_position
+	if spawn != null:
+		return spawn.global_position
+
+	# Fallback if no specific Spawn marker exists for this player_id
+	var spawn_points := get_node_or_null("SpawnPoints")
+	if spawn_points and spawn_points.get_child_count() > 0:
+		var child_idx = (player_id - 1) % spawn_points.get_child_count()
+		var fallback_node = spawn_points.get_child(child_idx) as Node3D
+		if fallback_node:
+			return fallback_node.global_position
+
+	# Default coordinate distribution around center if SpawnPoints missing
+	var angle = (float(player_id - 1) / 4.0) * TAU
+	return global_position + Vector3(cos(angle) * 8.0, 1.0, sin(angle) * 6.0)

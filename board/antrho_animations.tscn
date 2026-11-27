@@ -2,4 +2,4 @@
 
 [ext_resource type="PackedScene" uid="uid://v3ipa56kv1yx" path="res://Assets/Models/Animations/AntrhoAnimations.glb" id="1_xbmrr"]
 
-[node name="AntrhoAnimations" unique_id=1147005215 instance=ExtResource("1_xbmrr")]
+[node name="AntrhoAnimations" unique_id=661811898 instance=ExtResource("1_xbmrr")]

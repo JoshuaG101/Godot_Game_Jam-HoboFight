@@ -22,7 +22,6 @@ albedo_color = Color(0.08, 0.28, 0.18, 1)
 roughness = 0.85
 rim_enabled = true
 rim = 0.5
-rim_tint = 0.5
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_mat"]
 top_radius = 2.4
@@ -75,20 +74,20 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 0)
 transform = Transform3D(0.80644447, -0.31771058, 0.4987057, 0, 0.8433915, 0.53729963, -0.59130985, -0.43330234, 0.68014836, 0, 2, 8)
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=1238003279]
-transform = Transform3D(0.8660254, 0.35355338, -0.35355338, 0, 0.70710677, 0.70710677, 0.5, -0.6123724, 0.6123724, 0, 0, 0)
+transform = Transform3D(0.8660254, 0.3535534, -0.3535534, 0, 0.7071068, 0.7071068, 0.5, -0.61237246, 0.61237246, 2.296688, 3.574956, 0)
 light_color = Color(0.98, 0.95, 0.9, 1)
 light_energy = 0.8
 shadow_enabled = true
 shadow_blur = 1.2
 
 [node name="TableLamp" type="OmniLight3D" parent="." unique_id=1293847111]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 6.0, 0)
-light_color = Color(1.0, 0.93, 0.82, 1)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 6, 0)
+light_color = Color(1, 0.93, 0.82, 1)
 light_energy = 1.8
-omni_range = 14.0
-omni_attenuation = 1.1
 shadow_enabled = true
 shadow_blur = 1.5
+omni_range = 14.0
+omni_attenuation = 1.1
 
 [node name="BackgroundMusic" type="AudioStreamPlayer" parent="." unique_id=1536059779]
 stream = ExtResource("2_2nq8u")

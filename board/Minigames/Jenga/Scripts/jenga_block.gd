@@ -17,20 +17,32 @@ var safest_highlighted: bool = false
 func _ready() -> void:
 	add_to_group("jenga_blocks")
 
-	# Yellow: normal block selection.
+	# Bright Gold/Cyan/Yellow glow: normal block selection.
 	selection_material = StandardMaterial3D.new()
 	selection_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	selection_material.albedo_color = Color(1.0, 0.8, 0.1)
+	selection_material.albedo_color = Color(1.0, 0.9, 0.2, 0.85)
+	selection_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	selection_material.emission_enabled = true
+	selection_material.emission = Color(1.0, 0.85, 0.1) * 2.5
+	selection_material.emission_energy_multiplier = 2.0
+	selection_material.rim_enabled = true
+	selection_material.rim = 1.0
 
 	# Red: high removal difficulty.
 	probability_material = StandardMaterial3D.new()
 	probability_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	probability_material.albedo_color = Color(1.0, 0.1, 0.1)
+	probability_material.albedo_color = Color(1.0, 0.15, 0.15, 0.85)
+	probability_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	probability_material.emission_enabled = true
+	probability_material.emission = Color(1.0, 0.1, 0.1) * 2.0
 
 	# Green: safest available block.
 	safest_material = StandardMaterial3D.new()
 	safest_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	safest_material.albedo_color = Color(0.1, 1.0, 0.2)
+	safest_material.albedo_color = Color(0.15, 1.0, 0.3, 0.85)
+	safest_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	safest_material.emission_enabled = true
+	safest_material.emission = Color(0.1, 1.0, 0.2) * 2.0
 
 
 func set_selected(value: bool) -> void:

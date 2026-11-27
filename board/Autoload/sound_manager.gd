@@ -65,7 +65,7 @@ func play_dice_rolling(volume_db: float = 0.0) -> void:
 		_init_players()
 	if sfx_dice_roll_faster and sfx_dice_roll_faster is AudioStreamWAV:
 		dice_roll_player.stream = sfx_dice_roll_faster
-		dice_roll_player.volume_db = volume_db
+		dice_roll_player.volume_db = volume_db -200
 		dice_roll_player.play()
 
 func stop_dice_rolling() -> void:

@@ -139,7 +139,7 @@ func set_model(scene: PackedScene) -> void:
 	if _model:
 		_model.queue_free()
 	_model = scene.instantiate() as Node3D
-	_model.rotation.y = PI
+	_model.rotation.y = 0.0
 	_model.scale = Vector3(0.9, 0.9, 0.9)
 	_model_slot.add_child(_model)
 	_anim = _model.find_child("AnimationPlayer", true, false) as AnimationPlayer

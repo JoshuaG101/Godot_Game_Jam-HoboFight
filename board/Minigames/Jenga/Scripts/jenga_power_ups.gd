@@ -59,8 +59,9 @@ func setup(game) -> void:
 # ---------------------------------------------------------------------------
 
 func get_player_major(player: int) -> String:
-	if GameState:
-		for p in GameState.player_data:
+	var gs = tower._get_game_state() if (tower and tower.has_method("_get_game_state")) else null
+	if gs:
+		for p in gs.player_data:
 			if p["id"] == player:
 				return p.get("major_id", "")
 	return test_player_majors.get(player, "")

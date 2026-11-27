@@ -2,4 +2,4 @@
 
 [ext_resource type="PackedScene" uid="uid://c1n2ofmmr77fv" path="res://Assets/Models/Animations/ArtAnimations.glb" id="1_2ui5g"]
 
-[node name="ArtAnimations" unique_id=576294037 instance=ExtResource("1_2ui5g")]
+[node name="ArtAnimations" unique_id=228158698 instance=ExtResource("1_2ui5g")]

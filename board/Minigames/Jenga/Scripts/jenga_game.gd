@@ -567,9 +567,24 @@ func _get_game_state() -> Node:
 		return null
 	return get_node_or_null("/root/GameState")
 
+func despawn_player(pid: int) -> void:
+	if not player_characters.has(pid):
+		return
+	var holder = player_characters[pid]["holder"] as Node3D
+	if is_instance_valid(holder):
+		var tween = create_tween()
+		tween.set_parallel(true)
+		tween.tween_property(holder, "scale", Vector3.ZERO, 0.6).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_IN)
+		tween.tween_property(holder, "position:y", holder.position.y - 0.5, 0.6)
+		tween.chain().tween_callback(func():
+			if is_instance_valid(holder):
+				holder.visible = false
+		)
+
 func eliminate_current_player() -> void:
 	var eliminated_player: int = current_player
 	play_player_anim(eliminated_player, "block", false)
+	despawn_player(eliminated_player)
 
 	active_players.erase(eliminated_player)
 

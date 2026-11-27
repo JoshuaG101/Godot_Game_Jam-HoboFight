@@ -102,12 +102,13 @@ var player_data: Array[Dictionary] = [
 
 var current_round: int = 1
 var max_rounds: int = 5
+var current_minigame_index: int = 0
 
 var minigame_scenes: Array[String] = [
 	"res://Minigames/Jenga/Scenes/JengaGame.tscn",
-	"res://Minigames/SnowballSummit/Scenes/SnowballSummit.tscn",
 	"res://Minigames/Sword_Fight/main.tscn",
-	"res://Minigames/PlatformRace/race/platform_race.tscn"
+	"res://Minigames/PlatformRace/race/platform_race.tscn",
+	"res://Minigames/SnowballSummit/Scenes/SnowballSummit.tscn"
 ]
 
 func _ready() -> void:
@@ -212,6 +213,9 @@ func randomize_all_majors() -> void:
 		set_player_major(player_data[i]["id"], m["id"])
 
 func get_random_minigame() -> String:
+	return get_next_minigame()
+
+func get_next_minigame() -> String:
 	if minigame_scenes.is_empty():
 		return ""
 	var valid_scenes = []
@@ -220,7 +224,9 @@ func get_random_minigame() -> String:
 			valid_scenes.append(scene_path)
 	if valid_scenes.is_empty():
 		return ""
-	return valid_scenes.pick_random()
+	var picked_scene = valid_scenes[current_minigame_index % valid_scenes.size()]
+	current_minigame_index += 1
+	return picked_scene
 
 func award_coins(player_id: int, amount: int) -> void:
 	for p in player_data:
@@ -285,6 +291,7 @@ func get_ranked_players() -> Array[Dictionary]:
 
 func reset_game() -> void:
 	current_round = 1
+	current_minigame_index = 0
 	for p in player_data:
 		p["coins"] = 10
 		p["stars"] = 0

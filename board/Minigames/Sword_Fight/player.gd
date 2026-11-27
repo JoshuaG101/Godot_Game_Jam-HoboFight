@@ -58,6 +58,7 @@ func _get_game_state() -> Node:
 
 func _ready() -> void:
 	add_to_group("players")   # lets the match manager find every player
+	_setup_inputs()
 	var gs = _get_game_state()
 	if gs:
 		var idx = player_id - 1
@@ -67,6 +68,88 @@ func _ready() -> void:
 	set_player_class(player_class)
 	_setup_model()
 	_apply_major_powerup()
+
+
+func _setup_inputs() -> void:
+	var p: String = "p%d_" % player_id
+	var actions: Array[String] = ["left", "right", "up", "down", "attack", "deflect", "ability"]
+	for act: String in actions:
+		var action_name: String = p + act
+		if InputMap.has_action(action_name):
+			InputMap.erase_action(action_name)
+		InputMap.add_action(action_name, 0.2)
+
+	# Gamepad axis / buttons for all players
+	_add_joy_axis(p + "left", JOY_AXIS_LEFT_X, -1.0)
+	_add_joy_axis(p + "right", JOY_AXIS_LEFT_X, 1.0)
+	_add_joy_axis(p + "up", JOY_AXIS_LEFT_Y, -1.0)
+	_add_joy_axis(p + "down", JOY_AXIS_LEFT_Y, 1.0)
+	_add_joy_button(p + "attack", JOY_BUTTON_X)
+	_add_joy_button(p + "deflect", JOY_BUTTON_B)
+	_add_joy_button(p + "ability", JOY_BUTTON_Y)
+	_add_joy_button(p + "attack", JOY_BUTTON_RIGHT_SHOULDER)
+
+	# Keyboard bindings per player
+	match player_id:
+		1:
+			_add_key(p + "left", KEY_A)
+			_add_key(p + "right", KEY_D)
+			_add_key(p + "up", KEY_W)
+			_add_key(p + "down", KEY_S)
+			_add_key(p + "attack", KEY_F)
+			_add_key(p + "deflect", KEY_G)
+			_add_key(p + "ability", KEY_H)
+			_add_key(p + "attack", KEY_SPACE)
+		2:
+			_add_key(p + "left", KEY_LEFT)
+			_add_key(p + "right", KEY_RIGHT)
+			_add_key(p + "up", KEY_UP)
+			_add_key(p + "down", KEY_DOWN)
+			_add_key(p + "attack", KEY_COMMA)
+			_add_key(p + "deflect", KEY_PERIOD)
+			_add_key(p + "ability", KEY_SLASH)
+			_add_key(p + "attack", KEY_ENTER)
+		3:
+			_add_key(p + "left", KEY_J)
+			_add_key(p + "right", KEY_L)
+			_add_key(p + "up", KEY_I)
+			_add_key(p + "down", KEY_K)
+			_add_key(p + "attack", KEY_U)
+			_add_key(p + "deflect", KEY_O)
+			_add_key(p + "ability", KEY_P)
+		4:
+			_add_key(p + "left", KEY_KP_4)
+			_add_key(p + "right", KEY_KP_6)
+			_add_key(p + "up", KEY_KP_8)
+			_add_key(p + "down", KEY_KP_5)
+			_add_key(p + "attack", KEY_KP_1)
+			_add_key(p + "deflect", KEY_KP_2)
+			_add_key(p + "ability", KEY_KP_3)
+			# Fallback standard keys if no numpad
+			_add_key(p + "attack", KEY_Z)
+			_add_key(p + "deflect", KEY_X)
+			_add_key(p + "ability", KEY_C)
+
+
+func _add_key(action: String, key: Key) -> void:
+	var e := InputEventKey.new()
+	e.physical_keycode = key
+	InputMap.action_add_event(action, e)
+
+
+func _add_joy_axis(action: String, axis: JoyAxis, value: float) -> void:
+	var e := InputEventJoypadMotion.new()
+	e.device = player_id - 1
+	e.axis = axis
+	e.axis_value = value
+	InputMap.action_add_event(action, e)
+
+
+func _add_joy_button(action: String, button: JoyButton) -> void:
+	var e := InputEventJoypadButton.new()
+	e.device = player_id - 1
+	e.button_index = button
+	InputMap.action_add_event(action, e)
 
 
 func _map_major_to_player_class(major_id: String) -> PlayerClass.Type:

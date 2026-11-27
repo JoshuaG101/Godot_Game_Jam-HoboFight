@@ -169,7 +169,13 @@ func _process(_delta: float) -> void:
 
 
 func _setup_input() -> void:
-	var p := "p%d_" % player_id
+	var p: String = "p%d_" % player_id
+	for action_suffix: String in ["left", "right", "up", "down", "fire"]:
+		var action_name: String = p + action_suffix
+		if InputMap.has_action(action_name):
+			InputMap.erase_action(action_name)
+		InputMap.add_action(action_name, 0.2)
+
 	_add_axis(p + "left", JOY_AXIS_LEFT_X, -1.0)
 	_add_axis(p + "right", JOY_AXIS_LEFT_X, 1.0)
 	_add_axis(p + "up", JOY_AXIS_LEFT_Y, -1.0)

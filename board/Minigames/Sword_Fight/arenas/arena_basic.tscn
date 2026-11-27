@@ -27,3 +27,9 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 1, 0)
 
 [node name="Spawn2" type="Marker3D" parent="SpawnPoints" unique_id=429308555]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 1, 0)
+
+[node name="Spawn3" type="Marker3D" parent="SpawnPoints" unique_id=429308556]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 7)
+
+[node name="Spawn4" type="Marker3D" parent="SpawnPoints" unique_id=429308557]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, -7)
