@@ -15,9 +15,10 @@ func _on_match_ended(winner_id: int) -> void:
 	if winner_id == -1:
 		label.text = "Draw!\nReturning to Board..."
 	else:
-		if GameState:
-			GameState.award_coins(winner_id, 7)
-		var p_name = GameState.get_player_name(winner_id) if GameState else ("Player %d" % winner_id)
+		var gs = get_node_or_null("/root/GameState") if is_inside_tree() else null
+		if gs:
+			gs.award_coins(winner_id, 7)
+		var p_name = gs.get_player_name(winner_id) if gs else ("Player %d" % winner_id)
 		label.text = "%s wins!\n(+7 Coins Awarded!)\nReturning to Board..." % p_name
 	label.visible = true
 	
